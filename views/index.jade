@@ -1,5 +1,41 @@
 extends layout
 
+block head
+    link(rel="stylesheet", href="/css/index.css")
+
+    script.
+        var timeToLoadStart = new Date();
+
 block content
-  h1= title
-  p Welcome to #{title}
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+        div.container
+            a.navbar-brand(href="#") Ranked Royale
+            div.collapse.navbar-collapse
+                ul.navbar-nav.navbar-nav.mr-auto
+                    li.nav-item.active
+                        a.nav-link(href="/") Home
+                    li.nav-item
+                        a.nav-link(href="/leaderboard") Leaderboard
+                    li.nav-item
+                        a.nav-link(href="/auth/login") Log In
+                    li.nav-item
+                        a.nav-link(href="/auth/signup") Sign Up
+
+    div.jumbotron
+        div.container
+            h1 Ranked Royale
+            p This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.
+    div.container
+        div.row
+            div.col-md-4
+                h2 Ranked
+                p Progress through the tiers, work your way up the leaderboards, and make a name for yourself in the competitive community.
+            div.col-md-4
+                h2 Scrims
+                p Join our 24/7 scrims to queue at the same time as other Ranked Royale players. We host scrims for NA-East, NA-West, and EU. Ready to play? Create a Ranked Royale account, connect your Epic account, and wait for a match to begin.
+            div.col-md-4
+                h2 Heading
+                p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+    footer.container
+        p Rob Cary
+

@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Bronze",
+    "minutes": [
+      0,
+      30
+    ]
+  },
+  {
+    "name": "Silver",
+    "minutes": [
+      6,
+      36
+    ]
+  },
+  {
+    "name": "Gold",
+    "minutes": [
+      12,
+      42
+    ]
+  },
+  {
+    "name": "Platinum",
+    "minutes": [
+      18,
+      48
+    ]
+  },
+  {
+    "name": "Diamond",
+    "minutes": [
+      24,
+      54
+    ]
+  }
+]

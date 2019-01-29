@@ -1,0 +1,18 @@
+extends ../layout
+
+block head
+    link(rel="stylesheet", href="/css/auth.css")
+
+block content
+    div.container
+        div.py-3.text-center
+            img.mb-2(src="https://getbootstrap.com/docs/4.2/assets/brand/bootstrap-solid.svg", width="72", height="72")
+            h2 Log in to Ranked Royale
+        form(action="/auth/login", method="post")
+            div.form-group
+                label Email
+                input.form-control(type="email", name="username")
+            div.form-group
+                label Password
+                input.form-control(type="password", name="password")
+            button.btn.btn-block.btn-primary(type="submit") Log In

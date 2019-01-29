@@ -1,0 +1,16 @@
+extends layout
+
+block content
+    div.container
+        nav.navbar.navbar-expand-lg.navbar-light.bg-light
+            a.navbar-brand(href="#") Ranked Royale
+            div.collapse.navbar-collapse
+                ul.navbar-nav.navbar-nav.mr-auto
+                    li.nav-item
+                        a.nav-link(href="/") Play
+                    li.nav-item
+                        a.nav-link(href="/leaderboard") Leaderboard
+                    li.nav-item.active
+                        a.nav-link(href="/profile") Profile
+
+        div Profile
