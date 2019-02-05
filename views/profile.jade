@@ -1,16 +1,78 @@
 extends layout
 
-block content
-    div.container
-        nav.navbar.navbar-expand-lg.navbar-light.bg-light
-            a.navbar-brand(href="#") Ranked Royale
-            div.collapse.navbar-collapse
-                ul.navbar-nav.navbar-nav.mr-auto
-                    li.nav-item
-                        a.nav-link(href="/") Play
-                    li.nav-item
-                        a.nav-link(href="/leaderboard") Leaderboard
-                    li.nav-item.active
-                        a.nav-link(href="/profile") Profile
+block head
+    link(rel="stylesheet", href="/css/profile.css")
 
-        div Profile
+block content
+    include ./includes/nav
+
+    div.container
+        div.row
+            div.col-md-4.order-md-2
+                div.card
+                    div.card-body
+                        dl.row
+                            dt.col-lg-3 Name
+                            dd.col-lg-9 #{user.firstName} #{user.lastName}
+                            dt.col-lg-3 Email
+                            dd.col-lg-9 #{user.email}
+                        if user.epicGamesAccount === null
+                            button.btn.btn-block.btn-primary(type="button", data-toggle="modal", data-target="#connect-modal") Connect Epic Games Account
+                        else
+                            p #{user.epicGamesAccount.displayName}
+            div.col-md-8.order-md-1
+                div.row
+                    div.col-md-12
+                        div.card.mb-3
+                            h5.card-header Solo
+                            div.card-body
+                                ul.list-unstyled
+                                    li Rank
+                                    li Matches
+                                    li Wins
+                                    li K/D
+                            div.card-footer
+                                small.text-muted Last updated 3 minutes ago.
+                div.row
+                    div.col
+                        div.card.mb-3
+                            h5.card-header Duos
+                            div.card-body
+                                p Coming Soon
+                div.row
+                    div.col
+                        div.card
+                            h5.card-header Squads
+                            div.card-body
+                                p Coming Soon
+                div.row
+                    div.col
+                        div.card
+                            div.card-body
+                                h5 Recent Matches
+                                p Coming Soon
+
+    div#connect-modal.modal.fade(tabindex="-1")
+        div.modal-dialog.modal-dialog-centered
+            div.modal-content
+                div.modal-header
+                    h5.modal-title Connect Epic Games Account
+                    button.close(type="button", data-dismiss="modal")
+                        span &times;
+                div.modal-body
+                    p Before you can start playing, we need to verify your Epic Games account. Send a friend request to #[b Ranked Royale] to get started. We'll send you a unique code to enter below.
+                    p If the friend request is not accepted or you do not receive a message within one minute, please remove the friend and try again.
+                    hr
+                    form.needs-validation(novalidate)
+                        div.form-group
+                            label Code
+                            input.form-control(type="text", name="code", pattern="[0-9]{6}", required)
+                            small.form-text.text-muted Enter the code sent to you by Ranked Royale.
+                div.modal-footer
+                    button.btn.btn-secondary(type="button", data-dismiss="modal") Close
+                    button.btn.btn-primary(type="button") Continue
+
+    include ./includes/footer
+
+    script(src="/js/profile.bundle.js")
+

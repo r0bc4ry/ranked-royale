@@ -1,8 +1,17 @@
 import '../css/auth.scss';
 
-// @formatter:off
-import jQuery from 'jquery/dist/jquery.slim'
-window.$ = window.jQuery = jQuery;
-import 'popper.js';
-import 'bootstrap';
-// @formatter:on
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+$(function () {
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = $('.needs-validation');
+    // Loop over them and prevent submission
+    forms.each(function (index, form) {
+        $(this).submit(function (event) {
+            if (form.checkValidity() === false) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            $(form).addClass('was-validated');
+        });
+    });
+});

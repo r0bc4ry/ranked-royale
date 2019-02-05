@@ -5,7 +5,9 @@ const path = require('path');
 module.exports = {
     entry: {
         auth: './client/js/auth.js',
-        index: './client/js/index.js'
+        play: './client/js/play.js',
+        profile: './client/js/profile.js',
+        vendor: './client/js/vendor.js'
     },
     resolve: {
         extensions: ['.js']
@@ -22,16 +24,26 @@ module.exports = {
             }
         }, {
             test: /\.scss$/,
+            exclude: /(node_modules|bower_components)/,
             use: [
                 // Fallback to style-loader in development
                 MiniCssExtractPlugin.loader,
                 'css-loader',
                 'sass-loader'
             ]
+        }, {
+            test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: '../fonts'
+                }
+            }]
         }]
     },
     plugins: [
-        new CleanWebpackPlugin(['./public/js/*.*', './public/css/*.*']),
+        new CleanWebpackPlugin(['./public/css/*.*', './public/fonts/*.*', './public/js/*.*']),
         new MiniCssExtractPlugin({
             // Options similar to the same options in webpackOptions.output both options are optional
             filename: '../css/[name].css',

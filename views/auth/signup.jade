@@ -8,12 +8,27 @@ block content
         div.py-3.text-center
             img.mb-2(src="https://getbootstrap.com/docs/4.2/assets/brand/bootstrap-solid.svg", width="72", height="72")
             h2 Join Ranked Royale
-        form(action="/auth/signup", method="post")
+        if messages.length
+            each message in messages
+                div.alert.alert-danger= message
+        form.needs-validation(action="/auth/signup", method="post", novalidate)
+            div.row
+                div.col-md-6
+                    div.form-group
+                        label First Name
+                        input.form-control(type="text", name="firstName", required)
+                div.col-md-6
+                    div.form-group
+                        label Last Name
+                        input.form-control(type="text", name="lastName", required)
             div.form-group
                 label Email
-                input.form-control(type="email", name="username")
+                input.form-control(type="email", name="username", required)
+                small.form-text.text-muted We will not share your email.
             div.form-group
                 label Password
-                input.form-control(type="password", name="password")
+                input.form-control(type="password", name="password", required)
                 small.form-text.text-muted Passwords must be at least 8 characters long.
             button.btn.btn-block.btn-primary(type="submit") Sign Up
+
+    script(src="/js/auth.bundle.js")

@@ -1,39 +1,17 @@
 extends layout
 
 block head
-    link(rel="stylesheet", href="/css/index.css")
-
-    script.
-        var timeToLoadStart = new Date();
+    link(rel="stylesheet", href="/css/play.css")
 
 block content
+    include ./includes/nav
+
     div.container
-        nav.navbar.navbar-expand-lg.navbar-light.bg-light
-            a.navbar-brand(href="#") Ranked Royale
-            div.collapse.navbar-collapse
-                ul.navbar-nav.navbar-nav.mr-auto
-                    li.nav-item.active
-                        a.nav-link(href="/") Play
-                    li.nav-item
-                        a.nav-link(href="/leaderboard") Leaderboard
-                    li.nav-item
-                        a.nav-link(href="/profile") Profile
+        div.my-5.text-center
+            h1.display-4#countdown
+            p.lead Until Next Match
 
-        form(action="/auth", method="post")
-            div.input-group
-                div.input-group-prepend
-                    button.btn.btn-outline-secondary.dropdown-toggle(type="button", data-toggle="dropdown") PC
-                    div.dropdown-menu
-                        a.dropdown-item(href="#") PC
-                        a.dropdown-item(href="#") PlayStation 4
-                        a.dropdown-item(href="#") Xbox One
-                input.form-control(type="text", placeholder="Epic Name")
-                div.input-group-append
-                    button.btn.btn-outline-secondary(type="submit") Submit
-
-        div Next match starts in #[span#time 30m 0s]
-
-        form
+        form(action="/api/matches/abc", method="put")
             label Please enter the last 3 digits of your server ID.
             div.input-group
                 input.form-control(type="text")
@@ -41,7 +19,6 @@ block content
                     button.btn.btn-outline-secondary(type="button") Submit
             small.form-text.text-muted When in-game, you can this in the top left corner of your screen.
 
-    script.
-        var currentTime = #{currentTime};
-        var eventTime = #{eventTime};
-    script(src="/js/index.bundle.js")
+    include ./includes/footer
+
+    script(src="/js/play.bundle.js")

@@ -1,0 +1,21 @@
+nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+    div.container
+        a.navbar-brand(href="#") Ranked Royale
+        div.collapse.navbar-collapse
+            ul.navbar-nav.mr-auto
+                li.nav-item(class=title.includes('Home') || title.includes('Play') ? 'active' : undefined)
+                    a.nav-link(href="/")= user ? 'Play' : 'Home'
+                li.nav-item(class=title.includes('Leaderboard') ? 'active' : undefined)
+                    a.nav-link(href="/leaderboard") Leaderboard
+                if user
+                    li.nav-item(class=title.includes('Profile') ? 'active' : undefined)
+                        a.nav-link(href="/profile") Profile
+            ul.navbar-nav.ml-auto
+                if user
+                    li.nav-item
+                        a.nav-link(href="/auth/logout") Log Out
+                else
+                    li.nav-item(class=title.includes('Log In') ? 'active' : undefined)
+                        a.nav-link(href="/auth/login") Log In
+                    li.nav-item(class=title.includes('Sign Up') ? 'active' : undefined)
+                        a.nav-link(href="/auth/signup") Sign Up

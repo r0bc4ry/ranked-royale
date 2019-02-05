@@ -1,14 +1,16 @@
-var createError = require('http-errors');
-var cookieParser = require('cookie-parser');
-var express = require('express');
-var flash = require('express-flash');
-var LocalStrategy = require('passport-local').Strategy;
-var logger = require('morgan');
-var path = require('path');
-var passport = require('passport');
-var session = require('express-session');
+const createError = require('http-errors');
+const cookieParser = require('cookie-parser');
+const express = require('express');
+const logger = require('morgan');
+const path = require('path');
+const session = require('express-session');
+
+const flash = require('connect-flash');
+const LocalStrategy = require('passport-local').Strategy;
+const passport = require('passport');
 
 var app = express();
+app.locals.env = process.env;
 
 // Model setup
 var mongoose = require('mongoose');
@@ -26,30 +28,35 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 
 var User = require('./models/user');
-passport.use(new LocalStrategy({
-        usernameField: 'email',
-        passwordField: 'password'
-    },
-    function (username, password, done) {
-        User.findOne({email: username}, function (err, user) {
-            if (err) {
-                return done(err);
-            }
-            if (!user) {
-                return done(null, false);
-            }
-            if (!user.verifyPassword(password)) {
-                return done(null, false);
-            }
-            return done(null, user);
-        });
-    }
-));
+passport.use(new LocalStrategy(function (username, password, done) {
+    User.findOne({email: username}, function (err, user) {
+        if (err) {
+            return done(err);
+        }
+        if (!user) {
+            return done(null, false);
+        }
+        if (!user.verifyPassword(password)) {
+            return done(null, false);
+        }
+        // TODO Update user's Epic Games account information
+        return done(null, user);
+    });
+}));
+
+passport.serializeUser(function (user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function (user, done) {
+    done(null, user);
+});
+
 
 // View engine setup
 var apiRouter = require('./routes/api');
@@ -76,11 +83,11 @@ app.use(function (req, res, next) {
 
 // Error handler
 app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
+    // Set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-    // render the error page
+    // Render the error page
     res.status(err.status || 500);
     res.render('error');
 });

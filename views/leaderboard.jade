@@ -1,16 +1,11 @@
 extends layout
 
 block content
-    div.container
-        nav.navbar.navbar-expand-lg.navbar-light.bg-light
-            a.navbar-brand(href="#") Ranked Royale
-            div.collapse.navbar-collapse
-                ul.navbar-nav.navbar-nav.mr-auto
-                    li.nav-item
-                        a.nav-link(href="/") Play
-                    li.nav-item.active
-                        a.nav-link(href="/leaderboard") Leaderboard
-                    li.nav-item
-                        a.nav-link(href="/profile") Profile
+    include ./includes/nav
 
-        div Leaderboard
+    div.container
+        div.jumbotron.mt-3
+            h1 Coming Soon
+            p This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.
+
+    include ./includes/footer

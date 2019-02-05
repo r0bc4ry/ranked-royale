@@ -8,11 +8,16 @@ block content
         div.py-3.text-center
             img.mb-2(src="https://getbootstrap.com/docs/4.2/assets/brand/bootstrap-solid.svg", width="72", height="72")
             h2 Log in to Ranked Royale
-        form(action="/auth/login", method="post")
+        if messages.length
+            each message in messages
+                div.alert.alert-danger= message
+        form.needs-validation(action="/auth/login", method="post", novalidate)
             div.form-group
                 label Email
-                input.form-control(type="email", name="username")
+                input.form-control(type="email", name="username", value="r0bc4ry@gmail.com", required)
             div.form-group
                 label Password
-                input.form-control(type="password", name="password")
+                input.form-control(type="password", name="password", value="password", required)
             button.btn.btn-block.btn-primary(type="submit") Log In
+
+    script(src="/js/auth.bundle.js")

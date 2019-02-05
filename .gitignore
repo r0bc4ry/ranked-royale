@@ -174,3 +174,6 @@ typings/
 ###### Custom
 .idea
 .code-workspace
+public/css
+public/js
+public/fonts
