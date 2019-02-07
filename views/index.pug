@@ -4,42 +4,47 @@ block head
     link(rel="stylesheet", href="/css/index.css")
 
 block content
-    include ./includes/nav
+    include includes/navbar
 
-    div.jumbotron
+    div.jumbotron.jumbotron-fluid
         div.container
-            h1 Ranked Royale
-            p This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.
+            h1.display-4 Ranked Royale
+            p.lead This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.
+            hr.my-4
+            p It uses utility classes for typography and spacing to space content out within the larger container.
+            a(href="/auth/signup")
+                button.btn.btn-lg.btn-primary Get Started
     div.container
         div.row
-            div.col-md-7
+            div.col-md-7.d-flex.flex-column.justify-content-center
                 h2 Ranked
                 p.lead Progress through the tiers, work your way up the leaderboards, and make a name for yourself in the competitive community.
             div.col-md-5
-                p Img Here
+                img.img-fluid(src="/img/ranks.png")
         div.row
             div.col-md-5
-                p Img Here
-            div.col-md-7
+                img.img-fluid(src="/img/ranks.png")
+            div.col-md-7.d-flex.flex-column.justify-content-center
                 h2 24/7 Scrims
                 p.lead Join our 24/7 scrims to queue at the same time as other Ranked Royale players. We host scrims for NA-East, NA-West, and EU. Ready to play? Create a Ranked Royale account, connect your Epic account, and wait for a match to begin.
         div.row
-            div.col-md-7
+            div.col-md-7.d-flex.flex-column.justify-content-center
                 h2 Heading
                 p.lead Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
             div.col-md-5
-                p Img Here
+                img.img-fluid(src="/img/ranks.png")
         div.row
             div.col-md-4
+                i.h1.fas.fa-gamepad.text-primary
                 h3 Battle-tested reliability
                 p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
             div.col-md-4
-                i.fas.fa-globe-americas
+                i.h1.fas.fa-trophy.text-primary
                 h3 Global reach with one integration
                 p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
                 p Synchronized timers that take into account players' ping.
             div.col-md-4
-                i.fas.fa-mobile-alt
+                i.h1.fas.fa-globe-americas.text-primary
                 h3 Industry expertise built-in
                 p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
 

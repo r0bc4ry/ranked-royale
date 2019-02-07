@@ -4,7 +4,7 @@ module.exports = function (req, res, next) {
     }
 
     if (req.originalUrl.includes('/api')) {
-        res.json(401, {
+        res.status(401).json({
             status: 'error',
             message: 'User trying to access this resource has not been authenticated.'
         });

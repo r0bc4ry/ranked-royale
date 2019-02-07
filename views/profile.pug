@@ -4,33 +4,41 @@ block head
     link(rel="stylesheet", href="/css/profile.css")
 
 block content
-    include ./includes/nav
+    include includes/navbar
 
-    div.container
+    div.container.py-5
         div.row
             div.col-md-4.order-md-2
                 div.card
+                    h5.card-header Your Epic Account
                     div.card-body
-                        dl.row
-                            dt.col-lg-3 Name
-                            dd.col-lg-9 #{user.firstName} #{user.lastName}
-                            dt.col-lg-3 Email
-                            dd.col-lg-9 #{user.email}
                         if user.epicGamesAccount === null
                             button.btn.btn-block.btn-primary(type="button", data-toggle="modal", data-target="#connect-modal") Connect Epic Games Account
                         else
-                            p #{user.epicGamesAccount.displayName}
+                            dl.row
+                                dt.col Display Name
+                                dd.col= user.epicGamesAccount.displayName
+
+
             div.col-md-8.order-md-1
                 div.row
                     div.col-md-12
                         div.card.mb-3
                             h5.card-header Solo
                             div.card-body
-                                ul.list-unstyled
-                                    li Rank
-                                    li Matches
-                                    li Wins
-                                    li K/D
+                                div.row
+                                    div.col-4
+                                        img.img-fluid(src="/img/gold.png")
+                                    div.col-8
+                                        dl.row
+                                            dt.col-sm-3 Rank
+                                            dd.col-sm-9= user.epicGamesAccount.displayName
+                                            dt.col-sm-3 Matches
+                                            dd.col-sm-9= user.epicGamesAccount.displayName
+                                            dt.col-sm-3 Wins
+                                            dd.col-sm-9= user.epicGamesAccount.displayName
+                                            dt.col-sm-3 K/D
+                                            dd.col-sm-9= user.epicGamesAccount.displayName
                             div.card-footer
                                 small.text-muted Last updated 3 minutes ago.
                 div.row
@@ -38,19 +46,19 @@ block content
                         div.card.mb-3
                             h5.card-header Duos
                             div.card-body
-                                p Coming Soon
+                                div.alert.alert-primary Coming soon!
                 div.row
                     div.col
-                        div.card
+                        div.card.mb-3
                             h5.card-header Squads
                             div.card-body
-                                p Coming Soon
+                                div.alert.alert-primary Coming soon!
                 div.row
                     div.col
                         div.card
+                            h5.card-header Recent Matches
                             div.card-body
-                                h5 Recent Matches
-                                p Coming Soon
+                                div.alert.alert-primary Coming soon!
 
     div#connect-modal.modal.fade(tabindex="-1")
         div.modal-dialog.modal-dialog-centered

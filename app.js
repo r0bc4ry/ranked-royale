@@ -32,6 +32,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
+const epicGamesLauncher = require('./controllers/epic-games-launcher');
+
 var User = require('./models/user');
 passport.use(new LocalStrategy(function (username, password, done) {
     User.findOne({email: username}, function (err, user) {
@@ -44,8 +46,20 @@ passport.use(new LocalStrategy(function (username, password, done) {
         if (!user.verifyPassword(password)) {
             return done(null, false);
         }
-        // TODO Update user's Epic Games account information
-        return done(null, user);
+        // Update user's Epic Games account information if it exists
+        if (user.epicGamesAccount) {
+            epicGamesLauncher.getProfile(user.epicGamesAccount.id).then(function (profile) {
+                user.displayName = profile.display_name;
+                user.save(function (err) {
+                    if (err) {
+                        return done(err);
+                    }
+                    return done(null, user);
+                });
+            });
+        } else {
+            return done(null, user);
+        }
     });
 }));
 
@@ -64,7 +78,7 @@ var authRouter = require('./routes/auth');
 var indexRouter = require('./routes/index');
 
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());

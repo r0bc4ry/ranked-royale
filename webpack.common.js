@@ -5,6 +5,7 @@ const path = require('path');
 module.exports = {
     entry: {
         auth: './client/js/auth.js',
+        index: './client/js/index.js',
         play: './client/js/play.js',
         profile: './client/js/profile.js',
         vendor: './client/js/vendor.js'

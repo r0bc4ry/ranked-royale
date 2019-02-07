@@ -1,3 +1,10 @@
-#countdown {
-    font-variant-numeric: tabular-nums;
+.d-flex {
+    height: 420px;
+
+    #step-1 h1 {
+        font-variant-numeric: tabular-nums;
+    }
+    #step-2, #step-3 {
+        display: none;
+    }
 }

@@ -6,23 +6,22 @@ var ObjectId = Schema.ObjectId;
 var Match = new Schema({
     code: {
         type: String,
+        validate: {
+            validator: function (v) {
+                return /[a-z0-9]{3}/.test(v);
+            },
+            message: props => `${props.value} is not a valid code.`
+        },
         required: true
     },
-    type: {
+    gameMode: {
         type: String,
         enum: ['solo', 'duo', 'squad'],
         required: true
     },
-    players: [{
-        userId: {
-            type: ObjectId,
-            required: true
-        },
-        epicGamesAccountId: {
-            type: String,
-            required: true
-        }
-    }]
-}, {collection: 'matches', timestamps: true});
+    users: {
+        type: [ObjectId]
+    }
+}, {timestamps: true});
 
 module.exports = mongoose.model('Match', Match);

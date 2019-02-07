@@ -1,0 +1,33 @@
+extends layout
+
+block head
+    link(rel="stylesheet", href="/css/play.css")
+
+block content
+    include includes/navbar
+
+    div.container.py-5
+        div.row
+            div.col
+                div.d-flex.flex-column.justify-content-center
+                    div#step-1.text-center
+                        h1.display-4 0s
+                        p.lead Until Next Match
+
+                    div#step-2
+                        form.needs-validation(novalidate)
+                            label Enter the last 3 digits of your server ID.
+                            div.input-group
+                                input.form-control(type="text", name="code", pattern="[a-z0-9]{3}", required)
+                                div.input-group-append
+                                    button.btn.btn-outline-primary(type="button") Submit
+                            small.form-text.text-muted When in-game, you can find this in the top left corner of your screen.
+
+                    div#step-3.text-center
+                        h1.display-4 GLHF
+                        p.lead You're in a match with #[strong 100] Ranked Royale players.
+                        div.alert.alert-warning #[strong Warning!] You must have 5 Ranked Royale players for a match to count toward your stats.
+
+    include ./includes/footer
+
+    script(src="/js/play.bundle.js")

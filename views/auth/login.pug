@@ -6,8 +6,9 @@ block head
 block content
     div.container
         div.py-3.text-center
-            img.mb-2(src="https://getbootstrap.com/docs/4.2/assets/brand/bootstrap-solid.svg", width="72", height="72")
-            h2 Log in to Ranked Royale
+            a(href="/")
+                img.mb-2(src="https://getbootstrap.com/docs/4.2/assets/brand/bootstrap-solid.svg", width="72", height="72")
+            h2 Log In to Ranked Royale
         if messages.length
             each message in messages
                 div.alert.alert-danger= message
@@ -19,5 +20,7 @@ block content
                 label Password
                 input.form-control(type="password", name="password", value="password", required)
             button.btn.btn-block.btn-primary(type="submit") Log In
+        div.py-3.text-center
+            small New to Ranked Royale? #[a(href="/auth/signup") Sign Up #[i.fas.fa-sign-in-alt]]
 
     script(src="/js/auth.bundle.js")

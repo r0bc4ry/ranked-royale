@@ -2,6 +2,7 @@ const EGClient = require('epicgames-client').Client;
 const Fortnite = require('epicgames-fortnite-client');
 const randomstring = require('randomstring');
 
+let fortniteGame;
 let eg = new EGClient({
     email: process.env.EPIC_EMAIL,
     password: process.env.EPIC_PASSWORD,
@@ -15,6 +16,8 @@ const User = require('../models/user');
     if (!await eg.init() || !await eg.login()) {
         throw 'Error with Epic Games init or login.';
     }
+
+    fortniteGame = await eg.runGame(Fortnite);
 
     // Remove any pending friend requests to prevent an overflow of friends
     let pendingFriends = await eg.getPendingFriends();
@@ -63,16 +66,15 @@ function onFriendRequest(data) {
 }
 
 async function getStats(accountId) {
-    let fortnite = await eg.runGame(Fortnite);
-    return await fortnite.getStatsBR(accountId);
+    return fortniteGame.getStatsBR(accountId);
 }
 
 async function getProfile(accountId) {
-    return await eg.getProfile(accountId)
+    return eg.getProfile(accountId)
 }
 
 async function removeFriend(accountId) {
-    return await eg.removeFriend(accountId)
+    return eg.removeFriend(accountId)
 }
 
 module.exports = {
