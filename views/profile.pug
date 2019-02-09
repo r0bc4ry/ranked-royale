@@ -6,81 +6,128 @@ block head
 block content
     include includes/navbar
 
-    div.container.py-5
+    div.container.py-3
         div.row
             div.col-md-4.order-md-2
-                div.card
+                div.card.mb-3
                     h5.card-header Your Epic Account
                     div.card-body
-                        if user.epicGamesAccount === null
+                        if !user.epicGamesAccount
                             button.btn.btn-block.btn-primary(type="button", data-toggle="modal", data-target="#connect-modal") Connect Epic Games Account
                         else
-                            dl.row
-                                dt.col Display Name
-                                dd.col= user.epicGamesAccount.displayName
+                            h6 Display Name
+                            p= user.epicGamesAccount.displayName
 
 
             div.col-md-8.order-md-1
                 div.row
-                    div.col-md-12
+                    div.col
                         div.card.mb-3
-                            h5.card-header Solo
-                            div.card-body
+                            h5.card-header #[img.align-top(src="/img/solo.png", width="24", height="24")] Solo
+                            div.card-body.text-center
+                                if true
+                                    h1.card-title #{matches.length}/10 #[small.text-muted Placement Matches]
+                                else
+                                    div.row
+                                        div.col-3
+                                            img.img-fluid(src="/img/gold.png")
+                                            h4 Gold
+                                            h6 2500
+                                hr
                                 div.row
-                                    div.col-4
-                                        img.img-fluid(src="/img/gold.png")
-                                    div.col-8
-                                        dl.row
-                                            dt.col-sm-3 Rank
-                                            dd.col-sm-9= user.epicGamesAccount.displayName
-                                            dt.col-sm-3 Matches
-                                            dd.col-sm-9= user.epicGamesAccount.displayName
-                                            dt.col-sm-3 Wins
-                                            dd.col-sm-9= user.epicGamesAccount.displayName
-                                            dt.col-sm-3 K/D
-                                            dd.col-sm-9= user.epicGamesAccount.displayName
+                                    div.col-6.col-md-4.col-lg-2
+                                        h6 Matches
+                                        p= user.stats.solo.matchesPlayed
+                                    div.col-6.col-md-4.col-lg-2
+                                        h6 Kills
+                                        p= user.stats.solo.kills
+                                    div.col-6.col-md-4.col-lg-2
+                                        h6 K/D
+                                        p= (parseFloat(user.stats.solo.kills / user.stats.solo.matchesPlayed || 0).toFixed(2))
+                                    div.col-6.col-md-4.col-lg-2
+                                        h6 Top 25
+                                        p= user.stats.solo.placeTop25
+                                    div.col-6.col-md-4.col-lg-2
+                                        h6 Top 10
+                                        p= user.stats.solo.placeTop10
+                                    div.col-6.col-md-4.col-lg-2
+                                        h6 Wins
+                                        p= user.stats.solo.placeTop1
+                                small.text-muted Stats are updated when a match ends.
                             div.card-footer
-                                small.text-muted Last updated 3 minutes ago.
+                                small.text-muted Last updated #{distanceInWordsToNow.solo} ago.
                 div.row
                     div.col
                         div.card.mb-3
-                            h5.card-header Duos
+                            h5.card-header #[img.align-top(src="/img/duos.png", width="24", height="24")] Duos
                             div.card-body
-                                div.alert.alert-primary Coming soon!
+                                div.alert.alert-warning.mb-0
+                                    h4.alert-heading Coming soon!
+                                    p Visit out #[a(href="https://trello.com/b/eLXFD7MI/ranked-royale", target="_blank") Trello board] to stay up to date with what we're working on.
                 div.row
                     div.col
                         div.card.mb-3
-                            h5.card-header Squads
+                            h5.card-header #[img.align-top(src="/img/squads.png", width="24", height="24")] Squads
                             div.card-body
-                                div.alert.alert-primary Coming soon!
+                                div.alert.alert-warning.mb-0
+                                    h4.alert-heading Coming soon!
+                                    p Visit out #[a(href="https://trello.com/b/eLXFD7MI/ranked-royale", target="_blank") Trello board] to stay up to date with what we're working on.
                 div.row
                     div.col
                         div.card
                             h5.card-header Recent Matches
-                            div.card-body
-                                div.alert.alert-primary Coming soon!
+                            div.card-body#recent-matches
+                                if matches.length
+                                    table.table.table-borderless.table-striped
+                                        thead
+                                            tr
+                                                th Game Mode
+                                                th Kills
+                                                th Top 25
+                                                th Top 10
+                                                th Win
+                                        tbody
+                                            each match in matches
+                                                tr
+                                                    td.text-capitalize= match.gameMode
+                                                    td= match.performance.kills
+                                                    if match.performance.placeTop25
+                                                        td #[i.fas.fa-check.text-success]
+                                                    else
+                                                        td #[i.fas.fa-times.text-danger]
+                                                    if match.performance.placeTop10
+                                                        td #[i.fas.fa-check.text-success]
+                                                    else
+                                                        td #[i.fas.fa-times.text-danger]
+                                                    if match.performance.placeTop1
+                                                        td #[i.fas.fa-check.text-success]
+                                                    else
+                                                        td #[i.fas.fa-times.text-danger]
+                                else
+                                    p No Matches
 
-    div#connect-modal.modal.fade(tabindex="-1")
-        div.modal-dialog.modal-dialog-centered
-            div.modal-content
-                div.modal-header
-                    h5.modal-title Connect Epic Games Account
-                    button.close(type="button", data-dismiss="modal")
-                        span &times;
-                div.modal-body
-                    p Before you can start playing, we need to verify your Epic Games account. Send a friend request to #[b Ranked Royale] to get started. We'll send you a unique code to enter below.
-                    p If the friend request is not accepted or you do not receive a message within one minute, please remove the friend and try again.
-                    hr
-                    form.needs-validation(novalidate)
-                        div.form-group
-                            label Code
-                            input.form-control(type="text", name="code", pattern="[0-9]{6}", required)
-                            small.form-text.text-muted Enter the code sent to you by Ranked Royale.
-                div.modal-footer
-                    button.btn.btn-secondary(type="button", data-dismiss="modal") Close
-                    button.btn.btn-primary(type="button") Continue
+    if !user.epicGamesAccount
+        div#connect-modal.modal.fade(tabindex="-1")
+            div.modal-dialog.modal-dialog-centered
+                div.modal-content
+                    div.modal-header
+                        h5.modal-title Connect Epic Games Account
+                        button.close(type="button", data-dismiss="modal")
+                            span &times;
+                    div.modal-body
+                        p Before you can start playing, we need to verify your Epic Games account. Send a friend request to #[b Ranked Royale] to get started. We'll send you a unique code to enter below.
+                        p If the friend request is not accepted or you do not receive a message within one minute, please remove the friend and try again.
+                        hr
+                        form.needs-validation(novalidate)
+                            div.form-group
+                                label Code
+                                input.form-control(type="text", name="code", pattern="[0-9]{6}", required)
+                                small.form-text.text-muted Enter the code sent to you by Ranked Royale.
+                    div.modal-footer
+                        button.btn.btn-secondary(type="button", data-dismiss="modal") Close
+                        button.btn.btn-primary(type="button") Continue
 
     include ./includes/footer
 
+block scripts
     script(src="/js/profile.bundle.js")
-

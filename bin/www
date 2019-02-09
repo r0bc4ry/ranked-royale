@@ -30,6 +30,21 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 /**
+ * Create socket.io connection.
+ */
+var io = require('socket.io')(server);
+global.io = io;
+
+let onlineCounter = 0;
+io.on('connection', function (socket) {
+    io.emit('onlineCounter', ++onlineCounter);
+
+    socket.on('disconnect', function () {
+        io.emit('onlineCounter', --onlineCounter);
+    });
+});
+
+/**
  * Normalize a port into a number, string, or false.
  */
 

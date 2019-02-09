@@ -4,3 +4,11 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 @import "~@fortawesome/fontawesome-free/scss/brands";
 @import "~@fortawesome/fontawesome-free/scss/solid";
 @import "~@fortawesome/fontawesome-free/scss/fontawesome";
+
+nav + .alert.alert-secondary {
+    padding-right: 0;
+    padding-left: 0;
+    border-radius: 0;
+    border-width: 0;
+    border-bottom-width: 1px;
+}

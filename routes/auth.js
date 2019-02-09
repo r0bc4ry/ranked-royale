@@ -27,7 +27,7 @@ router.post('/signup', [
         });
 
     }
-    if (req.flash.length) {
+    if (Object.entries(req.flash()).length > 0) {
         return res.redirect('/auth/signup');
     }
 

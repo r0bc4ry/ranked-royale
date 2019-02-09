@@ -12,107 +12,34 @@ var Stat = new Schema({
         type: ObjectId,
         required: true
     },
-    solo: {
-        score: {
-            type: Number,
-            required: true
-        },
-        minutesPlayed: {
-            type: Number,
-            required: true
-        },
-        kills: {
-            type: Number,
-            required: true
-        },
-        matchesPlayed: {
-            type: Number,
-            required: true
-        },
-        placeTop1: {
-            type: Number,
-            required: true
-        },
-        placeTop10: {
-            type: Number,
-            required: true
-        },
-        placeTop25: {
-            type: Number,
-            required: true
-        },
-        lastModified: {
-            type: Date,
-            required: true
-        }
+    kills: {
+        type: Number,
+        required: true
     },
-    duo: {
-        score: {
-            type: Number,
-            required: true
-        },
-        kills: {
-            type: Number,
-            required: true
-        },
-        matchesPlayed: {
-            type: Number,
-            required: true
-        },
-        minutesPlayed: {
-            type: Number,
-            required: true
-        },
-        placeTop1: {
-            type: Number,
-            required: true
-        },
-        placeTop5: {
-            type: Number,
-            required: true
-        },
-        placeTop12: {
-            type: Number,
-            required: true
-        },
-        lastModified: {
-            type: Date,
-            required: true
-        }
+    placeTop1: {
+        type: Boolean,
+        required: true
     },
-    squad: {
-        score: {
-            type: Number,
-            required: true
-        },
-        kills: {
-            type: Number,
-            required: true
-        },
-        matchesPlayed: {
-            type: Number,
-            required: true
-        },
-        minutesPlayed: {
-            type: Number,
-            required: true
-        },
-        placeTop1: {
-            type: Number,
-            required: true
-        },
-        placeTop3: {
-            type: Number,
-            required: true
-        },
-        placeTop6: {
-            type: Number,
-            required: true
-        },
-        lastModified: {
-            type: Date,
-            required: true
-        }
+    // Solo specific stats
+    placeTop10: {
+        type: Boolean
+    },
+    placeTop25: {
+        type: Boolean
+    },
+    // Duos specific stats
+    placeTop5: {
+        type: Boolean
+    },
+    placeTop12: {
+        type: Boolean
+    },
+    // Squads specific stats
+    placeTop3: {
+        type: Boolean
+    },
+    placeTop6: {
+        type: Boolean
     }
 }, {timestamps: true});
 

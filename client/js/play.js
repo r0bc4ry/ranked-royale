@@ -3,6 +3,8 @@ import '../css/play.scss';
 import {addMilliseconds, differenceInMilliseconds, differenceInMinutes, differenceInSeconds} from 'date-fns';
 import * as workerTimers from 'worker-timers';
 
+const socket = io('http://localhost:3000/');
+
 var countdown5MinutesAudio = new Audio('/audio/5-minutes.wav');
 var countdown1MinuteAudio = new Audio('/audio/1-minute.wav');
 var countdownStartingBronze = new Audio('/audio/5.wav');
@@ -10,7 +12,6 @@ var countdown3Audio = new Audio('/audio/3.wav');
 var countdown2Audio = new Audio('/audio/2.wav');
 var countdown1Audio = new Audio('/audio/1.wav');
 var countdown0Audio = new Audio('/audio/0.wav');
-
 let currentTime, eventTime;
 let countdownInterval;
 
@@ -21,8 +22,12 @@ $(function () {
         let ajaxTime = Date.now() - ajaxTimeStart;
         currentTime = addMilliseconds(new Date(data.currentTime), ajaxTime);
         eventTime = new Date(data.eventTime);
-        eventTime = addMilliseconds(currentTime, 2000);
+        eventTime = addMilliseconds(currentTime, 1000);
         startCountdown();
+    });
+
+    socket.on('onlineCounter', function (data) {
+        $('#online-counter').text(data);
     });
 
     $('#step-2 button').click(onStep2ButtonClick);
@@ -99,12 +104,17 @@ function onStep2ButtonClick(event) {
     $(this).html('<span class="spinner-border spinner-border-sm"></span> Loading...');
     $(this).attr('disabled', true);
 
+    let matchCode = $('#step-2 input[name=code]').val();
+
     // Send Ajax
     $.ajax({
-        url: '/api/matches/' + $('#step-2 input[name=code]').val(),
+        url: `/api/matches/${matchCode}`,
         type: 'PUT'
     }).done(function () {
         // Success
+        socket.on(matchCode, function (data) {
+            $('#in-match-counter').text(data);
+        });
         onStep2End();
     }).fail(function () {
         // Error

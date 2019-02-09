@@ -32,7 +32,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-const epicGamesLauncher = require('./controllers/epic-games-launcher');
+const epicGamesLauncher = require('./controllers/epic-games-controller');
 
 var User = require('./models/user');
 passport.use(new LocalStrategy(function (username, password, done) {

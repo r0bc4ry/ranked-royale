@@ -4,13 +4,13 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
 var Match = new Schema({
-    code: {
+    serverId: {
         type: String,
         validate: {
             validator: function (v) {
                 return /[a-z0-9]{3}/.test(v);
             },
-            message: props => `${props.value} is not a valid code.`
+            message: props => `${props.value} is not valid.`
         },
         required: true
     },

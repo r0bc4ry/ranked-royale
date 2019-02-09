@@ -19,8 +19,7 @@ var UserSchema = new Schema({
         required: true,
         index: {
             unique: true
-        },
-        match: [/^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/, 'Invalid Email']
+        }
     },
     password: {
         type: String,
@@ -37,8 +36,120 @@ var UserSchema = new Schema({
                 required: true
             }
         },
-        required: false,
-        default: null
+        required: false
+    },
+    stats: {
+        solo: {
+            rank: {
+                type: Number,
+                required: true,
+                default: 1500
+            },
+            matchesPlayed: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            kills: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop25: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop10: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop1: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            updatedAt: {
+                type: Date,
+                required: true,
+                default: Date.now()
+            }
+        },
+        duo: {
+            rank: {
+                type: Number,
+                required: true,
+                default: 1500
+            },
+            matchesPlayed: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            kills: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop25: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop5: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop12: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            updatedAt: {
+                type: Date,
+                required: true,
+                default: Date.now()
+            }
+        },
+        squad: {
+            rank: {
+                type: Number,
+                required: true,
+                default: 1500
+            },
+            matchesPlayed: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            kills: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop6: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop3: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            placeTop1: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            updatedAt: {
+                type: Date,
+                required: true,
+                default: Date.now()
+            }
+        }
     }
 }, {timestamps: true});
 
