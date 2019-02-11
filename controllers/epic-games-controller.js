@@ -27,42 +27,40 @@ const User = require('../models/user');
 
     let communicator = eg.communicator;
     communicator.on('friend:request', onFriendRequest);
+    communicator.on('friend:removed', onFriendRemoved);
 })();
 
-function onFriendRequest(data) {
+async function onFriendRemoved(data) {
     let accountId = data.account_id;
-    User.findOne({'epicGamesAccount.id': accountId}, async function (err, user) {
-        if (err) {
-            return console.error(err);
-        }
+    let epicCode = await EpicCode.findOne({'epicGamesAccountId': accountId});
+    if (epicCode) {
+        epicCode.remove();
+    }
+}
 
-        if (user) {
-            return await eg.declineFriendRequest(accountId);
-        }
+async function onFriendRequest(data) {
+    let accountId = data.account_id;
+    let user = await User.findOne({'epicGamesAccount.id': accountId});
+    if (user) {
+        return await eg.declineFriendRequest(accountId);
+    }
 
-        await eg.acceptFriendRequest(accountId);
+    await eg.acceptFriendRequest(accountId);
 
-        let myrandomstring = randomstring.generate({
-            length: 6,
-            charset: 'numeric'
-        });
-
-        EpicCode.create({
-            code: myrandomstring,
-            epicGamesAccountId: accountId
-        }, function (err, epicCode) {
-            if (err) {
-                return console.error(err);
-            }
-
-            setTimeout(async function () {
-                let communicator = eg.communicator;
-                await communicator.sendMessage(accountId, `Your Ranked Royale Code: ${myrandomstring}`);
-            }, 2000);
-        });
-
-        // TODO Remove friend after timeout
+    let myrandomstring = randomstring.generate({
+        length: 6,
+        charset: 'numeric'
     });
+
+    await EpicCode.create({
+        code: myrandomstring,
+        epicGamesAccountId: accountId
+    });
+
+    setTimeout(async function () {
+        let communicator = eg.communicator;
+        await communicator.sendMessage(accountId, `Your Ranked Royale Code: ${myrandomstring}`);
+    }, 2500);
 }
 
 async function getStats(accountId) {

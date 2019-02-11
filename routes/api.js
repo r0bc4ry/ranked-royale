@@ -18,15 +18,26 @@ const connectionsController = require('../controllers/api/connections-controller
 const matchController = require('../controllers/api/match-controller');
 
 router.post('/connections/epic', isAuthenticated, async function (req, res, next) {
-    let user;
+    if (!req.body.code || !req.body.platform || !req.body.region) {
+        return apiError(res, 'Platform, region, and code required.');
+    }
+
     try {
-        user = await connectionsController.verifyEpicGames(req.body.code, req.user._id);
+        var user = await connectionsController.verifyEpicGames(req.body, req.user._id);
     } catch (err) {
-        if (err) return next(err);
+        if (typeof err === 'string') {
+            return apiError(res, err);
+        } else {
+            console.error(err);
+            return apiError(res, 'Error verifying Epic Games account.');
+        }
     }
 
     req.login(user, function (err) {
-        if (err) return next(err);
+        if (err) {
+            console.error(err);
+            return apiError(res, 'Error updating logged in user. Please log out and log back in.');
+        }
 
         res.json({
             status: 'success',
@@ -38,13 +49,15 @@ router.post('/connections/epic', isAuthenticated, async function (req, res, next
 router.get('/countdown', isAuthenticated, function (req, res, next) {
     let currentTime = new Date();
 
-    // TODO Get user's rank
-
+    // Get user's rank
+    let userRank = req.user.stats.solo.rank;
     let rank = ranks.find((x) => {
-        return x.name === 'Bronze'
+        return x.range[0] < userRank && userRank < x.range[1]
     });
 
-    // TODO Check if rank exists?
+    if (!rank) {
+        return apiError(res, 'Error finding user\'s rank.');
+    }
 
     let eventTime = null;
 
@@ -60,8 +73,11 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
     }
 
     res.json({
-        currentTime: getTime(currentTime),
-        eventTime: getTime(eventTime)
+        status: 'success',
+        data: {
+            currentTime: getTime(currentTime),
+            eventTime: getTime(eventTime)
+        }
     });
 });
 
@@ -71,7 +87,8 @@ router.get('/matches', isAuthenticated, async function (req, res, next) {
     try {
         matches = await matchController.getMatches(req.user._id);
     } catch (err) {
-        if (err) return next(err);
+        console.error(err);
+        return apiError(res, 'Error returning matches.');
     }
 
     res.json({
@@ -88,7 +105,8 @@ router.get('/matches/:matchId', isAuthenticated, async function (req, res, next)
     try {
         match = await matchController.getMatch(req.user._id, req.params.matchId);
     } catch (err) {
-        if (err) return next(err);
+        console.error(err);
+        return apiError(res, 'Error returning match.');
     }
 
     res.json({
@@ -104,7 +122,8 @@ router.put('/matches/:serverId', isAuthenticated, async function (req, res, next
     try {
         await matchController.putMatch(req.user._id, req.params.serverId);
     } catch (err) {
-        if (err) return next(err);
+        console.error(err);
+        return apiError(res, 'Error adding user to match.');
     }
 
     res.json({
@@ -113,7 +132,7 @@ router.put('/matches/:serverId', isAuthenticated, async function (req, res, next
     });
 });
 
-function handleApiError(res, message, status = 400) {
+function apiError(res, message, status = 400) {
     res.status(status).json({
         status: 'error',
         message: message

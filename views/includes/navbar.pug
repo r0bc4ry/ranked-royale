@@ -1,7 +1,7 @@
 nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
     div.container
         a.navbar-brand(href="/")
-            img(src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg", width="30", height="30")
+            img(src="/img/brand/logo.svg", width="30", height="30")
         div.collapse.navbar-collapse
             ul.navbar-nav.mr-auto
                 li.nav-item(class=title.includes('Home') || title.includes('Play') ? 'active' : undefined)
@@ -11,11 +11,16 @@ nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
                 if user
                     li.nav-item(class=title.includes('Profile') ? 'active' : undefined)
                         a.nav-link(href="/profile") Profile
+                else
+                    li.nav-item(class=title.includes('FAQ') ? 'active' : undefined)
+                        a.nav-link(href="/faq") FAQ
+                li.nav-item(class=title.includes('Support') ? 'active' : undefined)
+                    a.nav-link(href="/support") Support
             ul.navbar-nav.ml-auto
                 if user
                     a.btn.btn-outline-light(href="/auth/logout") Log Out
                 else
                     a.btn.btn-outline-light.mr-2(href="/auth/login") Log In
                     a.btn.btn-outline-light.ml-2(href="/auth/signup") Sign Up
-div.alert.alert-secondary(style="margin-bottom: 0;")
+div.alert.alert-light(style="margin-bottom: 0;")
     div.container #[strong Pardon our dust!] We're in an early release state so you may experience unexpected errors.

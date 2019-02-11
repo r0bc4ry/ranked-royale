@@ -5,23 +5,24 @@ block head
 
 block content
     div.container
-        div.py-3.text-center
-            a(href="/")
-                img.mb-2(src="https://getbootstrap.com/docs/4.2/assets/brand/bootstrap-solid.svg", width="72", height="72")
-            h2 Log In to Ranked Royale
-        if messages.length
-            each message in messages
-                div.alert.alert-danger= message
-        form.needs-validation(action="/auth/login", method="post", novalidate)
-            div.form-group
-                label Email
-                input.form-control(type="email", name="username", value="r0bc4ry@gmail.com", required)
-            div.form-group
-                label Password
-                input.form-control(type="password", name="password", value="password", required)
-            button.btn.btn-block.btn-primary(type="submit") Log In
-        div.py-3.text-center
-            small New to Ranked Royale? #[a(href="/auth/signup") Sign Up #[i.fas.fa-sign-in-alt]]
+        div.bg-white
+            div.text-center
+                a(href="/")
+                    img.mb-2(src="/img/brand/logo.svg", width="72", height="72")
+                h2 Log In
+            if messages.length
+                each message in messages
+                    div.alert.alert-danger= message
+            form.needs-validation(action="/auth/login", method="post", novalidate)
+                div.form-group
+                    label Email
+                    input.form-control(type="email", name="username", value="r0bc4ry@gmail.com", required)
+                div.form-group
+                    label Password
+                    input.form-control(type="password", name="password", value="password", required)
+                button.btn.btn-block.btn-primary(type="submit") Log In
+            div.py-3.text-center
+                small New to Ranked Royale? #[a(href="/auth/signup") Sign Up #[i.fas.fa-sign-in-alt]]
 
 block scripts
     script(src="/js/auth.bundle.js")

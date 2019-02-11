@@ -8,6 +8,15 @@ body {
 }
 
 .container {
-    max-width: 420px;
+    max-width: 512px;
     margin: auto;
+
+    div.bg-white {
+        padding: 1rem;
+
+        @media (min-width: 768px) {
+            padding: 3rem;
+            clip-path: polygon(2% 100%, 0 0, 5% 1%, 8% 5%, 8% 1%, 98% 4%, 100% 100%);
+        }
+    }
 }

@@ -19,6 +19,10 @@ var Match = new Schema({
         enum: ['solo', 'duo', 'squad'],
         required: true
     },
+    season: {
+        type: Number,
+        required: true
+    },
     users: {
         type: [ObjectId]
     }

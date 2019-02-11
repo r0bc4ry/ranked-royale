@@ -6,46 +6,59 @@ block head
 block content
     include includes/navbar
 
-    div.jumbotron.jumbotron-fluid
+    div.jumbotron.jumbotron-fluid.overflow-hidden.text-white
+        div.container.position-relative
+            div.row
+                div.col-md-6.col-lg-8
+                    h1.display-4 Ranked Royale
+                    p.lead Compete against the best. Compete to be the best.
+                    hr.bg-light.my-4
+                    p Competitive ranked matchmaking for Fortnite.
+                    a(href="/auth/signup")
+                        button.btn.btn-lg.btn-secondary Get Started
+            img(src="/img/llama.png")
+    section.position-relative
         div.container
-            h1.display-4 Ranked Royale
-            p.lead This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.
-            hr.my-4
-            p It uses utility classes for typography and spacing to space content out within the larger container.
-            a(href="/auth/signup")
-                button.btn.btn-lg.btn-primary Get Started
-    div.container
-        div.row
-            div.col-md-7.d-flex.flex-column.justify-content-center
-                h2 Ranked
-                p.lead Progress through the tiers, work your way up the leaderboards, and make a name for yourself in the competitive community.
-            div.col-md-5
-                img.img-fluid(src="/img/ranks.png")
-        div.row
-            div.col-md-5
-                img.img-fluid(src="/img/ranks.png")
-            div.col-md-7.d-flex.flex-column.justify-content-center
-                h2 24/7 Scrims
-                p.lead Join our 24/7 scrims to queue at the same time as other Ranked Royale players. We host scrims for NA-East, NA-West, and EU. Ready to play? Create a Ranked Royale account, connect your Epic account, and wait for a match to begin.
-        div.row
-            div.col-md-7.d-flex.flex-column.justify-content-center
-                h2 Heading
-                p.lead Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
-            div.col-md-5
-                img.img-fluid(src="/img/ranks.png")
-        div.row
-            div.col-md-4
-                i.h1.fas.fa-gamepad.text-primary
-                h3 Battle-tested reliability
-                p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
-            div.col-md-4
-                i.h1.fas.fa-trophy.text-primary
-                h3 Global reach with one integration
-                p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
-                p Synchronized timers that take into account players' ping.
-            div.col-md-4
-                i.h1.fas.fa-globe-americas.text-primary
-                h3 Industry expertise built-in
-                p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+            div.row
+                div.col-md-4
+                    img.img-fluid(src="/img/ranks.png")
+                div.offset-md-1.col-md-7.d-flex.flex-column.justify-content-center
+                    h2 Ranked Matchmaking
+                    p.lead Do you have what it takes to be Epic? Find out with our Elo-based ranked matchmaking system. Designed for players who want to put their skills to the test, and offers a more serious experience
+            div.row
+                div.col-md-7.d-flex.flex-column.justify-content-center
+                    h2 Constant Scrims
+                    p.lead Progress through the tiers, work your way up the leaderboards, and make a name for yourself in the competitive community.
+                div.offset-md-1.col-md-4
+                    img.img-fluid(src="/img/ranks.png")
+            div.row
+                div.col-md-4
+                    img.img-fluid(src="/img/ranks.png")
+                div.offset-md-1.col-md-7.d-flex.flex-column.justify-content-center
+                    h2 24/7 Scrims
+                    p.lead Join our 24/7 scrims to queue at the same time as other Ranked Royale players. We host scrims for NA-East, NA-West, and EU. Ready to play? Create a Ranked Royale account, connect your Epic account, and wait for a match to begin.
+    section.position-relative.bg-light
+        div.container
+            div.row
+                div.col-md-4
+                    i.h1.fas.fa-gamepad.text-primary
+                    h3 Play on Any System
+                    p Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.
+                div.col-md-4
+                    i.h1.fas.fa-globe-americas.text-primary
+                    h3 Play Anywhere
+                    p Whatever your region, you can compete. Accurate countdowns, that even take your ping into account, guarantee the largest matches possible.
+                div.col-md-4
+                    i.h1.fas.fa-trophy.text-primary
+                    h3 Global &amp; Regional Leadboards
+                    p Compete against the best to be the best.
+                    span.badge.badge-pill.badge-warning Coming soon!
+    section
+        div.container.text-center
+            div.row
+                div.col
+                    h3 Ready to get started?
+                    a(href="/auth/signup")
+                        button.btn.btn-lg.btn-secondary Sign Up
 
     include ./includes/footer

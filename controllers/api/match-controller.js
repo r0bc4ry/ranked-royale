@@ -7,7 +7,8 @@ const subMinutes = require('date-fns/sub_minutes');
 const asyncRedis = require('async-redis');
 const redisClient = asyncRedis.createClient();
 redisClient.on('error', function (err) {
-    console.log('Redis Error: ' + err);
+    console.error('Redis Error!');
+    console.error(err);
 });
 
 const Match = require('../../models/match');
@@ -58,13 +59,14 @@ async function putMatch(userId, serverId) {
     if (!match && cardinality === 0) {
         match = await Match.create({
             serverId: serverId,
-            gameMode: 'solo'
+            gameMode: 'solo',
+            season: 0
         });
 
         // After timeout for users to queue in Redis, begin the match
         setTimeout(function () {
             _startMatch(match);
-        }, 1000 * 60);
+        }, 1000 * 5);
     }
 }
 
@@ -80,80 +82,97 @@ async function _startMatch(match) {
     match.users = members;
     await match.save();
 
-    let userObjectIds = [];
-    members.forEach(function (id) {
-        userObjectIds.push(mongoose.Types.ObjectId(id));
-    });
-
-    let users = await User.find({'_id': userObjectIds}).lean().exec();
+    let users = await User.find({'_id': members});
     await Promise.all(users.map(async function (user) {
-        console.log(`Checking stats for ${user.epicGamesAccount.displayName} at ${Date.now()}`);
-        let stats = await epicGamesController.getStats(user.epicGamesAccount.id);
-        await redisClient.hset(match.serverId, user._id.toString(), JSON.stringify(stats));
-        await redisClient.expire(match.serverId, 1800);
+        console.log(`Checking stats for ${user.epicGamesAccount.displayName} at ${new Date()}`);
+        try {
+            let stats = await epicGamesController.getStats(user.epicGamesAccount.id);
+            await redisClient.hset(match.serverId, user._id.toString(), JSON.stringify(stats));
+            await redisClient.expire(match.serverId, 1800);
+        } catch (err) {
+            console.error(err);
+        }
     }));
 
     // Start cron job to get stats every minute until the match ends
+    _startCronJob(match, users);
+}
+
+function _startCronJob(match, users) {
     let job = new CronJob('0 */1 * * * *', async function () {
         let currentStats = {};
         await Promise.all(users.map(async function (user) {
-            console.log(`Checking stats for ${user.epicGamesAccount.displayName} at ${Date.now()}`);
-            currentStats[user._id] = await epicGamesController.getStats(user.epicGamesAccount.id);
+            console.log(`Checking stats for ${user.epicGamesAccount.displayName} at ${new Date()}`);
+            try {
+                currentStats[user._id] = await epicGamesController.getStats(user.epicGamesAccount.id);
+            } catch (err) {
+                console.error(err);
+            }
         }));
 
-        let matchEnded = true;
+        let matchHasEnded = true;
         for (let userId in currentStats) {
-            let prevStats = await redisClient.get(`${match.serverId}.${userId}`);
+            let prevStats = await redisClient.hget(match.serverId, userId);
             if (JSON.stringify(currentStats[userId]) === prevStats) {
-                matchEnded = false;
+                matchHasEnded = false;
                 break;
             }
         }
 
-        console.log(`Match Ended: ${matchEnded}`);
-
-        if (matchEnded) {
+        if (matchHasEnded) {
             await Promise.all(users.map(async function (user) {
                 let prevStats = await redisClient.hget(match.serverId, user._id.toString());
                 prevStats = JSON.parse(prevStats);
 
-                let doc = {
+                let statDoc = {
                     userId: user._id,
                     matchId: match._id
                 };
 
-                let numMatches = currentStats[user._id].pc[match.gameMode].matches - prevStats.pc[match.gameMode].matches;
+                let numMatches = currentStats[user._id].pc[match.gameMode].matchesplayed - prevStats.pc[match.gameMode].matchesplayed;
                 if (numMatches !== 1) {
-                    // TODO Remove user from match users
-                    return console.log(`Player's stats reported ${numMatches} matches instead of 1.`);
+                    console.log(`User "${user._id}" reported ${numMatches} matches instead of 1.`);
+                    try {
+                        await match.update({}, {
+                            $pull: {
+                                users: {
+                                    $in: [user._id]
+                                }
+                            }
+                        });
+                    } catch (err) {
+                        console.error(err);
+                    }
+                    return delete currentStats[user._id];
                 }
 
                 switch (match.gameMode) {
                     case 'solo':
-                        doc.kills = currentStats[user._id].pc.solo.kills - prevStats.pc.solo.kills;
-                        doc.placeTop1 = !!(currentStats[user._id].pc.solo.placetop1 - prevStats.pc.solo.placetop1);
-                        doc.placeTop10 = !!(currentStats[user._id].pc.solo.placetop10 - prevStats.pc.solo.placetop10);
-                        doc.placeTop25 = !!(currentStats[user._id].pc.solo.placetop25 - prevStats.pc.solo.placetop25);
+                        statDoc.kills = currentStats[user._id].pc.solo.kills - prevStats.pc.solo.kills;
+                        statDoc.placeTop1 = currentStats[user._id].pc.solo.placetop1 - prevStats.pc.solo.placetop1;
+                        statDoc.placeTop10 = currentStats[user._id].pc.solo.placetop10 - prevStats.pc.solo.placetop10;
+                        statDoc.placeTop25 = currentStats[user._id].pc.solo.placetop25 - prevStats.pc.solo.placetop25;
                         break;
                     case 'duo':
-                        doc.kills = currentStats[user._id].pc.duo.kills - prevStats.pc.duo.kills;
-                        doc.placeTop1 = !!(currentStats[user._id].pc.duo.placetop1 - prevStats.pc.duo.placetop1);
-                        doc.placeTop5 = !!(currentStats[user._id].pc.duo.placetop5 - prevStats.pc.duo.placetop5);
-                        doc.placeTop12 = !!(currentStats[user._id].pc.duo.placetop12 - prevStats.pc.duo.placetop12);
+                        statDoc.kills = currentStats[user._id].pc.duo.kills - prevStats.pc.duo.kills;
+                        statDoc.placeTop1 = currentStats[user._id].pc.duo.placetop1 - prevStats.pc.duo.placetop1;
+                        statDoc.placeTop5 = currentStats[user._id].pc.duo.placetop5 - prevStats.pc.duo.placetop5;
+                        statDoc.placeTop12 = currentStats[user._id].pc.duo.placetop12 - prevStats.pc.duo.placetop12;
                         break;
                     case 'squad':
-                        doc.kills = currentStats[user._id].pc.squad.kills - prevStats.pc.squad.kills;
-                        doc.placeTop1 = !!(currentStats[user._id].pc.squad.placetop1 - prevStats.pc.squad.placetop1);
-                        doc.placeTop3 = !!(currentStats[user._id].pc.squad.placetop3 - prevStats.pc.squad.placetop3);
-                        doc.placeTop6 = !!(currentStats[user._id].pc.squad.placetop6 - prevStats.pc.squad.placetop6);
+                        statDoc.kills = currentStats[user._id].pc.squad.kills - prevStats.pc.squad.kills;
+                        statDoc.placeTop1 = currentStats[user._id].pc.squad.placetop1 - prevStats.pc.squad.placetop1;
+                        statDoc.placeTop3 = currentStats[user._id].pc.squad.placetop3 - prevStats.pc.squad.placetop3;
+                        statDoc.placeTop6 = currentStats[user._id].pc.squad.placetop6 - prevStats.pc.squad.placetop6;
                         break;
                 }
 
-                await Stat.create(doc);
+                // Reuse currentStats object to store user's performance in the match
+                currentStats[user._id] = statDoc;
             }));
             await redisClient.del(match.serverId);
+            await eloController.updateUserStats(match, users, currentStats);
             job.stop();
-            eloController.updateUserStats(match, users);
         } else {
             await Promise.all(users.map(async function (user) {
                 await redisClient.hset(match.serverId, user._id.toString(), JSON.stringify(currentStats[user._id]));

@@ -12,6 +12,10 @@ var Stat = new Schema({
         type: ObjectId,
         required: true
     },
+    eloDelta: {
+        type: Number,
+        required: true
+    },
     kills: {
         type: Number,
         required: true

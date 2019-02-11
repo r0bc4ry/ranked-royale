@@ -1,0 +1,30 @@
+extends layout
+
+block head
+    link(rel="stylesheet", href="/css/index.css")
+
+block content
+    include includes/navbar
+
+    section.position-relative.bg-light
+        div.container(style="padding-top: 2rem;")
+            div.row
+                div.col
+                    h1.text-primary Support
+
+                    ul.list-unstyled
+                        li
+                            h3 I added "Ranked Royale" as a friend, but it did not accept.
+                            p In almost all cases, the bot did accept and you just did not see it. Make sure to scroll through your ENTIRE friend's list. If you do not see it, try to restart your game. If you still do not see it, wait a while and see if it eventually accepts. It may take some time depending on how many people are verifying at the time. If you still do not see it, try to resend the request. If you still do not see it, try to restart the whole process by clicking on the :raised_hand: twice in the #get-verified chat.
+                        li
+                            h3 "Ranked Royale" accepted my friend request, but I do not see a code.
+                            p The bot will almost always show a code. You may have to give it some time, as the bot may slow down depending on how many people are verifying at the time. If after a few minutes you don't see a code like in the video, send a random 4 digit code and the bot will reset and try to give you another code. If this doesn't work, you may need to restart the whole verification process.
+    section
+        div.container.text-center
+            div.row
+                div.col
+                    h3 Still having issues?
+                    a(href="/auth/signup")
+                        button.btn.btn-lg.btn-secondary Contact Us
+
+    include ./includes/footer

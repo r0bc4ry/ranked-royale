@@ -12,7 +12,7 @@
     "@fortawesome/fontawesome-free": "^5.7.0",
     "async-redis": "^1.1.5",
     "aws-sdk": "^2.397.0",
-    "bcrypt": "^3.0.3",
+    "bcrypt": "^3.0.4",
     "bootstrap": "^4.2.1",
     "connect-flash": "^0.1.1",
     "cookie-parser": "~1.4.3",
@@ -52,7 +52,7 @@
     "sass-loader": "^7.1.0",
     "sinon": "^7.2.3",
     "supertest": "^3.4.2",
-    "webpack": "^4.29.2",
+    "webpack": "^4.29.3",
     "webpack-cli": "^3.2.3",
     "webpack-merge": "^4.2.1"
   }

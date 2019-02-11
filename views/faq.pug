@@ -1,0 +1,35 @@
+extends layout
+
+block head
+    link(rel="stylesheet", href="/css/index.css")
+
+block content
+    include includes/navbar
+
+    section.position-relative.bg-light
+        div.container(style="padding-top: 2rem;")
+            div.row
+                div.col
+                    h1.text-primary Ranked
+                    ul.list-unstyled
+                        li
+                            h3 Are there any rules?
+                            p Don't stream snipe. Proof of stream sniping will result in your Epic Games account being banned from Ranked Royale.
+    section.position-relative
+        div.container
+            div.row
+                div.col
+                    h1.text-primary Scrims
+                    ul.list-unstyled
+                        li
+                            h3 What are scrims?
+                            p Scrims are when multiple players queue at the same time to play against each other in the same match. They are generally more competitive than normal games.
+    section.bg-light
+        div.container.text-center
+            div.row
+                div.col
+                    h3 Ready to get started?
+                    a(href="/auth/signup")
+                        button.btn.btn-lg.btn-secondary Sign Up
+
+    include ./includes/footer

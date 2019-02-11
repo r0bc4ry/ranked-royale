@@ -17,14 +17,16 @@ let countdownInterval;
 
 $(function () {
     var ajaxTimeStart = Date.now();
-    $.get('/api/countdown', function (data) {
+    $.get('/api/countdown', function (reply) {
         // Add the number of ms it took for the Ajax request to complete
         let ajaxTime = Date.now() - ajaxTimeStart;
-        currentTime = addMilliseconds(new Date(data.currentTime), ajaxTime);
-        eventTime = new Date(data.eventTime);
+        currentTime = addMilliseconds(new Date(reply.data.currentTime), ajaxTime);
+        eventTime = new Date(reply.data.eventTime);
         eventTime = addMilliseconds(currentTime, 1000);
         startCountdown();
     });
+
+    $('[data-toggle="tooltip"]').tooltip();
 
     socket.on('onlineCounter', function (data) {
         $('#online-counter').text(data);

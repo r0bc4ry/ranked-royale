@@ -1,10 +1,20 @@
-.d-flex {
-    height: 420px;
+.container {
+    //background: linear-gradient(45deg, #108cc1, #22fcff 75%);
+}
 
+.d-flex {
+    min-height: 300px;
+    padding: 1rem;
+
+    @media (min-width: 768px) {
+        padding: 3rem;
+        clip-path: polygon(0 100%, 2% 5%, 90% 0, 90% 5%, 93% 0, 100% 0, 96% 100%);
+    }
     #step-1 h1 {
         font-variant-numeric: tabular-nums;
     }
+
     #step-2, #step-3 {
-        display: none;
+        //display: none;
     }
 }

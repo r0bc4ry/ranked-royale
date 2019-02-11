@@ -11,26 +11,26 @@ block content
             div.col.text-right
                 div.badge.badge-primary #[span#online-counter 0] #[i.fas.fa-users]
         div.row
-            div.col
-                div.d-flex.flex-column.justify-content-center
+            div.offset-lg-3.col-lg-6
+                div.d-flex.flex-column.justify-content-center.bg-white
                     div#step-1.text-center
-                        p.lead Game In Progress
+                        p.lead Match In Progress, next match in...
                         h1.display-4 0s
                         p.lead Until Next Match
 
                     div#step-2
                         form.needs-validation(novalidate)
-                            label Please enter the last 3 digits of your server ID.
+                            label Please enter the last 3 digits of your server ID. #[i.fas.fa-question-circle.text-muted(data-toggle="tooltip", data-html="true", title="<img src='/img/server-id-tooltip.png'>")]
                             div.input-group
                                 input.form-control(type="text", name="code", pattern="[a-z0-9]{3}", required)
                                 div.input-group-append
-                                    button.btn.btn-outline-primary(type="button") Submit
+                                    button.btn.btn-primary(type="button") Submit
                             small.form-text.text-muted When in-game, you can find this in the top left corner of your screen.
 
                     div#step-3.text-center
-                        h1.display-4 GLHF
-                        p.lead You're in a match with #[strong#in-match-counter 1] Ranked Royale players.
-                        div.alert.alert-warning #[strong Warning!] You must have 5 Ranked Royale players for a match to count toward your stats.
+                        h1 GLHF
+                        p.lead You're in a match with #[strong#in-match-counter 1] Ranked Royale player(s).
+                        div.alert.alert-warning #[strong Heads up!] Only matches with at least 5 Ranked Royale players will count toward your stats.
 
     include ./includes/footer
 

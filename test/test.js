@@ -29,7 +29,7 @@ describe('Load Express', function () {
             clock.restore();
         });
 
-        it('GET /api/countdown should return first bronze interval', function () {
+        it('GET /api/countdown should return first interval', function () {
             let now = new Date(2019, 0, 1, 0, 0, 0, 0);
             clock = sinon.useFakeTimers(now);
 
@@ -43,7 +43,7 @@ describe('Load Express', function () {
 
         });
 
-        it('GET /api/countdown should return second bronze interval', function () {
+        it('GET /api/countdown should return second interval', function () {
             let now = new Date(2019, 0, 1, 0, 30, 0, 0);
             clock = sinon.useFakeTimers(now);
 
@@ -57,3 +57,38 @@ describe('Load Express', function () {
         });
     });
 });
+
+let epicData = {
+    "pc": {
+        "duo": {
+            "score": 137493,
+            "matchesplayed": 824,
+            "placetop12": 262,
+            "lastmodified": "2019-02-09T00:40:11.000Z",
+            "placetop1": 10,
+            "minutesplayed": 195,
+            "placetop5": 108,
+            "kills": 930
+        },
+        "squad": {
+            "score": 36017,
+            "placetop3": 14,
+            "lastmodified": "2019-01-27T23:41:30.000Z",
+            "kills": 301,
+            "matchesplayed": 246,
+            "minutesplayed": 127,
+            "placetop6": 40,
+            "placetop1": 5
+        },
+        "solo": {
+            "score": 165686,
+            "kills": 1224,
+            "lastmodified": "2019-02-10T22:47:46.000Z",
+            "matchesplayed": 961,
+            "minutesplayed": 212,
+            "placetop1": 20,
+            "placetop10": 186,
+            "placetop25": 396
+        }
+    }
+};
