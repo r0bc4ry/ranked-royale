@@ -25,7 +25,7 @@ const User = require('../models/user');
         await eg.declineFriendRequest(friend.id);
     });
 
-    let communicator = eg.communicator;
+    let communicator = fortniteGame.communicator;
     communicator.on('friend:request', onFriendRequest);
     communicator.on('friend:removed', onFriendRemoved);
 })();
@@ -58,7 +58,7 @@ async function onFriendRequest(data) {
     });
 
     setTimeout(async function () {
-        let communicator = eg.communicator;
+        let communicator = fortniteGame.communicator;
         await communicator.sendMessage(accountId, `Your Ranked Royale Code: ${myrandomstring}`);
     }, 2500);
 }

@@ -17,6 +17,10 @@ let currentTime, eventTime;
 let countdownInterval;
 
 $(function () {
+    if ($('#step-1, #step-2, #step-3').length === 0) {
+        return;
+    }
+
     var ajaxTimeStart = Date.now();
     $.get('/api/countdown', function (response) {
         // Add the number of ms it took for the Ajax request to complete

@@ -6,7 +6,7 @@ const subMinutes = require('date-fns/sub_minutes');
 const isPast = require('date-fns/is_past');
 
 const asyncRedis = require('async-redis');
-const redisClient = asyncRedis.createClient();
+const redisClient = asyncRedis.createClient(process.env.REDIS_PORT, process.env.REDIS_ENDPOINT);
 redisClient.on('error', function (err) {
     console.error('Redis Error!');
     console.error(err);

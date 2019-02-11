@@ -14,7 +14,7 @@ app.locals.env = process.env;
 
 // Model setup
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/rankedroyale', {
+mongoose.connect(process.env.MONGODB_URI, {
     useCreateIndex: true,
     useNewUrlParser: true
 });

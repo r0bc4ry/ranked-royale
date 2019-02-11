@@ -13,7 +13,7 @@ block content
                     h5.card-header Your Epic Account
                     div.card-body
                         if !user.epicGamesAccount
-                            button.btn.btn-block.btn-primary(type="button", data-toggle="modal", data-target="#connect-modal") Connect Epic Games Account
+                            button.btn.btn-block.btn-secondary(type="button", data-toggle="modal", data-target="#connect-modal") Connect Epic Games Account
                         else
                             h6 Display Name
                             p= user.epicGamesAccount.displayName
@@ -42,14 +42,27 @@ block content
                         div.card.mb-3
                             h5.card-header.bg-primary.text-white #[img.align-top(src="/img/solo.png", width="24", height="24")] Solo
                             div.card-body.text-center
-                                if true
-                                    h1.card-title #{user.stats.solo.matchesPlayed}/10 #[small.text-muted Placement Matches]
+                                if user.stats.solo.matchesPlayed < 10
+                                    h1.card-title.my-5 #{user.stats.solo.matchesPlayed}/10 #[small.text-muted Placement Matches]
                                 else
-                                    div.row
-                                        div.col-3
-                                            img.img-fluid(src="/img/gold.png")
-                                            h4 Gold
-                                            h6 2500
+                                    div.row.text-center.rank
+                                        div.col
+                                            if user.stats.solo.rating < 600
+                                                img.img-fluid.mb-3(src="/img/ranks/bronze.png")
+                                                h5.mb-0 Bronze
+                                            else if 600 <= user.stats.solo.rating && user.stats.solo.rating < 1200
+                                                img.img-fluid.mb-3(src="/img/ranks/silver.png")
+                                                h5.mb-0 Silver
+                                            else if 1200 <= user.stats.solo.rating && user.stats.solo.rating < 1800
+                                                img.img-fluid.mb-3(src="/img/ranks/gold.png")
+                                                h5.mb-0 Gold
+                                            else if 1800 <= user.stats.solo.rating && user.stats.solo.rating < 2400
+                                                img.img-fluid.mb-3(src="/img/ranks/platinum.png")
+                                                h5.mb-0 Platinum
+                                            else if 2400 <= user.stats.solo.rating
+                                                img.img-fluid.mb-3(src="/img/ranks/epic.png")
+                                                h5.mb-0 Epic
+                                            p.text-muted= user.stats.solo.rating
                                 hr
                                 div.row
                                     div.col-6.col-md-4.col-lg-2
