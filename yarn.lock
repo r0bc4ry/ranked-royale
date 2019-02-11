@@ -1590,6 +1590,13 @@ connect-flash@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/connect-flash/-/connect-flash-0.1.1.tgz#d8630f26d95a7f851f9956b1e8cc6732f3b6aa30"
 
+connect-redis@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/connect-redis/-/connect-redis-3.4.0.tgz#4040dd3755bddbf93478fb84937a74052c31b965"
+  dependencies:
+    debug "^4.0.1"
+    redis "^2.8.0"
+
 console-browserify@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/console-browserify/-/console-browserify-1.1.0.tgz#f0241c45730a9fc6323b206dbf38edc741d0bb10"
@@ -1830,7 +1837,7 @@ debug@^3.1.0:
   dependencies:
     ms "^2.1.1"
 
-debug@^4.1.0, debug@~4.1.0, debug@~4.1.1:
+debug@^4.0.1, debug@^4.1.0, debug@~4.1.0, debug@~4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.1.tgz#3b72260255109c6b589cee050f1d516139664791"
   dependencies:

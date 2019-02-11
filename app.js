@@ -4,6 +4,7 @@ const express = require('express');
 const logger = require('morgan');
 const path = require('path');
 const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
 
 const flash = require('connect-flash');
 const LocalStrategy = require('passport-local').Strategy;
@@ -38,7 +39,9 @@ global.asyncRedisClient = asyncRedisClient;
 
 // Passsport setup
 app.use(session({
-    client: client,
+    store: new RedisStore({
+        client: client
+    }),
     secret: '{#fFT"5pZ>LvD#N:',
     resave: true,
     saveUninitialized: true
