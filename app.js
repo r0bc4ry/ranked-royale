@@ -22,8 +22,24 @@ mongoose.connect(process.env.MONGODB_URI, {
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Mongoose Connection Error:'));
 
+// Redis setup
+const redis = require('redis');
+const client = redis.createClient({
+    host: process.env.REDIS_ENDPOINT,
+    port: process.env.REDIS_PORT
+});
+
+client.on('error', function (err) {
+    console.error('Redis Error: ' + err);
+});
+
+const asyncRedis = require('async-redis');
+const asyncRedisClient = asyncRedis.decorate(client);
+global.asyncRedisClient = asyncRedisClient;
+
 // Passsport setup
 app.use(session({
+    client: client,
     secret: '{#fFT"5pZ>LvD#N:',
     resave: true,
     saveUninitialized: true

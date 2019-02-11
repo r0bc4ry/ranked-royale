@@ -5,13 +5,6 @@ const addMinutes = require('date-fns/add_minutes');
 const subMinutes = require('date-fns/sub_minutes');
 const isPast = require('date-fns/is_past');
 
-const asyncRedis = require('async-redis');
-const redisClient = asyncRedis.createClient(process.env.REDIS_PORT, process.env.REDIS_ENDPOINT);
-redisClient.on('error', function (err) {
-    console.error('Redis Error!');
-    console.error(err);
-});
-
 const Match = require('../../models/match');
 const Stat = require('../../models/stat');
 const User = require('../../models/user');
@@ -54,15 +47,15 @@ async function putMatch(userId, serverId) {
         createdAt: {"$gt": subMinutes(new Date(), 30)}
     });
 
-    let cardinality = await redisClient.scard(serverId);
+    let cardinality = await global.asyncRedisClient.scard(serverId);
 
     // Check if this match has recently started
     if (match && cardinality === 0) {
         throw 'This match has already started. You must enter your server ID within 60 seconds of the countdown ending.';
     }
 
-    await redisClient.sadd(serverId, userId);
-    await redisClient.expire(serverId, 120);
+    await global.asyncRedisClient.sadd(serverId, userId);
+    await global.asyncRedisClient.expire(serverId, 120);
     global.io.emit(serverId, cardinality + 1);
 
     if (!match && cardinality === 0) {
@@ -83,8 +76,8 @@ async function putMatch(userId, serverId) {
 
 async function _startMatch(match) {
     if (!match.users.length) {
-        let members = await redisClient.smembers(match.serverId);
-        await redisClient.del(match.serverId);
+        let members = await global.asyncRedisClient.smembers(match.serverId);
+        await global.asyncRedisClient.del(match.serverId);
 
         // TODO Undo comment for production
         // if (users.length < 5) {
@@ -100,8 +93,8 @@ async function _startMatch(match) {
         console.log(`Checking stats for ${user.epicGamesAccount.displayName} at ${new Date()}`);
         try {
             let stats = await epicGamesController.getStats(user.epicGamesAccount.id);
-            await redisClient.hset(match.serverId, user._id.toString(), JSON.stringify(stats));
-            await redisClient.expire(match.serverId, 1800);
+            await global.asyncRedisClient.hset(match.serverId, user._id.toString(), JSON.stringify(stats));
+            await global.asyncRedisClient.expire(match.serverId, 1800);
         } catch (err) {
             console.error(err);
         }
@@ -117,7 +110,7 @@ function _startCronJob(match, users) {
         if (isPast(addMinutes(match.createdAt, 45))) {
             console.log(`Match ${match._id} was running for more than 45 minutes.`);
             await match.remove();
-            await redisClient.del(match.serverId);
+            await global.asyncRedisClient.del(match.serverId);
             return job.stop();
         }
 
@@ -127,7 +120,7 @@ function _startCronJob(match, users) {
             console.log(`Checking stats for ${user.epicGamesAccount.displayName} at ${new Date()}`);
             try {
                 currentStats[user._id] = await epicGamesController.getStats(user.epicGamesAccount.id);
-                let prevStats = await redisClient.hget(match.serverId, user._id.toString());
+                let prevStats = await global.asyncRedisClient.hget(match.serverId, user._id.toString());
                 prevStats = JSON.parse(prevStats);
 
                 let gameModeCurrentStats = currentStats[user._id][user.epicGamesAccount.platform][match.gameMode];
@@ -148,7 +141,7 @@ function _startCronJob(match, users) {
 
         if (matchHasEnded) {
             await Promise.all(users.map(async function (user) {
-                let prevStats = await redisClient.hget(match.serverId, user._id.toString());
+                let prevStats = await global.asyncRedisClient.hget(match.serverId, user._id.toString());
                 prevStats = JSON.parse(prevStats);
 
                 let statDoc = {
@@ -216,7 +209,7 @@ function _startCronJob(match, users) {
             // Update match as complete and remove Redis key
             match.isComplete = true;
             await match.save();
-            await redisClient.del(match.serverId);
+            await global.asyncRedisClient.del(match.serverId);
 
             // Update user stats and Elo ratings
             await eloController.updateUserStats(match, users, currentStats);
@@ -224,8 +217,8 @@ function _startCronJob(match, users) {
             return job.stop();
         } else {
             await Promise.all(users.map(async function (user) {
-                await redisClient.hset(match.serverId, user._id.toString(), JSON.stringify(currentStats[user._id]));
-                await redisClient.expire(match.serverId, 1800);
+                await global.asyncRedisClient.hset(match.serverId, user._id.toString(), JSON.stringify(currentStats[user._id]));
+                await global.asyncRedisClient.expire(match.serverId, 1800);
             }));
         }
     });
