@@ -23,6 +23,11 @@ var Match = new Schema({
         type: Number,
         required: true
     },
+    hasEnded: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
     users: {
         type: [ObjectId]
     }

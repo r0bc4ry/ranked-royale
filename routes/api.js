@@ -50,18 +50,19 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
     let currentTime = new Date();
 
     // Get user's rank
-    let userRank = req.user.stats.solo.rank;
+    let userRating = req.user.stats.solo.rating;
     let rank = ranks.find((x) => {
-        return x.range[0] < userRank && userRank < x.range[1]
+        return x.range[0] < userRating && userRating < x.range[1]
     });
 
     if (!rank) {
-        return apiError(res, 'Error finding user\'s rank.');
+        return apiError(res, "Error finding user's rank.");
     }
 
     let eventTime = null;
 
-    for (let minutes of rank.minutes) {
+    let hardcodedMinutes = [0, 30];
+    for (let minutes of hardcodedMinutes) {
         if (minutes > getMinutes(currentTime)) {
             eventTime = new Date(getYear(currentTime), getMonth(currentTime), getDate(currentTime), getHours(currentTime), minutes, 0, 0);
             break;
@@ -69,7 +70,7 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
     }
 
     if (eventTime === null) {
-        eventTime = setMinutes(startOfHour(addHours(currentTime, 1)), rank.minutes[0]);
+        eventTime = setMinutes(startOfHour(addHours(currentTime, 1)), hardcodedMinutes[0]);
     }
 
     res.json({
@@ -87,8 +88,12 @@ router.get('/matches', isAuthenticated, async function (req, res, next) {
     try {
         matches = await matchController.getMatches(req.user._id);
     } catch (err) {
-        console.error(err);
-        return apiError(res, 'Error returning matches.');
+        if (typeof err === 'string') {
+            return apiError(res, err);
+        } else {
+            console.error(err);
+            return apiError(res, 'Error returning matches.');
+        }
     }
 
     res.json({
@@ -105,8 +110,12 @@ router.get('/matches/:matchId', isAuthenticated, async function (req, res, next)
     try {
         match = await matchController.getMatch(req.user._id, req.params.matchId);
     } catch (err) {
-        console.error(err);
-        return apiError(res, 'Error returning match.');
+        if (typeof err === 'string') {
+            return apiError(res, err);
+        } else {
+            console.error(err);
+            return apiError(res, 'Error returning match.');
+        }
     }
 
     res.json({
@@ -119,16 +128,21 @@ router.get('/matches/:matchId', isAuthenticated, async function (req, res, next)
 
 // Append current player to list of players in a match
 router.put('/matches/:serverId', isAuthenticated, async function (req, res, next) {
+    let cardinality;
     try {
-        await matchController.putMatch(req.user._id, req.params.serverId);
+        cardinality = await matchController.putMatch(req.user._id, req.params.serverId);
     } catch (err) {
-        console.error(err);
-        return apiError(res, 'Error adding user to match.');
+        if (typeof err === 'string') {
+            return apiError(res, err);
+        } else {
+            console.error(err);
+            return apiError(res, 'Error adding user to match.');
+        }
     }
 
     res.json({
         status: 'success',
-        data: {}
+        data: cardinality
     });
 });
 

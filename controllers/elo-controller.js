@@ -1,21 +1,20 @@
-var EloRank = require('elo-rank');
-var elo = new EloRank();
+var Elo = require('arpad');
+var elo = new Elo(32, 1, 3000);
 
 const Stat = require('../models/stat');
-const User = require('../models/user');
 
-async function updateUserStats(match, users, performanceStats) {
+async function updateUserStats(match, users, statDocs) {
     // At the end of a match, make a list of all the players and sort it by performance
     let userScores = [];
     await Promise.all(users.map(async function (user) {
-        let userPerformance = {
+        let userScore = {
             userId: user._id,
-            score: performanceStats[user._id].kills * 1
+            score: statDocs[user._id].kills * 1
         };
-        if (performanceStats[user._id].placeTop25) userPerformance.scored += 4;
-        if (performanceStats[user._id].placeTop10) userPerformance.scored += 4;
-        if (performanceStats[user._id].placeTop1) userPerformance.scored += 4;
-        userScores.push(userPerformance);
+        if (statDocs[user._id].placeTop25) userScore.score += 4;
+        if (statDocs[user._id].placeTop10) userScore.score += 4;
+        if (statDocs[user._id].placeTop1) userScore.score += 4;
+        userScores.push(userScore);
     }));
 
     userScores.sort(function (a, b) {
@@ -33,19 +32,22 @@ async function updateUserStats(match, users, performanceStats) {
                 return element._id === userScores[index + 1].userId;
             });
 
+            let playerARating = userA.stats[match.gameMode].rating;
+            let playerBRating = userB.stats[match.gameMode].rating;
+
             // Gets expected score for first parameter
-            let expectedScoreA = elo.getExpected(userA.stats[match.gameMode].rank, userB.stats[match.gameMode].rank);
-            let expectedScoreB = elo.getExpected(userB.stats[match.gameMode].rank, userA.stats[match.gameMode].rank);
+            let oddsPlayerAWins = elo.expectedScore(playerARating, playerBRating);
+            let oddsPlayerBWins = elo.expectedScore(playerBRating, playerARating);
 
-            // Update score, 1 if won 0 if lost
-            let playerARank = elo.updateRating(expectedScoreA, 1, playerA);
-            let playerBRank = elo.updateRating(expectedScoreB, 0, playerB);
+            // Update score: 1 if won, 0.5 is draw, 0 if lost
+            let updatedPlayerARating = elo.newRating(oddsPlayerAWins, userA.score === userB.score ? 0.5 : 1, playerARating);
+            let updatedPlayerBRating = elo.newRating(oddsPlayerBWins, userA.score === userB.score ? 0.5 : 0, playerBRating);
 
-            performanceStats[userA._id].eloDelta = playerARank - userA.stats[match.gameMode].rank;
-            performanceStats[userB._id].eloDelta = playerBRank - userB.stats[match.gameMode].rank;
+            statDocs[userA._id].eloDelta = updatedPlayerARating - playerARating;
+            statDocs[userB._id].eloDelta = updatedPlayerBRating - playerBRating;
         } else {
-            if (!performanceStats[userA._id].hasOwnProperty('eloDelta')) {
-                performanceStats[userA._id].eloDelta = 0;
+            if (!statDocs[userA._id].hasOwnProperty('eloDelta')) {
+                statDocs[userA._id].eloDelta = 0;
             }
         }
     }
@@ -54,21 +56,21 @@ async function updateUserStats(match, users, performanceStats) {
     await Promise.all(users.map(async function (user) {
         await user.update({
             $inc: {
-                'stats.solo.rank': performanceStats[user._id].eloDelta,
+                'stats.solo.rating': statDocs[user._id].eloDelta,
                 'stats.solo.matchesPlayed': 1,
-                'stats.solo.kills': performanceStats[user._id].kills,
-                'stats.solo.placeTop25': performanceStats[user._id].placeTop25,
-                'stats.solo.placeTop10': performanceStats[user._id].placeTop10,
-                'stats.solo.placeTop1': performanceStats[user._id].placeTop1
+                'stats.solo.kills': statDocs[user._id].kills,
+                'stats.solo.placeTop25': statDocs[user._id].placeTop25,
+                'stats.solo.placeTop10': statDocs[user._id].placeTop10,
+                'stats.solo.placeTop1': statDocs[user._id].placeTop1
             },
             $set: {
                 'stats.solo.updatedAt': new Date()
             }
         });
-        performanceStats[user._id].placeTop1 = !!performanceStats[user._id].placeTop1;
-        performanceStats[user._id].placeTop10 = !!performanceStats[user._id].placeTop10;
-        performanceStats[user._id].placeTop25 = !!performanceStats[user._id].placeTop25;
-        await Stat.create(performanceStats[user._id]);
+        statDocs[user._id].placeTop1 = !!statDocs[user._id].placeTop1;
+        statDocs[user._id].placeTop10 = !!statDocs[user._id].placeTop10;
+        statDocs[user._id].placeTop25 = !!statDocs[user._id].placeTop25;
+        await Stat.create(statDocs[user._id]);
     }));
 }
 

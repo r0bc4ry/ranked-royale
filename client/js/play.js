@@ -6,6 +6,7 @@ import * as workerTimers from 'worker-timers';
 const socket = io('http://localhost:3000/');
 
 var countdown5MinutesAudio = new Audio('/audio/5-minutes.wav');
+var countdown3MinutesAudio = new Audio('/audio/3-minutes.wav');
 var countdown1MinuteAudio = new Audio('/audio/1-minute.wav');
 var countdownStartingBronze = new Audio('/audio/5.wav');
 var countdown3Audio = new Audio('/audio/3.wav');
@@ -17,21 +18,20 @@ let countdownInterval;
 
 $(function () {
     var ajaxTimeStart = Date.now();
-    $.get('/api/countdown', function (reply) {
+    $.get('/api/countdown', function (response) {
         // Add the number of ms it took for the Ajax request to complete
         let ajaxTime = Date.now() - ajaxTimeStart;
-        currentTime = addMilliseconds(new Date(reply.data.currentTime), ajaxTime);
-        eventTime = new Date(reply.data.eventTime);
+        currentTime = addMilliseconds(new Date(response.data.currentTime), ajaxTime);
+        eventTime = new Date(response.data.eventTime);
         eventTime = addMilliseconds(currentTime, 1000);
         startCountdown();
     });
-
-    $('[data-toggle="tooltip"]').tooltip();
 
     socket.on('onlineCounter', function (data) {
         $('#online-counter').text(data);
     });
 
+    $('#step-2 .form-control').keypress(onStep2InputKeypress);
     $('#step-2 button').click(onStep2ButtonClick);
 });
 
@@ -74,6 +74,9 @@ function updateCountdown() {
         if (m === 5 && s === 0) {
             countdown5MinutesAudio.play()
         }
+        if (m === 3 && s === 0) {
+            countdown3MinutesAudio.play()
+        }
         if (m === 1 && s === 0) {
             countdown1MinuteAudio.play()
         }
@@ -89,9 +92,18 @@ function onStep1End() {
     });
 }
 
+function onStep2InputKeypress(event) {
+    let code = event.keyCode || event.which;
+    if (code === 13) {
+        onStep2ButtonClick(event);
+    }
+}
+
 function onStep2ButtonClick(event) {
     event.preventDefault();
-    event.stopPropagation();
+
+    let alert = $('#step-2 .alert.alert-danger');
+    alert.addClass('d-none');
 
     // Validate form
     let form = $('#step-2 .needs-validation').get(0);
@@ -102,26 +114,34 @@ function onStep2ButtonClick(event) {
     }
 
     // Disable button and show spinner
-    let buttonHtml = $(this).html();
-    $(this).html('<span class="spinner-border spinner-border-sm"></span> Loading...');
-    $(this).attr('disabled', true);
+    let button = $('#step-2 .btn.btn-primary');
+    let buttonHtml = button.html();
+    button.html('<span class="spinner-border spinner-border-sm"></span> Loading...');
+    button.attr('disabled', true);
 
-    let matchCode = $('#step-2 input[name=code]').val();
+    let serverId = $('#step-2 input[name=serverId]').val();
 
     // Send Ajax
     $.ajax({
-        url: `/api/matches/${matchCode}`,
+        url: `/api/matches/${serverId}`,
         type: 'PUT'
-    }).done(function () {
-        // Success
-        socket.on(matchCode, function (data) {
+    }).done(function (response) {
+        $('#in-match-counter').text(response.data);
+        socket.on(serverId, function (data) {
             $('#in-match-counter').text(data);
+            if (data < 5) {
+                $('#step-3 .alert.alert-warning').removeClass('d-none');
+            } else {
+                $('#step-3 .alert.alert-warning').addClass('d-none');
+            }
         });
         onStep2End();
-    }).fail(function () {
+    }).fail(function (response) {
         // Error
-        $(this).html(buttonHtml);
-        $(this).attr('disabled', false);
+        button.html(buttonHtml);
+        button.attr('disabled', false);
+        alert.text(response.responseJSON.message ? response.responseJSON.message : 'Uh-oh! An error occurred.');
+        alert.removeClass('d-none');
     });
 }
 

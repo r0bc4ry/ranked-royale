@@ -1,8 +1,9 @@
 const CronJob = require('cron').CronJob;
 const eloController = require('../elo-controller');
 const epicGamesController = require('../epic-games-controller');
-const mongoose = require('mongoose');
+const addMinutes = require('date-fns/add_minutes');
 const subMinutes = require('date-fns/sub_minutes');
+const isPast = require('date-fns/is_past');
 
 const asyncRedis = require('async-redis');
 const redisClient = asyncRedis.createClient();
@@ -14,6 +15,14 @@ redisClient.on('error', function (err) {
 const Match = require('../../models/match');
 const Stat = require('../../models/stat');
 const User = require('../../models/user');
+
+(async () => {
+    // TODO In the event of an error crashing the application, restart the unfinished matches
+    // let unfinsishedMatches = await Match.find({hasEnded: false});
+    // await Promise.all(unfinsishedMatches.map(async function (match) {
+    //     await _startMatch(match);
+    // }));
+})();
 
 async function getMatches(userId) {
     // Get the matches the user has participated in
@@ -54,7 +63,7 @@ async function putMatch(userId, serverId) {
 
     await redisClient.sadd(serverId, userId);
     await redisClient.expire(serverId, 120);
-    global.io.emit(serverId, cardinality + 1); // TODO Add tracking for number of players in match with Socket.io
+    global.io.emit(serverId, cardinality + 1);
 
     if (!match && cardinality === 0) {
         match = await Match.create({
@@ -66,23 +75,27 @@ async function putMatch(userId, serverId) {
         // After timeout for users to queue in Redis, begin the match
         setTimeout(function () {
             _startMatch(match);
-        }, 1000 * 5);
+        }, 1000 * 60);
     }
+
+    return cardinality + 1;
 }
 
 async function _startMatch(match) {
-    let members = await redisClient.smembers(match.serverId);
-    await redisClient.del(match.serverId);
+    if (!match.users.length) {
+        let members = await redisClient.smembers(match.serverId);
+        await redisClient.del(match.serverId);
 
-    // TODO Undo comment for production
-    // if (users.length < 5) {
-    //     return await match.delete();
-    // }
+        // TODO Undo comment for production
+        // if (users.length < 5) {
+        //     return await match.delete();
+        // }
 
-    match.users = members;
-    await match.save();
+        match.users = members;
+        await match.save();
+    }
 
-    let users = await User.find({'_id': members});
+    let users = await User.find({'_id': match.users});
     await Promise.all(users.map(async function (user) {
         console.log(`Checking stats for ${user.epicGamesAccount.displayName} at ${new Date()}`);
         try {
@@ -100,23 +113,37 @@ async function _startMatch(match) {
 
 function _startCronJob(match, users) {
     let job = new CronJob('0 */1 * * * *', async function () {
+        // If this job has been running for more than 45 minutes, stop it
+        if (isPast(addMinutes(match.createdAt, 45))) {
+            console.log(`Match ${match._id} was running for more than 45 minutes.`);
+            await match.remove();
+            await redisClient.del(match.serverId);
+            return job.stop();
+        }
+
         let currentStats = {};
+        let unchangedUsers = [];
         await Promise.all(users.map(async function (user) {
             console.log(`Checking stats for ${user.epicGamesAccount.displayName} at ${new Date()}`);
             try {
                 currentStats[user._id] = await epicGamesController.getStats(user.epicGamesAccount.id);
+                let prevStats = await redisClient.hget(match.serverId, user._id.toString());
+                prevStats = JSON.parse(prevStats);
+
+                let gameModeCurrentStats = currentStats[user._id][user.epicGamesAccount.platform][match.gameMode];
+                let gameModePrevStats = prevStats[user.epicGamesAccount.platform][match.gameMode];
+                if (JSON.stringify(gameModeCurrentStats) === JSON.stringify(gameModePrevStats)) {
+                    unchangedUsers.push(user._id);
+                }
             } catch (err) {
                 console.error(err);
             }
         }));
 
+        // To prevent a small number of users from causing a match to last forever, check if the percentage of unchanged stats is greater than 20%
         let matchHasEnded = true;
-        for (let userId in currentStats) {
-            let prevStats = await redisClient.hget(match.serverId, userId);
-            if (JSON.stringify(currentStats[userId]) === prevStats) {
-                matchHasEnded = false;
-                break;
-            }
+        if (unchangedUsers.length / users.length > 0.2) {
+            matchHasEnded = false;
         }
 
         if (matchHasEnded) {
@@ -129,9 +156,12 @@ function _startCronJob(match, users) {
                     matchId: match._id
                 };
 
-                let numMatches = currentStats[user._id].pc[match.gameMode].matchesplayed - prevStats.pc[match.gameMode].matchesplayed;
+                // Check the user's stats are only reporting for 1 match
+                let numMatches = currentStats[user._id][user.epicGamesAccount.platform][match.gameMode].matchesplayed - prevStats[user.epicGamesAccount.platform][match.gameMode].matchesplayed;
                 if (numMatches !== 1) {
                     console.log(`User "${user._id}" reported ${numMatches} matches instead of 1.`);
+                    console.log(JSON.stringify(currentStats));
+                    console.log(JSON.stringify(prevStats));
                     try {
                         await match.update({}, {
                             $pull: {
@@ -148,31 +178,50 @@ function _startCronJob(match, users) {
 
                 switch (match.gameMode) {
                     case 'solo':
-                        statDoc.kills = currentStats[user._id].pc.solo.kills - prevStats.pc.solo.kills;
-                        statDoc.placeTop1 = currentStats[user._id].pc.solo.placetop1 - prevStats.pc.solo.placetop1;
-                        statDoc.placeTop10 = currentStats[user._id].pc.solo.placetop10 - prevStats.pc.solo.placetop10;
-                        statDoc.placeTop25 = currentStats[user._id].pc.solo.placetop25 - prevStats.pc.solo.placetop25;
+                        statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].solo.kills === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills;
+                        statDoc.placeTop1 = currentStats[user._id][user.epicGamesAccount.platform].solo.placetop1 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].solo.placetop1 - prevStats[user.epicGamesAccount.platform].solo.placetop1;
+                        statDoc.placeTop10 = currentStats[user._id][user.epicGamesAccount.platform].solo.placetop10 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].solo.placetop10 - prevStats[user.epicGamesAccount.platform].solo.placetop10;
+                        statDoc.placeTop25 = currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25;
                         break;
                     case 'duo':
-                        statDoc.kills = currentStats[user._id].pc.duo.kills - prevStats.pc.duo.kills;
-                        statDoc.placeTop1 = currentStats[user._id].pc.duo.placetop1 - prevStats.pc.duo.placetop1;
-                        statDoc.placeTop5 = currentStats[user._id].pc.duo.placetop5 - prevStats.pc.duo.placetop5;
-                        statDoc.placeTop12 = currentStats[user._id].pc.duo.placetop12 - prevStats.pc.duo.placetop12;
+                        statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].duo.kills === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].duo.kills - prevStats[user.epicGamesAccount.platform].duo.kills;
+                        statDoc.placeTop1 = currentStats[user._id][user.epicGamesAccount.platform].duo.placetop1 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].duo.placetop1 - prevStats[user.epicGamesAccount.platform].duo.placetop1;
+                        statDoc.placeTop5 = currentStats[user._id][user.epicGamesAccount.platform].duo.placetop5 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].duo.placetop5 - prevStats[user.epicGamesAccount.platform].duo.placetop5;
+                        statDoc.placeTop12 = currentStats[user._id][user.epicGamesAccount.platform].duo.placetop12 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].duo.placetop12 - prevStats[user.epicGamesAccount.platform].duo.placetop12;
                         break;
                     case 'squad':
-                        statDoc.kills = currentStats[user._id].pc.squad.kills - prevStats.pc.squad.kills;
-                        statDoc.placeTop1 = currentStats[user._id].pc.squad.placetop1 - prevStats.pc.squad.placetop1;
-                        statDoc.placeTop3 = currentStats[user._id].pc.squad.placetop3 - prevStats.pc.squad.placetop3;
-                        statDoc.placeTop6 = currentStats[user._id].pc.squad.placetop6 - prevStats.pc.squad.placetop6;
+                        statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].squad.kills === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].squad.kills - prevStats[user.epicGamesAccount.platform].squad.kills;
+                        statDoc.placeTop1 = currentStats[user._id][user.epicGamesAccount.platform].squad.placetop1 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].squad.placetop1 - prevStats[user.epicGamesAccount.platform].squad.placetop1;
+                        statDoc.placeTop3 = currentStats[user._id][user.epicGamesAccount.platform].squad.placetop3 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].squad.placetop3 - prevStats[user.epicGamesAccount.platform].squad.placetop3;
+                        statDoc.placeTop6 = currentStats[user._id][user.epicGamesAccount.platform].squad.placetop6 === undefined ?
+                            0 : currentStats[user._id][user.epicGamesAccount.platform].squad.placetop6 - prevStats[user.epicGamesAccount.platform].squad.placetop6;
                         break;
                 }
 
                 // Reuse currentStats object to store user's performance in the match
                 currentStats[user._id] = statDoc;
             }));
+
+            // Update match as complete and remove Redis key
+            match.isComplete = true;
+            await match.save();
             await redisClient.del(match.serverId);
+
+            // Update user stats and Elo ratings
             await eloController.updateUserStats(match, users, currentStats);
-            job.stop();
+
+            return job.stop();
         } else {
             await Promise.all(users.map(async function (user) {
                 await redisClient.hset(match.serverId, user._id.toString(), JSON.stringify(currentStats[user._id]));

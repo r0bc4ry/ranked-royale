@@ -50,7 +50,7 @@ var UserSchema = new Schema({
     },
     stats: {
         solo: {
-            rank: {
+            rating: {
                 type: Number,
                 required: true,
                 default: 1500
@@ -87,7 +87,7 @@ var UserSchema = new Schema({
             }
         },
         duo: {
-            rank: {
+            rating: {
                 type: Number,
                 required: true,
                 default: 1500
@@ -124,7 +124,7 @@ var UserSchema = new Schema({
             }
         },
         squad: {
-            rank: {
+            rating: {
                 type: Number,
                 required: true,
                 default: 1500

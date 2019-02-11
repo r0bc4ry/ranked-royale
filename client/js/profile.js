@@ -34,7 +34,7 @@ function onConnectContinue(event) {
         }).fail(function (response) {
             button.html(buttonHtml);
             button.attr('disabled', false);
-            $('#connect-modal .alert.alert-danger').text(response.responseJSON.message ? response.responseJSON.message : 'Uh-oh! An error occurred.');
+            alert.text(response.responseJSON.message ? response.responseJSON.message : 'Uh-oh! An error occurred.');
             alert.removeClass('d-none');
         });
     }

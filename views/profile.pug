@@ -54,7 +54,7 @@ block content
                                 div.row
                                     div.col-6.col-md-4.col-lg-2
                                         h6 Matches
-                                        p= user.stats.solo.matchesPlayed
+                                        p= matches.length
                                     div.col-6.col-md-4.col-lg-2
                                         h6 Kills
                                         p= user.stats.solo.kills
@@ -98,11 +98,12 @@ block content
                                     table.table.table-striped.table-borderless
                                         thead
                                             tr
-                                                th Game Mode
+                                                th Mode
                                                 th Kills
                                                 th Top 25
                                                 th Top 10
                                                 th Win
+                                                th Rating Change
                                         tbody
                                             each match in matches
                                                 if match.stat
@@ -110,21 +111,27 @@ block content
                                                         th.text-capitalize= match.gameMode
                                                         td= match.stat.kills
                                                         if match.stat.placeTop25
-                                                            td #[i.fas.fa-check.text-success]
+                                                            td #[i.fas.fa-check]
                                                         else
-                                                            td #[i.fas.fa-times.text-danger]
+                                                            td #[i.fas.fa-times]
                                                         if match.stat.placeTop10
-                                                            td #[i.fas.fa-check.text-success]
+                                                            td #[i.fas.fa-check]
                                                         else
-                                                            td #[i.fas.fa-times.text-danger]
+                                                            td #[i.fas.fa-times]
                                                         if match.stat.placeTop1
-                                                            td #[i.fas.fa-check.text-success]
+                                                            td #[i.fas.fa-check]
                                                         else
-                                                            td #[i.fas.fa-times.text-danger]
+                                                            td #[i.fas.fa-times]
+                                                        if match.stat.eloDelta === 0
+                                                            td.text-warning= match.stat.eloDelta
+                                                        else if match.stat.eloDelta > 0
+                                                            td.text-success +#{match.stat.eloDelta}
+                                                        else
+                                                            td.text-danger -#{match.stat.eloDelta}
                                                 else
                                                     tr
                                                         th.text-capitalize= match.gameMode
-                                                        td(colspan="4") Match In Progress...
+                                                        td(colspan="5") Match in progress...
 
     if !user.epicGamesAccount
         div#connect-modal.modal.fade(tabindex="-1")
