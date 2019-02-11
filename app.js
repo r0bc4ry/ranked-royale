@@ -25,8 +25,7 @@ db.on('error', console.error.bind(console, 'Mongoose Connection Error:'));
 // Redis setup
 const redis = require('redis');
 const client = redis.createClient({
-    host: process.env.REDIS_ENDPOINT,
-    port: process.env.REDIS_PORT
+    url: process.env.REDIS_URL
 });
 
 client.on('error', function (err) {
