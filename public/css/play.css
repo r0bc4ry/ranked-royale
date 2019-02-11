@@ -1,0 +1,12 @@
+.d-flex {
+  min-height: 324px;
+  padding: 1rem; }
+  @media (min-width: 768px) {
+    .d-flex {
+      padding: 3rem;
+      clip-path: polygon(0 100%, 2% 5%, 90% 0, 90% 5%, 93% 0, 100% 0, 96% 100%); } }
+  .d-flex #step-1 h1 {
+    font-variant-numeric: tabular-nums; }
+  .d-flex #step-2, .d-flex #step-3 {
+    display: none; }
+
