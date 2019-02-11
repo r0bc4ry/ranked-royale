@@ -172,8 +172,9 @@ typings/
 
 
 ###### Custom
-.idea
 .code-workspace
+.elasticbeanstalk
+.idea
 public/css
 public/js
 public/fonts
