@@ -12,35 +12,74 @@ block content
                 div.col
                     h1.text-primary Ranked
                     ul.list-unstyled
-                        li
+                        li.mb-5
                             h3 Getting Started
-                            p Available after you've played 25 matches, ranked play is designed for players that want to put their skills to the test. To get started, log in to Ranked Royale, verify your Epic Games account, and then wait for the countdown. Once the countdown reaches 0, click "Play" in Fortnite and then enter the server ID for once the spawn island loads.
+                            p Available after you've played 25 matches, ranked play is designed for players that want to put their skills to the test. To get started, log in to Ranked Royale, verify your Epic Games account, and then wait for the countdown. When the countdown finishes, click "Play" in Fortnite and then enter the server ID once your game loads.
                             p Every player must first complete 10 placement matches to obtain their initial Elo rating. This rating will be a number between 1 and 3000, with higher values indicating a greater skill level. Players will also be assigned a tier based on their rating - Bronze, Silver, Gold, Platinum, or Epic.
                             p As you compete, your rating will increase or decrease with each win or loss based on a number of factors including your placement, number of kills, and the skill of the other players in the match.
                             div.row.text-center
                                 div.col
                                     img.img-fluid.mb-3(src="/img/ranks/bronze.png")
-                                    h4.mb-0 Bronze
-                                    p.lead.text-muted 1-599
+                                    h5.mb-0 Bronze
+                                    p.text-muted 1-599
                                 div.col
                                     img.img-fluid.mb-3(src="/img/ranks/silver.png")
-                                    h4.mb-0 Silver
-                                    p.lead.text-muted 600-1199
+                                    h5.mb-0 Silver
+                                    p.text-muted 600-1199
                                 div.col
                                     img.img-fluid.mb-3(src="/img/ranks/gold.png")
-                                    h4.mb-0 Gold
-                                    p.lead.text-muted 1200-1799
+                                    h5.mb-0 Gold
+                                    p.text-muted 1200-1799
                                 div.col
                                     img.img-fluid.mb-3(src="/img/ranks/platinum.png")
-                                    h4.mb-0 Platinum
-                                    p.lead.text-muted 1800-2399
+                                    h5.mb-0 Platinum
+                                    p.text-muted 1800-2399
                                 div.col
                                     img.img-fluid.mb-3(src="/img/ranks/epic.png")
-                                    h4.mb-0 Epic
-                                    p.lead.text-muted 2400+
+                                    h5.mb-0 Epic
+                                    p.text-muted 2400+
+                        li.mb-5
+                            h3 How are ranks calculated?
+                            p We track the stats for all Ranked Royale players in a match. Once a match ends, each player's kills and placement are compared and used to adjust Elo ratings. There are no arbitrary number of kills for points; every kills counts plus your overall placement.
+                            div.row
+                                div.col
+                                    h5 Solo
+                                    dl.row
+                                        dt.col-4 Kills
+                                        dd.col-8 +1 point
+                                        dt.col-4 Top 25
+                                        dd.col-8 +4 points
+                                        dt.col-4 Top 10
+                                        dd.col-8 +4 points
+                                        dt.col-4 Win
+                                        dd.col-8 +4 points
+                                div.col
+                                    h5 Duos
+                                    dl.row
+                                        dt.col-4 Kills
+                                        dd.col-8 +1 point
+                                        dt.col-4 Top 12
+                                        dd.col-8 +4 points
+                                        dt.col-4 Top 5
+                                        dd.col-8 +4 points
+                                        dt.col-4 Win
+                                        dd.col-8 +4 points
+                                    span.badge.badge-pill.badge-warning Coming soon!
+                                div.col
+                                    h5 Squads
+                                    dl.row
+                                        dt.col-4 Kills
+                                        dd.col-8 +1 point
+                                        dt.col-4 Top 6
+                                        dd.col-8 +4 points
+                                        dt.col-4 Top 3
+                                        dd.col-8 +4 points
+                                        dt.col-4 Win
+                                        dd.col-8 +4 points
+                                    span.badge.badge-pill.badge-warning Coming soon!
                         li
-                            h3 What are the rules?
-                            p Don't stream snipe. Proof of stream sniping will result in your Epic Games account being banned from Ranked Royale.
+                            h3 Are there any rules?
+                            p There are no rules for how to play, but please don't stream snipe. Proof of stream sniping will result in your Epic Games account being banned from Ranked Royale.
     section.position-relative
         div.container
             div.row

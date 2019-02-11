@@ -567,8 +567,8 @@
     "@types/babel-types" "*"
 
 "@types/node@*":
-  version "10.12.21"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.21.tgz#7e8a0c34cf29f4e17a36e9bd0ea72d45ba03908e"
+  version "10.12.24"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.24.tgz#b13564af612a22a20b5d95ca40f1bffb3af315cf"
 
 "@webassemblyjs/ast@1.7.11":
   version "1.7.11"
@@ -733,8 +733,8 @@ acorn@^4.0.4, acorn@~4.0.2:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-4.0.13.tgz#105495ae5361d697bd195c825192e1ad7f253787"
 
 acorn@^6.0.5:
-  version "6.0.7"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.0.7.tgz#490180ce18337270232d9488a44be83d9afb7fd3"
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.1.0.tgz#b0a3be31752c97a0f7013c5f4903b71a05db6818"
 
 after@0.8.2:
   version "0.8.2"
@@ -745,12 +745,12 @@ ajv-errors@^1.0.0:
   resolved "https://registry.yarnpkg.com/ajv-errors/-/ajv-errors-1.0.1.tgz#f35986aceb91afadec4102fbd85014950cefa64d"
 
 ajv-keywords@^3.1.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-3.3.0.tgz#cb6499da9b83177af8bc1732b2f0a1a1a3aacf8c"
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-3.4.0.tgz#4b831e7b531415a7cc518cd404e73f6193c6349d"
 
 ajv@^6.1.0, ajv@^6.5.5:
-  version "6.8.1"
-  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.8.1.tgz#0890b93742985ebf8973cd365c5b23920ce3cb20"
+  version "6.9.1"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.9.1.tgz#a4d3683d74abc5670e75f0b16520f70a20ea8dc1"
   dependencies:
     fast-deep-equal "^2.0.1"
     fast-json-stable-stringify "^2.0.0"
@@ -946,9 +946,9 @@ atob@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
 
-aws-sdk@^2.397.0:
-  version "2.397.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.397.0.tgz#4397a091bc48755bfc8082118906c3a99def20d2"
+aws-sdk@^2.400.0:
+  version "2.400.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.400.0.tgz#21041439ceeba8e6339b7bed54f2f3703243bbef"
   dependencies:
     buffer "4.9.1"
     events "1.1.1"
@@ -1328,8 +1328,8 @@ camelcase@^5.0.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.0.0.tgz#03295527d58bd3cd4aa75363f35b2e8d97be2f42"
 
 caniuse-lite@^1.0.30000929:
-  version "1.0.30000935"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000935.tgz#d1b59df00b46f4921bb84a8a34c1d172b346df59"
+  version "1.0.30000936"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000936.tgz#5d33b118763988bf721b9b8ad436d0400e4a116b"
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -1666,8 +1666,8 @@ core-js@^1.0.0:
   resolved "https://registry.yarnpkg.com/core-js/-/core-js-1.2.7.tgz#652294c14651db28fa93bd2d5ff2983a4f08c636"
 
 core-js@^2.4.0:
-  version "2.6.3"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.3.tgz#4b70938bdffdaf64931e66e2db158f0892289c49"
+  version "2.6.4"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.4.tgz#b8897c062c4d769dd30a0ac5c73976c47f92ea0d"
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
@@ -2082,20 +2082,20 @@ entities@^1.1.1, entities@~1.1.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/entities/-/entities-1.1.2.tgz#bdfa735299664dfafd34529ed4f8522a275fea56"
 
-epicgames-client@^1.2.8:
-  version "1.2.8"
-  resolved "https://registry.yarnpkg.com/epicgames-client/-/epicgames-client-1.2.8.tgz#d55f94ccea38f44c146744a1d7da36c79beeed27"
+epicgames-client@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/epicgames-client/-/epicgames-client-1.3.1.tgz#55e91772dfceb6b16557a7a8c83eb145c97d6a5f"
   dependencies:
     cheerio "^1.0.0-rc.2"
     request "^2.85.0"
     stanza.io "^9.1.0"
     uuid "^3.3.2"
 
-epicgames-fortnite-client@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/epicgames-fortnite-client/-/epicgames-fortnite-client-1.2.3.tgz#fbe987e56711e330b47e157143f0da504297de57"
+epicgames-fortnite-client@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/epicgames-fortnite-client/-/epicgames-fortnite-client-1.2.5.tgz#8cca6a72dd8768b53cae71ffa7427630a2bad161"
   dependencies:
-    epicgames-client "^1.2.8"
+    epicgames-client "^1.3.1"
     request "^2.88.0"
     websocket "^1.0.28"
 
@@ -2461,11 +2461,11 @@ flatiron@~0.4.2:
     prompt "0.2.14"
 
 flush-write-stream@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/flush-write-stream/-/flush-write-stream-1.1.0.tgz#2e89a8bd5eee42f8ec97e43aae81e3d5099c2ddc"
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/flush-write-stream/-/flush-write-stream-1.1.1.tgz#8dd7d873a1babc207d94ead0c2e0e44276ebf2e8"
   dependencies:
     inherits "^2.0.3"
-    readable-stream "^3.1.1"
+    readable-stream "^2.3.6"
 
 for-each@^0.3.2:
   version "0.3.3"
@@ -3650,8 +3650,8 @@ lolex@^2.3.2:
   resolved "https://registry.yarnpkg.com/lolex/-/lolex-2.7.5.tgz#113001d56bfc7e02d56e36291cc5c413d1aa0733"
 
 lolex@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/lolex/-/lolex-3.0.0.tgz#f04ee1a8aa13f60f1abd7b0e8f4213ec72ec193e"
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/lolex/-/lolex-3.1.0.tgz#1a7feb2fefd75b3e3a7f79f0e110d9476e294434"
 
 longest@^1.0.1:
   version "1.0.1"
@@ -3973,9 +3973,9 @@ mongoose-legacy-pluralize@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/mongoose-legacy-pluralize/-/mongoose-legacy-pluralize-1.0.2.tgz#3ba9f91fa507b5186d399fb40854bff18fb563e4"
 
-mongoose@^5.4.10:
-  version "5.4.10"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.4.10.tgz#640ee516449bc736a729e49e3eba873ae63a0030"
+mongoose@^5.4.11:
+  version "5.4.11"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-5.4.11.tgz#db1cbbabbd6287cbdecdf52c2ea8d43194bc517a"
   dependencies:
     async "2.6.1"
     bson "~1.1.0"
@@ -4304,8 +4304,8 @@ object-copy@^0.1.0:
     kind-of "^3.0.3"
 
 object-keys@^1.0.12:
-  version "1.0.12"
-  resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.0.12.tgz#09c53855377575310cca62f55bb334abff7b3ed2"
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.1.0.tgz#11bd22348dd2e096a045ab06f6c85bcc340fa032"
 
 object-visit@^1.0.0:
   version "1.0.1"
@@ -4989,7 +4989,7 @@ read@1.0.x:
     isarray "0.0.1"
     string_decoder "~0.10.x"
 
-readable-stream@^3.0.6, readable-stream@^3.1.1:
+readable-stream@^3.0.6:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.1.1.tgz#ed6bbc6c5ba58b090039ff18ce670515795aeb06"
   dependencies:

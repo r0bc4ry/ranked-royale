@@ -19,8 +19,8 @@ router.get('/faq', function (req, res, next) {
     res.render('faq', {title: 'FAQ'});
 });
 
-router.get('/leaderboard', function (req, res, next) {
-    res.render('leaderboard', {title: 'Leaderboard', user: req.user});
+router.get('/leaderboards', function (req, res, next) {
+    res.render('leaderboards', {title: 'Leaderboards', user: req.user});
 });
 
 router.get('/profile', isAuthenticated, async function (req, res, next) {

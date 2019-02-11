@@ -6,17 +6,17 @@ nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
             ul.navbar-nav.mr-auto
                 li.nav-item(class=title.includes('Home') || title.includes('Play') ? 'active' : undefined)
                     a.nav-link(href="/")= user ? 'Play' : 'Home'
-                li.nav-item(class=title.includes('Leaderboard') ? 'active' : undefined)
-                    a.nav-link(href="/leaderboard") Leaderboard
+                li.nav-item(class=title.includes('Leaderboards') ? 'active' : undefined)
+                    a.nav-link(href="/leaderboards") Leaderboards
                 if user
                     li.nav-item(class=title.includes('Profile') ? 'active' : undefined)
                         a.nav-link(href="/profile") Profile
                 else
                     li.nav-item(class=title.includes('FAQ') ? 'active' : undefined)
                         a.nav-link(href="/faq") FAQ
-                li.nav-item(class=title.includes('Support') ? 'active' : undefined)
-                    a.nav-link(href="/support") Support
             ul.navbar-nav.ml-auto
+                li.nav-item.mr-2(class=title.includes('Support') ? 'active' : undefined)
+                    a.nav-link(href="/support") Support
                 if user
                     a.btn.btn-outline-light(href="/auth/logout") Log Out
                 else

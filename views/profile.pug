@@ -43,7 +43,7 @@ block content
                             h5.card-header.bg-primary.text-white #[img.align-top(src="/img/solo.png", width="24", height="24")] Solo
                             div.card-body.text-center
                                 if true
-                                    h1.card-title #{matches.length}/10 #[small.text-muted Placement Matches]
+                                    h1.card-title #{user.stats.solo.matchesPlayed}/10 #[small.text-muted Placement Matches]
                                 else
                                     div.row
                                         div.col-3
@@ -54,7 +54,7 @@ block content
                                 div.row
                                     div.col-6.col-md-4.col-lg-2
                                         h6 Matches
-                                        p= matches.length
+                                        p= user.stats.solo.matchesPlayed
                                     div.col-6.col-md-4.col-lg-2
                                         h6 Kills
                                         p= user.stats.solo.kills

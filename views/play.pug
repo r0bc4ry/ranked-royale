@@ -8,13 +8,17 @@ block content
 
     div.container.py-5
         div.row
-            div.col.text-right
-                div.badge.badge-primary.text-white #[span#online-counter 0] #[i.fas.fa-users]
+            div.col.text-center.mb-5
+                div.btn-group.mr-3
+                    button.btn.btn-primary Solo
+                    button.btn.btn-primary(disabled) Duos
+                    button.btn.btn-primary(disabled) Squads
+                div.badge.badge-secondary #[span#online-counter 0] #[i.fas.fa-users]
         div.row.mb-5
             div.offset-lg-3.col-lg-6
                 div.d-flex.flex-column.justify-content-center.bg-white
                     div#step-1.text-center
-                        p.mb-0 Match in progress, next match in...
+                        p.mb-0 Match in progress, next #[strong Solo] match in...
                         h1.display-4 0s
 
                     div#step-2
