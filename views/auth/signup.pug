@@ -10,9 +10,6 @@ block content
                 a(href="/")
                     img.mb-2(src="/img/brand/logo.svg", width="128", height="128")
                 h2 Sign Up
-            if messages.length
-                each message in messages
-                    div.alert.alert-danger= message
             form.needs-validation(action="/auth/signup", method="post", novalidate)
                 div.row
                     div.col-md-6
@@ -31,6 +28,9 @@ block content
                     label Password
                     input.form-control(type="password", name="password", required)
                     small.form-text.text-muted Passwords must be at least 8 characters long.
+                if messages.length
+                    each message in messages
+                        div.alert.alert-danger= message
                 button.btn.btn-block.btn-primary(type="submit") Sign Up
             div.py-3.text-center
                 small Already have an account? #[a(href="/auth/login") Log In #[i.fas.fa-sign-in-alt]]

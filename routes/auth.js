@@ -48,7 +48,14 @@ router.post('/signup', [
             if (err) {
                 throw err;
             }
-            console.log('Saved!');
+
+            req.login(user, function (err) {
+                if (err) {
+                    throw err;
+                }
+                
+                return res.redirect('/');
+            })
         });
     });
 });

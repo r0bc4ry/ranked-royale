@@ -10,9 +10,6 @@ block content
                 a(href="/")
                     img.mb-2(src="/img/brand/logo.svg", width="128", height="128")
                 h2 Log In
-            if messages.length
-                each message in messages
-                    div.alert.alert-danger= message
             form.needs-validation(action="/auth/login", method="post", novalidate)
                 div.form-group
                     label Email
@@ -20,6 +17,9 @@ block content
                 div.form-group
                     label Password
                     input.form-control(type="password", name="password", required)
+                if messages.length
+                    each message in messages
+                        div.alert.alert-danger= message
                 button.btn.btn-block.btn-primary(type="submit") Log In
             div.py-3.text-center
                 small New to Ranked Royale? #[a(href="/auth/signup") Sign Up #[i.fas.fa-sign-in-alt]]
