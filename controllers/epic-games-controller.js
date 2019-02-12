@@ -8,7 +8,9 @@ let eg = new EGClient({
     password: process.env.EPIC_PASSWORD
 });
 
+const matchesController = require('../controllers/api/match-controller');
 const EpicCode = require('../models/epic-code');
+const Match = require('../models/match');
 const User = require('../models/user');
 
 (async () => {
@@ -27,6 +29,12 @@ const User = require('../models/user');
     let communicator = fortniteGame.communicator;
     communicator.on('friend:request', onFriendRequest);
     communicator.on('friend:removed', onFriendRemoved);
+
+    // In the event of an error crashing the application, restart the unfinished matches
+    let unfinsishedMatches = await Match.find({hasEnded: false});
+    await Promise.all(unfinsishedMatches.map(async function (match) {
+        await matchesController._startMatch(match);
+    }));
 })();
 
 async function onFriendRemoved(data) {

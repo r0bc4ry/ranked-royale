@@ -16,14 +16,6 @@ const Match = require('../../models/match');
 const Stat = require('../../models/stat');
 const User = require('../../models/user');
 
-(async () => {
-    // TODO In the event of an error crashing the application, restart the unfinished matches
-    // let unfinsishedMatches = await Match.find({hasEnded: false});
-    // await Promise.all(unfinsishedMatches.map(async function (match) {
-    //     await _startMatch(match);
-    // }));
-})();
-
 async function getMatches(userId) {
     // Get the matches the user has participated in
     let matches = await Match.find({users: userId}).sort({createdAt: 'descending'}).limit(10).lean().exec();
@@ -233,6 +225,7 @@ function _startCronJob(match, users) {
 }
 
 module.exports = {
+    _startMatch: _startMatch,
     getMatches: getMatches,
     getMatch: getMatch,
     putMatch: putMatch
