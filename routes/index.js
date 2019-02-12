@@ -9,7 +9,7 @@ const User = require('../models/user');
 
 router.get('/', function (req, res, next) {
     if (req.user) {
-        return res.render('play', {title: 'Play', user: req.user, host: `${req.protocol}://${req.headers.host}`});
+        return res.render('play', {title: 'Play', user: req.user, host: `${req.secure ? 'https' : 'http'}://${req.headers.host}`});
     } else {
         return res.render('index', {title: 'Home'});
     }
