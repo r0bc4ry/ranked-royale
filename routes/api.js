@@ -15,7 +15,7 @@ const isAuthenticated = require('../helpers/is-authenticated');
 const ranks = require('../ranks');
 
 const connectionsController = require('../controllers/api/connections-controller');
-const matchController = require('../controllers/api/match-controller');
+const matchController = require('../controllers/api/matches-controller');
 
 router.post('/connections/epic', isAuthenticated, async function (req, res, next) {
     if (!req.body.code || !req.body.platform || !req.body.region) {

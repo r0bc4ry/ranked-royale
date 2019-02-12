@@ -3,7 +3,7 @@ const router = express.Router();
 
 const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
 
-const matchesController = require('../controllers/api/match-controller');
+const matchesController = require('../controllers/api/matches-controller');
 const isAuthenticated = require('../helpers/is-authenticated');
 const User = require('../models/user');
 
