@@ -32,8 +32,9 @@ server.on('listening', onListening);
 /**
  * Create socket.io connection.
  */
-var io = require('socket.io')(server);
-global.io = io;
+const io = require('socket.io')(server);
+const matchesController = require('../controllers/api/matches-controller.js');
+matchesController.start(io);
 
 let onlineCounter = 0;
 io.on('connection', function (socket) {

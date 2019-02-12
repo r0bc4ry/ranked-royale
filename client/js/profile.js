@@ -6,9 +6,12 @@ $(function () {
         $('#connect-modal-step-2').addClass('d-none');
     });
     $('#connect-modal .modal-footer .btn-primary').click(onConnectContinue);
+    $('#connect-modal-step-2 .form-control[name=code]').keypress(onConnectCodeKeypress);
 });
 
 function onConnectContinue(event) {
+    event.preventDefault();
+
     if ($('#connect-modal-step-1').is(":visible")) {
         $('#connect-modal-step-1').addClass('d-none');
         $('#connect-modal-step-2').removeClass('d-none');
@@ -20,7 +23,7 @@ function onConnectContinue(event) {
         let isValid = form.checkValidity();
         $(form).addClass('was-validated');
         if (isValid === false) {
-            return event.preventDefault();
+            return;
         }
 
         let button = $(this);
@@ -37,5 +40,12 @@ function onConnectContinue(event) {
             alert.text(response.responseJSON.message ? response.responseJSON.message : 'Uh-oh! An error occurred.');
             alert.removeClass('d-none');
         });
+    }
+}
+
+function onConnectCodeKeypress(event) {
+    let code = event.keyCode || event.which;
+    if (code === 13) {
+        onConnectContinue(event);
     }
 }

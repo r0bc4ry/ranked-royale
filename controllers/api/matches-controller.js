@@ -26,6 +26,11 @@ const User = require('../../models/user');
     }));
 })();
 
+let io;
+function start(socket) {
+    io = socket;
+}
+
 async function getMatches(userId) {
     // Get the matches the user has participated in
     let matches = await Match.find({users: userId}).sort({createdAt: 'descending'}).limit(10).lean().exec();
@@ -65,7 +70,9 @@ async function putMatch(userId, serverId) {
 
     await asyncRedisClient.sadd(serverId, userId);
     await asyncRedisClient.expire(serverId, 120);
-    global.io.emit(serverId, cardinality + 1);
+    if (io.emit) {
+        io.emit(serverId, cardinality + 1);
+    }
 
     if (!match && cardinality === 0) {
         match = await Match.create({
@@ -235,7 +242,7 @@ function _startCronJob(match, users) {
 }
 
 module.exports = {
-    _startMatch: _startMatch,
+    start: start,
     getMatches: getMatches,
     getMatch: getMatch,
     putMatch: putMatch
