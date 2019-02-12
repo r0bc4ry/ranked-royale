@@ -5,8 +5,7 @@ const randomstring = require('randomstring');
 let fortniteGame;
 let eg = new EGClient({
     email: process.env.EPIC_EMAIL,
-    password: process.env.EPIC_PASSWORD,
-    debug: console.log
+    password: process.env.EPIC_PASSWORD
 });
 
 const EpicCode = require('../models/epic-code');

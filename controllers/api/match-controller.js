@@ -5,7 +5,12 @@ const addMinutes = require('date-fns/add_minutes');
 const subMinutes = require('date-fns/sub_minutes');
 const isPast = require('date-fns/is_past');
 
-const asyncRedisClient = require('../../helpers/redis').asyncRedisClient;
+const redis = process.env.NODE_ENV === 'development' ? require('redis-mock') : require('redis');
+const client = redis.createClient({
+    url: process.env.REDIS_URL
+});
+const asyncRedis = require('async-redis');
+const asyncRedisClient = asyncRedis.decorate(client);
 
 const Match = require('../../models/match');
 const Stat = require('../../models/stat');

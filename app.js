@@ -24,12 +24,16 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Mongoose Connection Error:'));
 
 // Redis setup
-const client = require('./helpers/redis').client;
+const redis = process.env.NODE_ENV === 'development' ? require('redis-mock') : require('redis');
+const client = redis.createClient({
+    url: process.env.REDIS_URL
+});
 
 // Passsport setup
 app.use(session({
     store: new RedisStore({
-        client: client
+        client: client,
+        logErrors: true
     }),
     secret: '{#fFT"5pZ>LvD#N:',
     resave: true,
