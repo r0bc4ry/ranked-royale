@@ -21,13 +21,12 @@ $(function () {
         return;
     }
 
-    var ajaxTimeStart = Date.now();
-    $.get('/api/countdown', function (response) {
-        // Add the number of ms it took for the Ajax request to complete
-        let ajaxTime = Date.now() - ajaxTimeStart;
-        currentTime = addMilliseconds(new Date(response.data.currentTime), ajaxTime);
-        eventTime = new Date(response.data.eventTime);
+    getTimeFromServer().then(function () {
         startCountdown();
+
+        setInterval(function () {
+            getTimeFromServer();
+        }, 1000 * 15);
     });
 
     socket.on('onlineCounter', function (data) {
@@ -37,6 +36,16 @@ $(function () {
     $('#step-2 .form-control').keypress(onStep2InputKeypress);
     $('#step-2 button').click(onStep2ButtonClick);
 });
+
+function getTimeFromServer() {
+    var ajaxTimeStart = Date.now();
+    return $.get('/api/countdown', function (response) {
+        // Add the number of ms it took for the Ajax request to complete
+        let ajaxTime = Date.now() - ajaxTimeStart;
+        currentTime = addMilliseconds(new Date(response.data.currentTime), ajaxTime);
+        eventTime = new Date(response.data.eventTime);
+    });
+}
 
 function startCountdown() {
     updateCountdown();
