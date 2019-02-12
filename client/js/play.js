@@ -3,7 +3,7 @@ import '../css/play.scss';
 import {addMilliseconds, differenceInMilliseconds, differenceInMinutes, differenceInSeconds} from 'date-fns';
 import * as workerTimers from 'worker-timers';
 
-const socket = io('http://localhost:3000/');
+const socket = io(host);
 
 var countdown5MinutesAudio = new Audio('/audio/5-minutes.wav');
 var countdown3MinutesAudio = new Audio('/audio/3-minutes.wav');

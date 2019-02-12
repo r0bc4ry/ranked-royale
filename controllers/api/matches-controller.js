@@ -26,10 +26,12 @@ const User = require('../../models/user');
     }));
 })();
 
+// @formatter:off
 let io;
 function start(socket) {
     io = socket;
 }
+// @formatter:on
 
 async function getMatches(userId) {
     // Get the matches the user has participated in
