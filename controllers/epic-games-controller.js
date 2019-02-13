@@ -32,7 +32,39 @@ let initPromise = (async () => {
 
 async function getStatsBR(id) {
     console.log(`EPIC getStatsBR ${id}`);
-    return await fortniteGame.getStatsBR(id);
+    let stats = await fortniteGame.getStatsBR(id);
+    ['pc', 'ps4', 'xb1'].forEach(function (platform) {
+        stats[platform] = Object.assign({
+            solo: {
+                score: 0,
+                matchesplayed: 0,
+                kills: 0,
+                placetop25: 0,
+                placetop10: 0,
+                placetop1: 0,
+                lastmodified: new Date().toISOString()
+            },
+            duo: {
+                score: 0,
+                matchesplayed: 0,
+                kills: 0,
+                placetop12: 0,
+                placetop5: 0,
+                placetop1: 0,
+                lastmodified: new Date().toISOString()
+            },
+            squad: {
+                score: 0,
+                matchesplayed: 0,
+                kills: 0,
+                placetop6: 0,
+                placetop3: 0,
+                placetop1: 0,
+                lastmodified: new Date().toISOString()
+            },
+        }, stats[platform]);
+    });
+    return stats;
 }
 
 async function getProfile(id) {

@@ -155,17 +155,6 @@ function _startMatchCron(match, users) {
                 currentStats[user._id] = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
                 let prevStats = JSON.parse(await asyncRedisClient.hget(match.serverId, user._id.toString()));
 
-                if (!prevStats || !prevStats[user.epicGamesAccount.platform] || !!prevStats[user.epicGamesAccount.platform][match.gameMode]) {
-                    console.log('Cannot read property of null!');
-                    console.log(user.epicGamesAccount.id);
-                    console.log(user.epicGamesAccount.platform);
-                    console.log(match.gameMode);
-                    console.log(prevStats);
-                    console.log(prevStats[user.epicGamesAccount.platform]);
-                    console.log(prevStats[user.epicGamesAccount.platform][match.gameMode]);
-                    console.log(prevStats);
-                }
-
                 let gameModeCurrentStats = currentStats[user._id][user.epicGamesAccount.platform][match.gameMode];
                 let gameModePrevStats = prevStats[user.epicGamesAccount.platform][match.gameMode];
 
@@ -232,34 +221,22 @@ async function _endMatch(match, users, currentStats) {
         // Calculate the user's performance
         switch (match.gameMode) {
             case 'solo':
-                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].solo.kills === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills;
-                statDoc.placeTop1 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop1 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].solo.placetop1 - prevStats[user.epicGamesAccount.platform].solo.placetop1);
-                statDoc.placeTop10 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop10 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].solo.placetop10 - prevStats[user.epicGamesAccount.platform].solo.placetop10);
-                statDoc.placeTop25 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25);
+                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills;
+                statDoc.placeTop25 = currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25;
+                statDoc.placeTop10 = currentStats[user._id][user.epicGamesAccount.platform].solo.placetop10 - prevStats[user.epicGamesAccount.platform].solo.placetop10;
+                statDoc.placeTop1 = currentStats[user._id][user.epicGamesAccount.platform].solo.placetop1 - prevStats[user.epicGamesAccount.platform].solo.placetop1;
                 break;
             case 'duo':
-                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].duo.kills === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].duo.kills - prevStats[user.epicGamesAccount.platform].duo.kills;
-                statDoc.placeTop1 = !!(currentStats[user._id][user.epicGamesAccount.platform].duo.placetop1 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].duo.placetop1 - prevStats[user.epicGamesAccount.platform].duo.placetop1);
-                statDoc.placeTop5 = !!(currentStats[user._id][user.epicGamesAccount.platform].duo.placetop5 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].duo.placetop5 - prevStats[user.epicGamesAccount.platform].duo.placetop5);
-                statDoc.placeTop12 = !!(currentStats[user._id][user.epicGamesAccount.platform].duo.placetop12 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].duo.placetop12 - prevStats[user.epicGamesAccount.platform].duo.placetop12);
+                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].duo.kills - prevStats[user.epicGamesAccount.platform].duo.kills;
+                statDoc.placeTop12 = currentStats[user._id][user.epicGamesAccount.platform].duo.placetop12 - prevStats[user.epicGamesAccount.platform].duo.placetop12;
+                statDoc.placeTop5 = currentStats[user._id][user.epicGamesAccount.platform].duo.placetop5 - prevStats[user.epicGamesAccount.platform].duo.placetop5;
+                statDoc.placeTop1 = currentStats[user._id][user.epicGamesAccount.platform].duo.placetop1 - prevStats[user.epicGamesAccount.platform].duo.placetop1;
                 break;
             case 'squad':
-                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].squad.kills === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].squad.kills - prevStats[user.epicGamesAccount.platform].squad.kills;
-                statDoc.placeTop1 = !!(currentStats[user._id][user.epicGamesAccount.platform].squad.placetop1 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].squad.placetop1 - prevStats[user.epicGamesAccount.platform].squad.placetop1);
-                statDoc.placeTop3 = !!(currentStats[user._id][user.epicGamesAccount.platform].squad.placetop3 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].squad.placetop3 - prevStats[user.epicGamesAccount.platform].squad.placetop3);
-                statDoc.placeTop6 = !!(currentStats[user._id][user.epicGamesAccount.platform].squad.placetop6 === undefined ?
-                    0 : currentStats[user._id][user.epicGamesAccount.platform].squad.placetop6 - prevStats[user.epicGamesAccount.platform].squad.placetop6);
+                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].squad.kills - prevStats[user.epicGamesAccount.platform].squad.kills;
+                statDoc.placeTop6 = currentStats[user._id][user.epicGamesAccount.platform].squad.placetop6 - prevStats[user.epicGamesAccount.platform].squad.placetop6;
+                statDoc.placeTop3 = currentStats[user._id][user.epicGamesAccount.platform].squad.placetop3 - prevStats[user.epicGamesAccount.platform].squad.placetop3;
+                statDoc.placeTop1 = currentStats[user._id][user.epicGamesAccount.platform].squad.placetop1 - prevStats[user.epicGamesAccount.platform].squad.placetop1;
                 break;
         }
 

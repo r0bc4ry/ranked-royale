@@ -41,7 +41,7 @@ var UserSchema = new Schema({
             },
             platform: {
                 type: String,
-                enum: ['pc', 'ps4', 'xbox'],
+                enum: ['pc', 'ps4', 'xb1'],
                 required: true
             },
             region: {
