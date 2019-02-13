@@ -223,6 +223,8 @@ async function _endMatch(match, users, currentStats) {
         switch (match.gameMode) {
             case 'solo':
                 console.log('SOLO');
+                console.log(currentStats[user._id][user.epicGamesAccount.platform].solo);
+                console.log(prevStats[user.epicGamesAccount.platform].solo);
                 console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.kills);
                 console.log(Number.isInteger(currentStats[user._id][user.epicGamesAccount.platform].solo.kills));
                 console.log(prevStats[user.epicGamesAccount.platform].solo.kills);
