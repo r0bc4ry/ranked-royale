@@ -7,14 +7,17 @@ var Schema = mongoose.Schema;
 var UserSchema = new Schema({
     firstName: {
         type: String,
+        trim: true,
         required: true
     },
     lastName: {
         type: String,
+        trim: true,
         required: true
     },
     email: {
         type: String,
+        trim: true,
         lowercase: true,
         required: true,
         index: {
@@ -23,6 +26,7 @@ var UserSchema = new Schema({
     },
     password: {
         type: String,
+        trim: true,
         required: true
     },
     epicGamesAccount: {

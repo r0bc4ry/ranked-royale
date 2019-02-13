@@ -4,40 +4,35 @@ block head
     link(rel="stylesheet", href="/css/index.css")
 
 block content
-    include includes/navbar
-
     div.jumbotron.jumbotron-fluid.overflow-hidden.text-white
         div.container.position-relative
             div.row
-                div.col-md-6.col-lg-8
+                div.col-md-7(style="z-index: 1")
                     h1.display-4 Ranked Royale
-                    p.lead Compete against the best, to be the best.
-                    hr.bg-light.my-4
-                    p Competitive ranked matchmaking for Fortnite.
+                    p.lead.mb-5 Competitive ranked matchmaking for Fortnite. Play against the best, to be the best.
                     a(href="/auth/signup")
                         button.btn.btn-lg.btn-secondary Get Started
             img(src="/img/llama.png")
     section.position-relative
         div.container
-            div.row
-                div.col-md-4
+            div.row.mb-3
+                div.col-md-5.col-lg-4
                     img.img-fluid(src="/img/ranks.png")
-                div.offset-md-1.col-md-7.d-flex.align-items-start.flex-column.justify-content-center
+                div.offset-lg-1.col-md-7.d-flex.align-items-start.flex-column.justify-content-center
                     h2 Ranked Matchmaking
-                    p.lead Do you have what it takes to be Epic? Find out with our Elo-based ranked matchmaking system. Designed for players who want to put their skills to the test, we track your matches and give you a skill rating.
-            div.row
-                div.col-md-7.d-flex.align-items-start.flex-column.justify-content-center
-                    h2 Match History
-                    p.lead See your progress with our in-depth stat tracking. Work your way through the tiers, up the leaderboards, and make a name for yourself in the competitive community.
-                div.offset-md-1.col-md-4
+                    p.lead Do you have what it takes to be Epic? Find out with our Elo-based ranked matchmaking system. Designed for players who want to put their skills to the test, we track your matches and give you a skill rating within one of five tiers - Bronze, Silver, Gold, Platinum, or Epic.
+            div.row.mb-3
+                div.col-md-5.offset-lg-1.col-lg-4.order-md-2
                     img.img-fluid(src="/img/ranks.png")
+                div.col-md-7.order-md-1.d-flex.align-items-start.flex-column.justify-content-center
+                    h2 Detailed Stats &amp; Match History
+                    p.lead See your progress with our in-depth stat tracking, and use the results to hone your gameplay. Work your way through the tiers, up the leaderboards, and make a name for yourself in the competitive community.
             div.row
-                div.col-md-4
+                div.col-md-5.col-lg-4
                     img.img-fluid(src="/img/ranks.png")
-                div.offset-md-1.col-md-7.d-flex.align-items-start.flex-column.justify-content-center
+                div.offset-lg-1.col-md-7.d-flex.align-items-start.flex-column.justify-content-center
                     h2 Constant Scrims
-                    p.lead Want competitive matchmaking without the Elo rating? Play in our constant scrim matches for free.
-                    span.badge.badge-pill.badge-warning Coming soon!
+                    p.lead Want to raise your game? We offer constant scrim matches for free. Compete against other competitive players in a level above public matches.
     section.position-relative.bg-light
         div.container
             div.row
@@ -52,7 +47,7 @@ block content
                 div.col-md-4
                     i.h1.fas.fa-trophy.text-primary
                     h3 Leaderboards
-                    p We feature global, platform-specific, and regional leaderboards so you can see how you stack up.
+                    p We feature global, platform-specific, and regional leaderboards. See how you stack up against your region or the world on any system.
                     span.badge.badge-pill.badge-warning Coming soon!
     section
         div.container.text-center
@@ -62,4 +57,3 @@ block content
                     a(href="/auth/signup")
                         button.btn.btn-lg.btn-secondary Sign Up
 
-    include ./includes/footer

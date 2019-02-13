@@ -1,18 +1,20 @@
-body {
-  background: #fff;
-  text-rendering: optimizeLegibility; }
-
-.jumbotron {
+main .jumbotron {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
   background: url("/img/jumbotron.jpg") no-repeat center;
   background-size: cover; }
-  .jumbotron img {
+  main .jumbotron img {
     position: absolute;
-    top: calc(-4rem - 16px);
-    right: 15px; }
+    top: calc(-6rem - 15px);
+    right: 15px;
+    display: none; }
+    @media (min-width: 576px) {
+      main .jumbotron img {
+        display: inline-block; } }
 
-section {
+main section {
   padding-bottom: 6em; }
-  section.position-relative::after {
+  main section.position-relative::after {
     content: "";
     display: block;
     position: absolute;
@@ -23,6 +25,6 @@ section {
     height: 6em;
     background-color: #f8f9fa;
     clip-path: polygon(0 100%, 100% 0, 100% 100%, 0 100%); }
-  section.position-relative.bg-light::after {
+  main section.position-relative.bg-light::after {
     background-color: #fff; }
 

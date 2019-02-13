@@ -2,14 +2,8 @@ html, body {
     height: 100%;
 }
 
-body {
-    display: flex;
-    align-items: center;
-}
-
-.container {
+main .container {
     max-width: 512px;
-    margin: auto;
 
     div.bg-white {
         padding: 1rem;

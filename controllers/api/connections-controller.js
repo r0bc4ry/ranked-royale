@@ -1,4 +1,4 @@
-const epicGamesLauncherController = require('../epic-games-controller');
+const epicGamesController = require('../epic-games-controller');
 const EpicCode = require('../../models/epic-code');
 const User = require('../../models/user');
 
@@ -9,7 +9,7 @@ async function verifyEpicGames(reqBody, userId) {
     }
 
     try {
-        var epicGamesAccount = await epicGamesLauncherController.getProfile(epicCode.epicGamesAccountId);
+        var epicGamesAccount = await epicGamesController.getProfile(epicCode.epicGamesAccountId);
     } catch (err) {
         console.error(err);
         throw 'Error retrieving Epic Games account.';
@@ -25,7 +25,7 @@ async function verifyEpicGames(reqBody, userId) {
     });
 
     try {
-        await epicGamesLauncherController.removeFriend(epicGamesAccount.account_id);
+        await epicGamesController.removeFriend(epicGamesAccount.account_id);
         await epicCode.remove();
     } catch (err) {
         console.error(err);

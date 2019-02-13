@@ -1,17 +1,12 @@
 html, body {
   height: 100%; }
 
-body {
-  display: flex;
-  align-items: center; }
-
-.container {
-  max-width: 512px;
-  margin: auto; }
-  .container div.bg-white {
+main .container {
+  max-width: 512px; }
+  main .container div.bg-white {
     padding: 1rem; }
     @media (min-width: 768px) {
-      .container div.bg-white {
+      main .container div.bg-white {
         padding: 3rem;
         clip-path: polygon(2% 100%, 0 0, 5% 1%, 8% 5%, 8% 1%, 98% 4%, 100% 100%); } }
 

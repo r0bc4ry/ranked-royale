@@ -1,11 +1,9 @@
 extends layout
 
 block head
-    link(rel="stylesheet", href="/css/index.css")
+    link(rel="stylesheet", href="/css/support.css")
 
 block content
-    include includes/navbar
-
     section.position-relative.bg-light
         div.container(style="padding-top: 2rem;")
             div.row
@@ -14,7 +12,7 @@ block content
                     ul.list-unstyled
                         li.mb-5
                             h3 Getting Started
-                            p Available after you've played 25 matches, ranked play is designed for players that want to put their skills to the test. To get started, log in to Ranked Royale, verify your Epic Games account, and then wait for the countdown. When the countdown finishes, click "Play" in Fortnite and then enter the server ID once your game loads.
+                            p Available after you've played 25 matches, ranked play is designed for players that want to put their skills to the test. To get started, log in to Ranked Royale, verify your Epic Games account, and then wait for the countdown. When the countdown finishes, click "Play" in Fortnite and enter your server ID once the game loads.
                             p Every player must first complete 10 placement matches to obtain their initial Elo rating. This rating will be a number between 1 and 3000, with higher values indicating a greater skill level. Players will also be assigned a tier based on their rating - Bronze, Silver, Gold, Platinum, or Epic.
                             p As you compete, your rating will increase or decrease with each win or loss based on a number of factors including your placement, number of kills, and the skill of the other players in the match.
                             div.row.text-center
@@ -40,7 +38,7 @@ block content
                                     p.text-muted 2400+
                         li.mb-5
                             h3 How are ranks calculated?
-                            p We track the stats for all Ranked Royale players in a match. Once a match ends, each player's kills and placement are compared and used to adjust Elo ratings. There are no arbitrary number of kills for points; every kills counts plus your overall placement.
+                            p We track the stats for all Ranked Royale players in a match. Once a match ends, each player's kills and placement are compared and used to adjust Elo ratings. There are no arbitrary number of kills for points; every kills counts alongside your overall placement.
                             div.row
                                 div.col
                                     h5 Solo
@@ -78,8 +76,8 @@ block content
                                         dd.col-8 +4 points
                                     span.badge.badge-pill.badge-warning Coming soon!
                         li
-                            h3 Are there any rules?
-                            p There are no rules for how to play, but please don't stream snipe. Proof of stream sniping will result in your Epic Games account being banned from Ranked Royale.
+                            h3 What are the rules?
+                            p There are no rules for how you play, but please don't stream snipe. It's not enjoyable to watch or for streamers. Proof of stream sniping will result in your Epic Games account being banned from Ranked Royale. If you think you've been stream sniped, send us an email with more details and a clip.
     section.position-relative
         div.container
             div.row
@@ -88,7 +86,7 @@ block content
                     ul.list-unstyled
                         li
                             h3 What are scrims?
-                            p Scrims are when multiple players queue at the same time to play against each other in the same match. They are generally more competitive than normal games.
+                            p Scrims are when multiple players queue at the same time to play against each other in the same match. They work the same way our ranked matches do, but stats and skill rating are not tracked. They are generally more competitive than normal games.
     section.bg-light
         div.container.text-center
             div.row
@@ -96,5 +94,3 @@ block content
                     h3 Ready to get started?
                     a(href="/auth/signup")
                         button.btn.btn-lg.btn-secondary Sign Up
-
-    include ./includes/footer

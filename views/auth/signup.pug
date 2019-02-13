@@ -4,36 +4,37 @@ block head
     link(rel="stylesheet", href="/css/auth.css")
 
 block content
-    main.container
-        div.bg-white
-            div.text-center
-                a(href="/")
-                    img.mb-2(src="/img/brand/logo.svg", width="128", height="128")
-                h2 Sign Up
-            form.needs-validation(action="/auth/signup", method="post", novalidate)
-                div.row
-                    div.col-md-6
-                        div.form-group
-                            label First Name
-                            input.form-control(type="text", name="firstName", required)
-                    div.col-md-6
-                        div.form-group
-                            label Last Name
-                            input.form-control(type="text", name="lastName", required)
-                div.form-group
-                    label Email
-                    input.form-control(type="email", name="username", required)
-                    small.form-text.text-muted We will not share your email.
-                div.form-group
-                    label Password
-                    input.form-control(type="password", name="password", required)
-                    small.form-text.text-muted Passwords must be at least 8 characters long.
-                if messages.length
-                    each message in messages
-                        div.alert.alert-danger= message
-                button.btn.btn-block.btn-primary(type="submit") Sign Up
-            div.py-3.text-center
-                small Already have an account? #[a(href="/auth/login") Log In #[i.fas.fa-sign-in-alt]]
+    section.py-5.bg-light
+        div.container
+            div.bg-white
+                div.text-center
+                    a(href="/")
+                        img.mb-2(src="/img/brand/logo.svg", width="128", height="128")
+                    h2 Sign Up
+                form.needs-validation(action="/auth/signup", method="post", novalidate)
+                    div.row
+                        div.col-md-6
+                            div.form-group
+                                label First Name
+                                input.form-control(type="text", name="firstName", required)
+                        div.col-md-6
+                            div.form-group
+                                label Last Name
+                                input.form-control(type="text", name="lastName", required)
+                    div.form-group
+                        label Email
+                        input.form-control(type="email", name="username", required)
+                        small.form-text.text-muted We will not share your email.
+                    div.form-group
+                        label Password
+                        input.form-control(type="password", name="password", required)
+                        small.form-text.text-muted Passwords must be at least 8 characters long.
+                    if messages.length
+                        each message in messages
+                            div.alert.alert-danger= message
+                    button.btn.btn-block.btn-primary(type="submit") Sign Up
+                div.py-3.text-center
+                    small Already have an account? #[a(href="/auth/login") Log In #[i.fas.fa-sign-in-alt]]
 
 block scripts
     script(src="/js/auth.bundle.js")

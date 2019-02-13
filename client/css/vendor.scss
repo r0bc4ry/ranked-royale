@@ -3,7 +3,7 @@ $theme-colors: (
         "secondary": #fee140,
         "dark": #2a2a2a
 );
-$body-bg: #eee;
+$body-bg: #2a2a2a;
 @import "~bootstrap/scss/bootstrap";
 
 $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
@@ -13,9 +13,11 @@ $fa-font-path: "~@fortawesome/fontawesome-free/webfonts";
 
 body {
     font-family: 'Open Sans', sans-serif;
+    text-rendering: optimizeLegibility;
 
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Bungee', cursive;
+        font-weight: normal;
     }
 }
 
@@ -31,10 +33,38 @@ body {
     border-radius: 0;
 }
 
-nav + .alert.alert-secondary {
-    padding-right: 0;
-    padding-left: 0;
-    border-radius: 0;
-    border-width: 0;
-    border-bottom-width: 1px;
+// layout.pug
+nav {
+    & + .alert.alert-light {
+        padding-right: 0;
+        padding-left: 0;
+        border-radius: 0;
+        border-width: 0;
+        border-bottom-width: 1px;
+    }
+
+    .btn.btn-outline-light:first-of-type {
+        margin-bottom: 0.5rem;
+
+        @media (min-width: 992px) {
+            margin-bottom: 0;
+            margin-right: 1rem;
+        }
+    }
+}
+
+main {
+    background-color: #fff;
+}
+
+footer {
+    text-align: center;
+
+    @media (min-width: 992px) {
+        text-align: inherit;
+
+        .col-lg-6:last-of-type {
+            text-align: right;
+        }
+    }
 }

@@ -1,26 +1,21 @@
 const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
 const express = require('express');
+const flash = require('connect-flash');
 const logger = require('morgan');
 const path = require('path');
-const session = require('express-session');
-const RedisStore = require('connect-redis')(session);
 
-const flash = require('connect-flash');
-const LocalStrategy = require('passport-local').Strategy;
-const passport = require('passport');
-
-var app = express();
+const app = express();
 app.locals.env = process.env;
 
-// Model setup
-var mongoose = require('mongoose');
+// Mongoose setup
+const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URI, {
     useCreateIndex: true,
     useNewUrlParser: true
 });
 
-var db = mongoose.connection;
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Mongoose Connection Error:'));
 
 // Redis setup
@@ -30,6 +25,11 @@ const client = redis.createClient({
 });
 
 // Passsport setup
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+
 app.use(session({
     store: new RedisStore({
         client: client,
@@ -43,9 +43,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-const epicGamesLauncher = require('./controllers/epic-games-controller');
-
-var User = require('./models/user');
+const epicGamesController = require('./controllers/epic-games-controller');
+const User = require('./models/user');
 passport.use(new LocalStrategy(function (username, password, done) {
     User.findOne({email: username}, function (err, user) {
         if (err) {
@@ -59,7 +58,7 @@ passport.use(new LocalStrategy(function (username, password, done) {
         }
         // Update user's Epic Games account information if it exists
         if (user.epicGamesAccount) {
-            epicGamesLauncher.getProfile(user.epicGamesAccount.id).then(function (profile) {
+            epicGamesController.getProfile(user.epicGamesAccount.id).then(function (profile) {
                 user.displayName = profile.display_name;
                 user.save(function (err) {
                     if (err) {
@@ -82,11 +81,10 @@ passport.deserializeUser(function (user, done) {
     done(null, user);
 });
 
-
 // View engine setup
-var apiRouter = require('./routes/api');
-var authRouter = require('./routes/auth');
-var indexRouter = require('./routes/index');
+const apiRouter = require('./routes/api');
+const authRouter = require('./routes/auth');
+const indexRouter = require('./routes/index');
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');

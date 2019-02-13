@@ -8,6 +8,7 @@ module.exports = {
         index: './client/js/index.js',
         play: './client/js/play.js',
         profile: './client/js/profile.js',
+        support: './client/js/support.js',
         vendor: './client/js/vendor.js'
     },
     resolve: {
