@@ -91,10 +91,10 @@ async function putMatch(userId, serverId) {
             let members = await asyncRedisClient.smembers(match.serverId);
             await asyncRedisClient.del(match.serverId);
 
-            // TODO Undo comment for production
-            // if (users.length < 5) {
-            //     return await match.remove();
-            // }
+            // TODO Change to 5 for production
+            if (users.length < 2) {
+                return await match.remove();
+            }
 
             match.users = members;
             await match.save();
