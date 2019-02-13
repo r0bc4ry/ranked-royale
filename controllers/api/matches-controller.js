@@ -92,7 +92,7 @@ async function putMatch(userId, serverId) {
             await asyncRedisClient.del(match.serverId);
 
             // TODO Change to 5 for production
-            if (users.length < 2) {
+            if (members.length < 2) {
                 return await match.remove();
             }
 
