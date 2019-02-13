@@ -91,10 +91,10 @@ async function putMatch(userId, serverId) {
             let members = await asyncRedisClient.smembers(match.serverId);
             await asyncRedisClient.del(match.serverId);
 
-            // TODO Change to 5 for production
-            if (members.length < 2) {
-                return await match.remove();
-            }
+            // TODO Uncomment for production
+            // if (members.length < 5) {
+            //     return await match.remove();
+            // }
 
             match.users = members;
             await match.save();
@@ -138,7 +138,7 @@ async function _startMatch(match) {
  * Start cron job to check user stats until the match ends.
  */
 function _startMatchCron(match, users) {
-    let job = new CronJob('*/15 * * * * *', async function () { // TODO Change back
+    let job = new CronJob('*/30 * * * * *', async function () {
         // If this job is running too long after the match has started, remove the match and stop the job
         if (isPast(addMinutes(match.createdAt, 45))) {
             await match.remove();
@@ -222,16 +222,6 @@ async function _endMatch(match, users, currentStats) {
         // Calculate the user's performance
         switch (match.gameMode) {
             case 'solo':
-                console.log('SOLO');
-                console.log(currentStats[user._id][user.epicGamesAccount.platform].solo);
-                console.log(prevStats[user.epicGamesAccount.platform].solo);
-                console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.kills);
-                console.log(Number.isInteger(currentStats[user._id][user.epicGamesAccount.platform].solo.kills));
-                console.log(prevStats[user.epicGamesAccount.platform].solo.kills);
-                console.log(Number.isInteger(prevStats[user.epicGamesAccount.platform].solo.kills));
-                console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills);
-                console.log(!!(currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills));
-
                 statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills;
                 statDoc.placeTop25 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25);
                 statDoc.placeTop10 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop10 - prevStats[user.epicGamesAccount.platform].solo.placetop10);
