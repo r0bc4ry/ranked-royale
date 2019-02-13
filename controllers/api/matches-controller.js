@@ -138,12 +138,12 @@ async function _startMatch(match) {
  * Start cron job to check user stats until the match ends.
  */
 function _startMatchCron(match, users) {
-    let job = new CronJob('*/30 * * * * *', async function () {
+    let job = new CronJob('* */2 * * * *', async function () {
         // If this job is running too long after the match has started, remove the match and stop the job
         if (isPast(addMinutes(match.createdAt, 45))) {
+            console.error(`Match "${match._id}" running too long.`);
             await match.remove();
             await asyncRedisClient.del(match.serverId);
-            console.error(`Match "${match._id}" running too long.`);
             return job.stop();
         }
 
@@ -167,10 +167,10 @@ function _startMatchCron(match, users) {
             }
         }));
 
-        // If the percentage of users with unchanged stats is greater than 20%, the match is not over
-        let matchHasEnded = true;
-        if ((usersWithUnchangedStats.length / users.length) > 0.2) {
-            matchHasEnded = false;
+        // If the percentage of users with changed stats is greater than 80%, the match is over
+        let matchHasEnded = false;
+        if (1 - (usersWithUnchangedStats.length / users.length) >= 0.8) {
+            matchHasEnded = true;
         }
 
         // Check if the match should be ended
@@ -201,7 +201,8 @@ function _startMatchCron(match, users) {
  */
 async function _endMatch(match, users, currentStats) {
     await Promise.all(users.map(async function (user) {
-        let prevStats = JSON.parse(await asyncRedisClient.hget(match.serverId, user._id.toString()));
+        let prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
+        prevStats = JSON.parse(prevStats);
 
         let statDoc = {
             userId: user._id,
