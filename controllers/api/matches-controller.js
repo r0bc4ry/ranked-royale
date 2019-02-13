@@ -138,7 +138,7 @@ async function _startMatch(match) {
  * Start cron job to check user stats until the match ends.
  */
 function _startMatchCron(match, users) {
-    let job = new CronJob('0 */1 * * * *', async function () {
+    let job = new CronJob('*/15 * * * * *', async function () { // TODO Change back
         // If this job is running too long after the match has started, remove the match and stop the job
         if (isPast(addMinutes(match.createdAt, 45))) {
             await match.remove();
