@@ -160,9 +160,6 @@ function _startMatchCron(match, users) {
                 let gameModePrevStats = prevStats[user.epicGamesAccount.platform][match.gameMode];
 
                 if (JSON.stringify(gameModeCurrentStats) === JSON.stringify(gameModePrevStats)) {
-                    console.log('Unchanged Stats!');
-                    console.log(currentStats[user._id]);
-                    console.log(prevStats);
                     usersWithUnchangedStats.push(user._id);
                 }
             } catch (err) {
@@ -226,12 +223,12 @@ async function _endMatch(match, users, currentStats) {
         switch (match.gameMode) {
             case 'solo':
                 console.log('SOLO');
-                console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25);
-                console.log(Number.isInteger(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25));
-                console.log(prevStats[user.epicGamesAccount.platform].solo.placetop25);
-                console.log(Number.isInteger(prevStats[user.epicGamesAccount.platform].solo.placetop25));
-                console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25);
-                console.log(!!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25));
+                console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.kills);
+                console.log(Number.isInteger(currentStats[user._id][user.epicGamesAccount.platform].solo.kills));
+                console.log(prevStats[user.epicGamesAccount.platform].solo.kills);
+                console.log(Number.isInteger(prevStats[user.epicGamesAccount.platform].solo.kills));
+                console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills);
+                console.log(!!(currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills));
 
                 statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills;
                 statDoc.placeTop25 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25);
