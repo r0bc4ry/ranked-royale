@@ -160,6 +160,9 @@ function _startMatchCron(match, users) {
                 let gameModePrevStats = prevStats[user.epicGamesAccount.platform][match.gameMode];
 
                 if (JSON.stringify(gameModeCurrentStats) === JSON.stringify(gameModePrevStats)) {
+                    console.log('Unchanged Stats!');
+                    console.log(currentStats[user._id]);
+                    console.log(prevStats);
                     usersWithUnchangedStats.push(user._id);
                 }
             } catch (err) {
