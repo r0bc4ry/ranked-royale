@@ -157,6 +157,12 @@ function _startMatchCron(match, users) {
 
                 if (!prevStats || !prevStats[user.epicGamesAccount.platform] || !!prevStats[user.epicGamesAccount.platform][match.gameMode]) {
                     console.log('Cannot read property of null!');
+                    console.log(user.epicGamesAccount.id);
+                    console.log(user.epicGamesAccount.platform);
+                    console.log(match.gameMode);
+                    console.log(prevStats);
+                    console.log(prevStats[user.epicGamesAccount.platform]);
+                    console.log(prevStats[user.epicGamesAccount.platform][match.gameMode]);
                     console.log(prevStats);
                 }
 
