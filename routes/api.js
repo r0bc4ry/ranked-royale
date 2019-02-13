@@ -69,6 +69,7 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
         }
     }
 
+    // TODO Remove this before production
     let coeff = 1000 * 60;
     eventTime = new Date(Math.ceil(Date.now() / coeff) * coeff);
 
