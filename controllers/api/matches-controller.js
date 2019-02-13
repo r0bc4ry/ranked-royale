@@ -224,7 +224,7 @@ async function _endMatch(match, users, currentStats) {
             case 'solo':
                 console.log('SOLO');
                 console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25);
-                console.log(Number.isIntegercurrentStats[user._id][user.epicGamesAccount.platform].solo.placetop25);
+                console.log(Number.isInteger(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25));
                 console.log(prevStats[user.epicGamesAccount.platform].solo.placetop25);
                 console.log(Number.isInteger(prevStats[user.epicGamesAccount.platform].solo.placetop25));
                 console.log(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25);
