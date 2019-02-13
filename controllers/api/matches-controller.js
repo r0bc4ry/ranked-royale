@@ -251,7 +251,7 @@ async function _endMatch(match, users, currentStats) {
     console.log(`Match "${match._id}" has ended.`);
 
     // If there are no users left in the match, simply return
-    if (Object.entries(currentStats).length === 0 && currentStats.constructor === Object) {
+    if (Object.keys(currentStats).length === 0) {
         return;
     }
 
