@@ -153,7 +153,8 @@ function _startMatchCron(match, users) {
         await Promise.all(users.map(async function (user) {
             try {
                 currentStats[user._id] = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
-                let prevStats = JSON.parse(await asyncRedisClient.hget(match.serverId, user._id.toString()));
+                let prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
+                prevStats = JSON.parse(prevStats);
 
                 let gameModeCurrentStats = currentStats[user._id][user.epicGamesAccount.platform][match.gameMode];
                 let gameModePrevStats = prevStats[user.epicGamesAccount.platform][match.gameMode];

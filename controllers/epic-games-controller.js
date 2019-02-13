@@ -28,8 +28,6 @@ let initPromise = (async () => {
     let communicator = fortniteGame.communicator;
     communicator.on('friend:removed', _onFriendRemoved);
     communicator.on('friend:request', _onFriendRequest);
-
-    getStatsBR('340194ecfcee44129fb9b65320916176');
 })();
 
 async function getStatsBR(id) {
