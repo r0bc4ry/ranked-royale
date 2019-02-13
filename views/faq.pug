@@ -4,15 +4,24 @@ block head
     link(rel="stylesheet", href="/css/support.css")
 
 block content
-    section.position-relative.bg-light
+    section.position-relative.bg-light.pt-4
+        div.container
+            div.row
+                div.col
+                    h1.text-primary FAQ
+                    ul.list-unstyled
+                        li.mb-5
+                            h3 What is Ranked Royale?
+                            p Ranked Royale is an unofficial ranked matchmaking system for competitive Fortnite players. We use Epic Games' API to track your stats, measure you in-game performance, and match you against similarly ranked players. It's designed to let player's have a constant competitive environment outside of Fortnite's official events to improve as a player.
+    section.position-relative
         div.container(style="padding-top: 2rem;")
             div.row
                 div.col
-                    h1.text-primary Ranked
+                    h2.text-primary Ranked
                     ul.list-unstyled
                         li.mb-5
                             h3 Getting Started
-                            p Available after you've played 25 matches, ranked play is designed for players that want to put their skills to the test. To get started, log in to Ranked Royale, verify your Epic Games account, and then wait for the countdown. When the countdown finishes, click "Play" in Fortnite and enter your server ID once the game loads.
+                            p Available after you've played 25 matches in Fortnite, ranked play is designed for players that want to put their skills to the test. To get started, log in to Ranked Royale, verify your Epic Games account, and then wait for the countdown. When the countdown finishes, click "Play" in Fortnite and enter your server ID once the game loads.
                             p Every player must first complete 10 placement matches to obtain their initial Elo rating. This rating will be a number between 1 and 3000, with higher values indicating a greater skill level. Players will also be assigned a tier based on their rating - Bronze, Silver, Gold, Platinum, or Epic.
                             p As you compete, your rating will increase or decrease with each win or loss based on a number of factors including your placement, number of kills, and the skill of the other players in the match.
                             div.row.text-center
@@ -75,19 +84,23 @@ block content
                                         dt.col-4 Win
                                         dd.col-8 +4 points
                                     span.badge.badge-pill.badge-warning Coming soon!
-                        li
+                        li.mb-5
                             h3 What are the rules?
                             p There are no rules for how you play, but please don't stream snipe. It's not enjoyable to watch or for streamers. Proof of stream sniping will result in your Epic Games account being banned from Ranked Royale. If you think you've been stream sniped, send us an email with more details and a clip.
-    section.position-relative
+                        li.mb-5
+                            h3 Is Ranked free to play?
+                            p For now, yes. While we're in our early release phase, ranked will be available to all users. Once we're 100% confident in our systems and have balanced our Elo rating algorithm, we'll begin rolling out ranked seasons and charge a small fee for access. While the price has not been officially set, expect it be around than $3/mo.
+    section.position-relative.bg-light
         div.container
             div.row
                 div.col
-                    h1.text-primary Scrims
+                    h2.text-primary Scrims
                     ul.list-unstyled
                         li
                             h3 What are scrims?
-                            p Scrims are when multiple players queue at the same time to play against each other in the same match. They work the same way our ranked matches do, but stats and skill rating are not tracked. They are generally more competitive than normal games.
-    section.bg-light
+                            p Scrims are when multiple players queue at the same time to play against each other in the same match. Behind the scenes, they work the same way our ranked matches do, except stats and skill rating are not tracked. Scrims are generally considered more competitive than normal games.
+                            p Scrims are available for free to all Ranked Royale users.
+    section
         div.container.text-center
             div.row
                 div.col

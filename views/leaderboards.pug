@@ -1,8 +1,70 @@
 extends layout
 
 block content
-    div.bg-light
-        div.container.py-5
-            div.alert
-                h4.alert-heading Coming soon!
-                p Visit our #[a(href="https://trello.com/b/eLXFD7MI/ranked-royale", target="_blank") Trello board] to see what we're working on.
+    div.bg-light.py-5
+        div.container.py-4.bg-white
+            h1.text-primary Leaderboards
+            div.row
+                div.col-md-4
+                    div.form-group
+                        label Game Mode
+                        select(name="gameMode", required).form-control
+                            option(value="solo", selected=(!gameMode || gameMode === 'solo')) Solo
+                            option(value="duo", selected=(gameMode === 'duo')) Duos
+                            option(value="squad", selected=(gameMode === 'squad')) Squads
+                div.col-md-4
+                    div.form-group
+                        label Platform
+                        select(name="platform", required).form-control
+                            option(value="", selected=(!platform)) Any Platform
+                            option(value="pc", selected=(platform === 'pc')) PC
+                            option(value="ps4", selected=(platform === 'ps4')) PlayStation 4
+                            option(value="xb1", selected=(platform === 'xb1')) Xbox One
+                div.col-md-4
+                    div.form-group
+                        label Region
+                        select(name="region", required).form-control
+                            option(value="", selected=(!region)) Any Region
+                            option(value="na-east", selected=(region === 'na-east')) NA East
+                            option(value="na-west", selected=(region === 'na-west')) NA West
+                            option(value="europe", selected=(region === 'europe')) Europe
+                            option(value="oceania", selected=(region === 'oceania')) Oceania
+                            option(value="brazil", selected=(region === 'brazil')) Brazil
+                            option(value="asia", selected=(region === 'asia')) Asia
+            table.table.table-striped
+                thead.thead-dark
+                    tr
+                        th.fit Rank
+                        th Player
+                        th Rating
+                        th Matches
+                tbody
+                    if leaderboard.length
+                        each user, index in leaderboard
+                            if index < 3
+                                tr
+                                    td.lead ##{index + 1}
+                                    if user.epicGamesAccount.platform === 'pc'
+                                        td.lead #{user.epicGamesAccount.displayName} #[i.fab.fa-windows.text-muted.ml-3]
+                                    else if user.epicGamesAccount.platform === 'ps4'
+                                        td.lead #{user.epicGamesAccount.displayName} #[i.fab.fa-playstation.text-muted.ml-3]
+                                    else if user.epicGamesAccount.platform === 'xb1'
+                                        td.lead #{user.epicGamesAccount.displayName} #[i.fab.fa-xbox.text-muted.ml-3]
+                                    td.lead #{user.stats.solo.rating}
+                                    td.lead #{user.stats.solo.matchesPlayed}
+                            else
+                                tr
+                                    td ##{index + 1}
+                                    if user.epicGamesAccount.platform === 'pc'
+                                        td #{user.epicGamesAccount.displayName} #[i.fab.fa-windows.text-muted.ml-3]
+                                    else if user.epicGamesAccount.platform === 'ps4'
+                                        td #{user.epicGamesAccount.displayName} #[i.fab.fa-playstation.text-muted.ml-3]
+                                    else if user.epicGamesAccount.platform === 'xb1'
+                                        td #{user.epicGamesAccount.displayName} #[i.fab.fa-xbox.text-muted.ml-3]
+                                    td #{user.stats.solo.rating}
+                                    td #{user.stats.solo.matchesPlayed}
+                    else
+                        td(colspan="4").text-center No players found fitting this leaderboard criteria.
+
+block scripts
+    script(src="/js/leaderboards.bundle.js")

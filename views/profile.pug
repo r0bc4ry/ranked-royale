@@ -20,7 +20,7 @@ block content
                                     div.col
                                         h6 Platform
                                         if user.epicGamesAccount.platform === 'pc'
-                                            p #[i.fas.fa-desktop] PC
+                                            p #[i.fab.fa-windows] PC
                                         else if user.epicGamesAccount.platform === 'ps4'
                                             p #[i.fab.fa-playstation] PlayStation 4
                                         else if user.epicGamesAccount.platform === 'xb1'
@@ -168,7 +168,7 @@ block content
                                             select(name="platform", required).form-control
                                                 option(value="pc", selected) PC
                                                 option(value="ps4") PlayStation 4
-                                                option(value="xb1") xb1 One
+                                                option(value="xb1") Xbox One
                                     div.col
                                         div.form-group
                                             label Region

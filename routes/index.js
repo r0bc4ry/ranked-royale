@@ -3,6 +3,7 @@ const router = express.Router();
 
 const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
 
+const leaderboardsController = require('../controllers/api/leaderboards-controller');
 const matchesController = require('../controllers/api/matches-controller');
 const isAuthenticated = require('../helpers/is-authenticated');
 const User = require('../models/user');
@@ -19,26 +20,29 @@ router.get('/faq', function (req, res, next) {
     res.render('faq', {title: 'FAQ'});
 });
 
-router.get('/leaderboards', function (req, res, next) {
-    res.render('leaderboards', {title: 'Leaderboards', user: req.user});
+router.get('/leaderboards', async function (req, res, next) {
+    let users = await leaderboardsController.getLeaderboard(req.query.gameMode || 'solo', req.query.platform || 'pc', req.query.region);
+    res.render('leaderboards', {
+        title: 'Leaderboards',
+        user: req.user,
+        leaderboard: users,
+        gameMode: req.query.gameMode,
+        platform: req.query.platform,
+        region: req.query.region
+    });
 });
 
 router.get('/profile', isAuthenticated, async function (req, res, next) {
-    let user = await User.findById(req.user._id);
-    req.login(user, async function (err) {
-        if (err) console.error(err);
-
-        let matches = await matchesController.getMatches(req.user._id);
-        res.render('profile', {
-            title: 'Profile',
-            matches: matches,
-            user: req.user,
-            distanceInWordsToNow: {
-                solo: distanceInWordsToNow(req.user.stats.solo.updatedAt),
-                duo: distanceInWordsToNow(req.user.stats.duo.updatedAt),
-                squad: distanceInWordsToNow(req.user.stats.squad.updatedAt)
-            },
-        });
+    let matches = await matchesController.getMatches(req.user._id);
+    res.render('profile', {
+        title: 'Profile',
+        matches: matches,
+        user: req.user,
+        distanceInWordsToNow: {
+            solo: distanceInWordsToNow(req.user.stats.solo.updatedAt),
+            duo: distanceInWordsToNow(req.user.stats.duo.updatedAt),
+            squad: distanceInWordsToNow(req.user.stats.squad.updatedAt)
+        },
     });
 });
 

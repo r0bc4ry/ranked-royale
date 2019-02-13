@@ -6,6 +6,7 @@ module.exports = {
     entry: {
         auth: './client/js/auth.js',
         index: './client/js/index.js',
+        leaderboards: './client/js/leaderboards.js',
         play: './client/js/play.js',
         profile: './client/js/profile.js',
         support: './client/js/support.js',

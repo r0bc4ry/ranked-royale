@@ -33,6 +33,12 @@ body {
     border-radius: 0;
 }
 
+// Helpers
+.table th.fit {
+    white-space: nowrap;
+    width: 1%;
+}
+
 // layout.pug
 nav {
     & + .alert.alert-light {
