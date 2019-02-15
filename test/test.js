@@ -59,36 +59,37 @@ describe('Load Express', function () {
 });
 
 let epicData = {
-    "pc": {
-        "duo": {
-            "score": 137493,
-            "matchesplayed": 824,
-            "placetop12": 262,
-            "lastmodified": "2019-02-09T00:40:11.000Z",
-            "placetop1": 10,
-            "minutesplayed": 195,
-            "placetop5": 108,
-            "kills": 930
-        },
-        "squad": {
-            "score": 36017,
-            "placetop3": 14,
-            "lastmodified": "2019-01-27T23:41:30.000Z",
-            "kills": 301,
-            "matchesplayed": 246,
-            "minutesplayed": 127,
-            "placetop6": 40,
-            "placetop1": 5
-        },
-        "solo": {
-            "score": 165686,
-            "kills": 1224,
-            "lastmodified": "2019-02-10T22:47:46.000Z",
-            "matchesplayed": 961,
-            "minutesplayed": 212,
-            "placetop1": 20,
-            "placetop10": 186,
-            "placetop25": 396
-        }
+    "defaultduo": {
+        "score": 36041,
+        "matchesPlayed": 681,
+        "minutesPlayed": 1623,
+        "kills": 351,
+        "playersOutLived": 12116,
+        "placeTop12": 191,
+        "placetop5": 72,
+        "placeTop1": 8,
+        "lastModified": "2019-02-15T02:31:09.000Z"
+    },
+    "defaultsquad": {
+        "score": 2639,
+        "matchesPlayed": 175,
+        "minutesPlayed": 112,
+        "kills": 109,
+        "playersOutLived": 896,
+        "placeTop6": 31,
+        "placeTop3": 11,
+        "placeTop1": 4,
+        "lastModified": "2018-12-16T21:48:09.000Z"
+    },
+    "defaultsolo": {
+        "score": 13677,
+        "matchesPlayed": 167,
+        "minutesPlayed": 817,
+        "kills": 125,
+        "playersOutLived": 2980,
+        "placeTop25": 46,
+        "placeTop10": 16,
+        "placeTop1": 0,
+        "lastModified": "2019-02-13T22:16:16.000Z"
     }
 };

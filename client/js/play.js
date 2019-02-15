@@ -14,7 +14,7 @@ var countdown2Audio = new Audio('/audio/2.wav');
 var countdown1Audio = new Audio('/audio/1.wav');
 var countdown0Audio = new Audio('/audio/0.wav');
 let currentTime, eventTime;
-let countdownInterval;
+let ajaxInterval, countdownInterval;
 
 $(function () {
     if ($('#step-1, #step-2, #step-3').length === 0) {
@@ -23,10 +23,7 @@ $(function () {
 
     getTimeFromServer().then(function () {
         startCountdown();
-
-        setInterval(function () {
-            getTimeFromServer();
-        }, 1000 * 15);
+        ajaxInterval = workerTimers.setInterval(getTimeFromServer, 1000 * 15);
     });
 
     socket.on('onlineCounter', function (data) {
@@ -100,6 +97,7 @@ function onStep1End() {
     $('#step-1').fadeOut(250, function () {
         $('#step-2').fadeIn(300, function () {
             // Fading animations complete
+            workerTimers.clearInterval(ajaxInterval);
         });
     });
 }

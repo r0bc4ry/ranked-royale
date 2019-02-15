@@ -1,8 +1,8 @@
 const randomstring = require('randomstring');
 
-const EGClient = require('epicgames-client').Client;
+const {Client, EInputType} = require('epicgames-client');
 const Fortnite = require('epicgames-fortnite-client');
-const eg = new EGClient({
+const eg = new Client({
     email: process.env.EPIC_EMAIL,
     password: process.env.EPIC_PASSWORD
 });
@@ -30,40 +30,64 @@ let initPromise = (async () => {
     communicator.on('friend:request', _onFriendRequest);
 })();
 
-async function getStatsBR(id) {
+async function getStatsBR(id, inputType) {
     console.log(`EPIC getStatsBR ${id}`);
-    let stats = await fortniteGame.getStatsBR(id);
-    ['pc', 'ps4', 'xb1'].forEach(function (platform) {
-        stats[platform] = Object.assign({
-            solo: {
-                score: 0,
-                matchesplayed: 0,
-                kills: 0,
-                placetop25: 0,
-                placetop10: 0,
-                placetop1: 0,
-                lastmodified: new Date().toISOString()
-            },
-            duo: {
-                score: 0,
-                matchesplayed: 0,
-                kills: 0,
-                placetop12: 0,
-                placetop5: 0,
-                placetop1: 0,
-                lastmodified: new Date().toISOString()
-            },
-            squad: {
-                score: 0,
-                matchesplayed: 0,
-                kills: 0,
-                placetop6: 0,
-                placetop3: 0,
-                placetop1: 0,
-                lastmodified: new Date().toISOString()
-            },
-        }, stats[platform]);
-    });
+    let stats;
+    switch (inputType) {
+        case 'Controller':
+            stats = await fortniteGame.getStatsBR(id, EInputType.Controller);
+            break;
+        case 'Touch':
+            stats = await fortniteGame.getStatsBR(id, EInputType.Touch);
+            break;
+        default:
+            stats = await fortniteGame.getStatsBR(id, EInputType.MouseAndKeyboard);
+            break;
+    }
+
+    for (let key in stats) {
+        if (key === 'defaultsolo' || key === 'defaultduo' || key === 'defaultsquad') {
+            continue;
+        }
+        delete stats[key];
+    }
+
+    stats['defaultsolo'] = Object.assign({
+        score: 0,
+        matchesPlayed: 0,
+        minutesPlayed: 0,
+        kills: 0,
+        playersOutLived: 0,
+        placeTop25: 0,
+        placeTop10: 0,
+        placeTop1: 0,
+        lastModified: new Date().toISOString()
+    }, stats['defaultsolo']);
+
+    stats['defaultduo'] = Object.assign({
+        score: 0,
+        matchesPlayed: 0,
+        minutesPlayed: 0,
+        kills: 0,
+        playersOutLived: 0,
+        placeTop12: 0,
+        placetop5: 0,
+        placeTop1: 0,
+        lastModified: new Date().toISOString()
+    }, stats['defaultduo']);
+
+    stats['defaultsquad'] = Object.assign({
+        score: 0,
+        matchesPlayed: 0,
+        minutesPlayed: 0,
+        kills: 0,
+        playersOutLived: 0,
+        placeTop6: 0,
+        placeTop3: 0,
+        placeTop1: 0,
+        lastModified: new Date().toISOString()
+    }, stats['defaultsquad']);
+
     return stats;
 }
 

@@ -17,15 +17,15 @@ async function verifyEpicGames(reqBody, userId) {
 
     let user = await User.findOneAndUpdate({_id: userId}, {
         $set: {
-            'epicGamesAccount.id': epicGamesAccount.account_id,
-            'epicGamesAccount.displayName': epicGamesAccount.display_name,
-            'epicGamesAccount.platform': reqBody.platform,
+            'epicGamesAccount.id': epicGamesAccount.id,
+            'epicGamesAccount.displayName': epicGamesAccount.displayName,
+            'epicGamesAccount.inputType': reqBody.inputType,
             'epicGamesAccount.region': reqBody.region,
         }
-    });
+    }, {new: true});
 
     try {
-        await epicGamesController.removeFriend(epicGamesAccount.account_id);
+        await epicGamesController.removeFriend(epicGamesAccount.id);
         await epicCode.remove();
     } catch (err) {
         console.error(err);

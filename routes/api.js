@@ -18,8 +18,8 @@ const connectionsController = require('../controllers/api/connections-controller
 const matchController = require('../controllers/api/matches-controller');
 
 router.post('/connections/epic', isAuthenticated, async function (req, res, next) {
-    if (!req.body.code || !req.body.platform || !req.body.region) {
-        return apiError(res, 'Platform, region, and code required.');
+    if (!req.body.code || !req.body.inputType || !req.body.region) {
+        return apiError(res, 'Input type, region, and code required.');
     }
 
     try {
@@ -68,10 +68,6 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
             break;
         }
     }
-
-    // TODO Remove this before production
-    let coeff = 1000 * 60;
-    eventTime = new Date(Math.ceil(Date.now() / coeff) * coeff);
 
     if (eventTime === null) {
         eventTime = setMinutes(startOfHour(addHours(currentTime, 1)), hardcodedMinutes[0]);

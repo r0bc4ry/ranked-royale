@@ -18,13 +18,13 @@ block content
                                 p= user.epicGamesAccount.displayName
                                 div.row
                                     div.col
-                                        h6 Platform
-                                        if user.epicGamesAccount.platform === 'pc'
-                                            p #[i.fab.fa-windows] PC
-                                        else if user.epicGamesAccount.platform === 'ps4'
-                                            p #[i.fab.fa-playstation] PlayStation 4
-                                        else if user.epicGamesAccount.platform === 'xb1'
-                                            p #[i.fab.fa-xbox] Xbox One
+                                        h6 Input Type
+                                        if user.epicGamesAccount.inputType === 'MouseAndKeyboard'
+                                            p #[i.fab.fa-windows] Mouse &amp; Keyboard
+                                        else if user.epicGamesAccount.inputType === 'Controller'
+                                            p #[i.fas.fa-gamepad] Controller
+                                        else if user.epicGamesAccount.inputType === 'Touch'
+                                            p #[i.fas.fa-mobile-alt] Touch
                                     div.col
                                         h6 Region
                                         if user.epicGamesAccount.region === 'na-east'
@@ -164,11 +164,11 @@ block content
                                 div.row
                                     div.col
                                         div.form-group
-                                            label Platform
-                                            select(name="platform", required).form-control
-                                                option(value="pc", selected) PC
-                                                option(value="ps4") PlayStation 4
-                                                option(value="xb1") Xbox One
+                                            label Input Type
+                                            select(name="inputType", required).form-control
+                                                option(value="MouseAndKeyboard", selected) Mouse &amp; Keyboard
+                                                option(value="Controller") Controller
+                                                option(value="Touch") Touch
                                     div.col
                                         div.form-group
                                             label Region

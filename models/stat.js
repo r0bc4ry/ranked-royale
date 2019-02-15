@@ -16,7 +16,15 @@ var Stat = new Schema({
         type: Number,
         required: true
     },
+    minutesPlayed: {
+        type: Number,
+        required: true
+    },
     kills: {
+        type: Number,
+        required: true
+    },
+    playersOutLived: {
         type: Number,
         required: true
     },
@@ -25,24 +33,24 @@ var Stat = new Schema({
         required: true
     },
     // Solo specific stats
-    placeTop10: {
-        type: Boolean
-    },
     placeTop25: {
         type: Boolean
     },
-    // Duos specific stats
-    placeTop5: {
+    placeTop10: {
         type: Boolean
     },
+    // Duos specific stats
     placeTop12: {
         type: Boolean
     },
-    // Squads specific stats
-    placeTop3: {
+    placeTop5: {
         type: Boolean
     },
+    // Squads specific stats
     placeTop6: {
+        type: Boolean
+    },
+    placeTop3: {
         type: Boolean
     }
 }, {timestamps: true});

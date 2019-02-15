@@ -21,13 +21,13 @@ router.get('/faq', function (req, res, next) {
 });
 
 router.get('/leaderboards', async function (req, res, next) {
-    let users = await leaderboardsController.getLeaderboard(req.query.gameMode || 'solo', req.query.platform || 'pc', req.query.region);
+    let users = await leaderboardsController.getLeaderboard(req.query.gameMode, req.query.inputType, req.query.region);
     res.render('leaderboards', {
         title: 'Leaderboards',
         user: req.user,
         leaderboard: users,
         gameMode: req.query.gameMode,
-        platform: req.query.platform,
+        inputType: req.query.inputType,
         region: req.query.region
     });
 });

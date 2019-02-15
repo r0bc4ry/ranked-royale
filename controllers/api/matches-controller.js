@@ -156,8 +156,8 @@ function _startMatchCron(match, users) {
                 let prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
                 prevStats = JSON.parse(prevStats);
 
-                let gameModeCurrentStats = currentStats[user._id][user.epicGamesAccount.platform][match.gameMode];
-                let gameModePrevStats = prevStats[user.epicGamesAccount.platform][match.gameMode];
+                let gameModeCurrentStats = currentStats[user._id][user.epicGamesAccount.inputType][match.gameMode];
+                let gameModePrevStats = prevStats[user.epicGamesAccount.inputType][match.gameMode];
 
                 if (JSON.stringify(gameModeCurrentStats) === JSON.stringify(gameModePrevStats)) {
                     usersWithUnchangedStats.push(user._id);
@@ -209,8 +209,10 @@ async function _endMatch(match, users, currentStats) {
             matchId: match._id
         };
 
+        let gameModeKey = `default${match.gameMode}`;
+
         // If the user's changed stats are for anything but one match, do not record their stats
-        let numMatches = currentStats[user._id][user.epicGamesAccount.platform][match.gameMode].matchesplayed - prevStats[user.epicGamesAccount.platform][match.gameMode].matchesplayed;
+        let numMatches = currentStats[user._id][gameModeKey].matchesPlayed - prevStats[gameModeKey].matchesPlayed;
         if (numMatches !== 1) {
             await match.update({}, {
                 $pull: {
@@ -221,24 +223,24 @@ async function _endMatch(match, users, currentStats) {
         }
 
         // Calculate the user's performance
+        statDoc.minutesPlayed = currentStats[user._id][gameModeKey].minutesPlayed - prevStats[gameModeKey].minutesPlayed;
+        statDoc.kills = currentStats[user._id][gameModeKey].kills - prevStats[gameModeKey].kills;
+        statDoc.playersOutLived = currentStats[user._id][gameModeKey].playersOutLived - prevStats[gameModeKey].playersOutLived;
         switch (match.gameMode) {
             case 'solo':
-                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].solo.kills - prevStats[user.epicGamesAccount.platform].solo.kills;
-                statDoc.placeTop25 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop25 - prevStats[user.epicGamesAccount.platform].solo.placetop25);
-                statDoc.placeTop10 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop10 - prevStats[user.epicGamesAccount.platform].solo.placetop10);
-                statDoc.placeTop1 = !!(currentStats[user._id][user.epicGamesAccount.platform].solo.placetop1 - prevStats[user.epicGamesAccount.platform].solo.placetop1);
+                statDoc.placeTop25 = !!(currentStats[user._id][gameModeKey].placeTop25 - prevStats[gameModeKey].placeTop25);
+                statDoc.placeTop10 = !!(currentStats[user._id][gameModeKey].placeTop10 - prevStats[gameModeKey].placeTop10);
+                statDoc.placeTop1 = !!(currentStats[user._id][gameModeKey].placeTop1 - prevStats[gameModeKey].placeTop1);
                 break;
             case 'duo':
-                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].duo.kills - prevStats[user.epicGamesAccount.platform].duo.kills;
-                statDoc.placeTop12 = !!(currentStats[user._id][user.epicGamesAccount.platform].duo.placetop12 - prevStats[user.epicGamesAccount.platform].duo.placetop12);
-                statDoc.placeTop5 = !!(currentStats[user._id][user.epicGamesAccount.platform].duo.placetop5 - prevStats[user.epicGamesAccount.platform].duo.placetop5);
-                statDoc.placeTop1 = !!(currentStats[user._id][user.epicGamesAccount.platform].duo.placetop1 - prevStats[user.epicGamesAccount.platform].duo.placetop1);
+                statDoc.placeTop12 = !!(currentStats[user._id][gameModeKey].placeTop12 - prevStats[gameModeKey].placeTop12);
+                statDoc.placeTop5 = !!(currentStats[user._id][gameModeKey].placeTop5 - prevStats[gameModeKey].placeTop5);
+                statDoc.placeTop1 = !!(currentStats[user._id][gameModeKey].placeTop1 - prevStats[gameModeKey].placeTop1);
                 break;
             case 'squad':
-                statDoc.kills = currentStats[user._id][user.epicGamesAccount.platform].squad.kills - prevStats[user.epicGamesAccount.platform].squad.kills;
-                statDoc.placeTop6 = !!(currentStats[user._id][user.epicGamesAccount.platform].squad.placetop6 - prevStats[user.epicGamesAccount.platform].squad.placetop6);
-                statDoc.placeTop3 = !!(currentStats[user._id][user.epicGamesAccount.platform].squad.placetop3 - prevStats[user.epicGamesAccount.platform].squad.placetop3);
-                statDoc.placeTop1 = !!(currentStats[user._id][user.epicGamesAccount.platform].squad.placetop1 - prevStats[user.epicGamesAccount.platform].squad.placetop1);
+                statDoc.placeTop6 = !!(currentStats[user._id][gameModeKey].placeTop6 - prevStats[gameModeKey].placeTop6);
+                statDoc.placeTop3 = !!(currentStats[user._id][gameModeKey].placeTop3 - prevStats[gameModeKey].placeTop3);
+                statDoc.placeTop1 = !!(currentStats[user._id][gameModeKey].placeTop1 - prevStats[gameModeKey].placeTop1);
                 break;
         }
 
@@ -282,14 +284,15 @@ async function _calculateRatings(match, users, statDocs) {
     });
 
     // Think of each player as having played two matches: a loss vs. the player above them on the list and a win vs. the player below them
-    for (const [index, scoreObj] of scoresArray.entries()) {
+    for (const [index, userAScoreObj] of scoresArray.entries()) {
         let userA = users.find(function (user) {
-            return user._id === scoreObj.userId;
+            return user._id === userAScoreObj.userId;
         });
 
         if (index !== scoresArray.length - 1) {
+            let userBScoreObj = scoresArray[index + 1];
             let userB = users.find(function (user) {
-                return user._id === scoresArray[index + 1].userId;
+                return user._id === userBScoreObj.userId;
             });
 
             let playerARating = userA.stats[match.gameMode].rating;
@@ -300,19 +303,22 @@ async function _calculateRatings(match, users, statDocs) {
             let oddsPlayerBWins = elo.expectedScore(playerBRating, playerARating);
 
             // Update score: 1 if won, 0.5 if draw, 0 if lost
-            let updatedPlayerARating = elo.newRating(oddsPlayerAWins, userA.score === userB.score ? 0.5 : 1, playerARating);
-            let updatedPlayerBRating = elo.newRating(oddsPlayerBWins, userB.score === userA.score ? 0.5 : 0, playerBRating);
+            let updatedPlayerARating = elo.newRating(oddsPlayerAWins, userAScoreObj.score === userBScoreObj.score ? 0.5 : 1, playerARating);
+            let updatedPlayerBRating = elo.newRating(oddsPlayerBWins, userBScoreObj.score === userAScoreObj.score ? 0.5 : 0, playerBRating);
 
-            statDocs[userA._id].eloDelta = updatedPlayerARating - playerARating;
-            statDocs[userB._id].eloDelta = updatedPlayerBRating - playerBRating;
-        }
+            if (statDocs[userA._id].eloDelta == null) {
+                statDocs[userA._id].eloDelta = 0;
+            }
+            statDocs[userA._id].eloDelta += updatedPlayerARating - playerARating;
 
-        if (statDocs[scoreObj.userId].eloDelta == null) {
-            statDocs[scoreObj.userId].eloDelta = 0;
+            if (statDocs[userB._id].eloDelta == null) {
+                statDocs[userB._id].eloDelta = 0;
+            }
+            statDocs[userB._id].eloDelta += updatedPlayerBRating - playerBRating;
         }
 
         // Create Stat documents
-        await Stat.create(statDocs[scoreObj.userId]);
+        await Stat.create(statDocs[userA._id]);
     }
 
     await Promise.all(users.map(async function (user) {
@@ -320,7 +326,9 @@ async function _calculateRatings(match, users, statDocs) {
             $inc: {
                 'stats.solo.rating': statDocs[user._id].eloDelta,
                 'stats.solo.matchesPlayed': 1,
+                'stats.solo.minutesPlayed': statDocs[user._id].minutesPlayed,
                 'stats.solo.kills': statDocs[user._id].kills,
+                'stats.solo.playersOutLived': statDocs[user._id].playersOutLived,
                 'stats.solo.placeTop25': statDocs[user._id].placeTop25 ? 1 : 0,
                 'stats.solo.placeTop10': statDocs[user._id].placeTop10 ? 1 : 0,
                 'stats.solo.placeTop1': statDocs[user._id].placeTop1 ? 1 : 0

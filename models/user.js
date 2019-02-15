@@ -39,9 +39,9 @@ var UserSchema = new Schema({
                 type: String,
                 required: true
             },
-            platform: {
+            inputType: {
                 type: String,
-                enum: ['pc', 'ps4', 'xb1'],
+                enum: ['MouseAndKeyboard', 'Controller', 'Touch'],
                 required: true
             },
             region: {
@@ -64,7 +64,17 @@ var UserSchema = new Schema({
                 required: true,
                 default: 0
             },
+            minutesPlayed: {
+                type: Number,
+                required: true,
+                default: 0
+            },
             kills: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            playersOutLived: {
                 type: Number,
                 required: true,
                 default: 0
@@ -101,7 +111,17 @@ var UserSchema = new Schema({
                 required: true,
                 default: 0
             },
+            minutesPlayed: {
+                type: Number,
+                required: true,
+                default: 0
+            },
             kills: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            playersOutLived: {
                 type: Number,
                 required: true,
                 default: 0
@@ -138,7 +158,17 @@ var UserSchema = new Schema({
                 required: true,
                 default: 0
             },
+            minutesPlayed: {
+                type: Number,
+                required: true,
+                default: 0
+            },
             kills: {
+                type: Number,
+                required: true,
+                default: 0
+            },
+            playersOutLived: {
                 type: Number,
                 required: true,
                 default: 0

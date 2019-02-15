@@ -14,12 +14,12 @@ block content
                             option(value="squad", selected=(gameMode === 'squad')) Squads
                 div.col-md-4
                     div.form-group
-                        label Platform
-                        select(name="platform", required).form-control
-                            option(value="", selected=(!platform)) Any Platform
-                            option(value="pc", selected=(platform === 'pc')) PC
-                            option(value="ps4", selected=(platform === 'ps4')) PlayStation 4
-                            option(value="xb1", selected=(platform === 'xb1')) Xbox One
+                        label Input Type
+                        select(name="inputType", required).form-control
+                            option(value="", selected=(!inputType)) Any Input Type
+                            option(value="MouseAndKeyboard", selected=(inputType === 'MouseAndKeyboard')) Mouse &amp; Keyboard
+                            option(value="Controller", selected=(inputType === 'Controller')) Controller
+                            option(value="Touch", selected=(inputType === 'Touch')) Touch
                 div.col-md-4
                     div.form-group
                         label Region
@@ -44,23 +44,23 @@ block content
                             if index < 3
                                 tr
                                     td.lead ##{index + 1}
-                                    if user.epicGamesAccount.platform === 'pc'
+                                    if user.epicGamesAccount.inputType === 'MouseAndKeyboard'
                                         td.lead #{user.epicGamesAccount.displayName} #[i.fab.fa-windows.text-muted.ml-3]
-                                    else if user.epicGamesAccount.platform === 'ps4'
-                                        td.lead #{user.epicGamesAccount.displayName} #[i.fab.fa-playstation.text-muted.ml-3]
-                                    else if user.epicGamesAccount.platform === 'xb1'
-                                        td.lead #{user.epicGamesAccount.displayName} #[i.fab.fa-xbox.text-muted.ml-3]
+                                    else if user.epicGamesAccount.inputType === 'Controller'
+                                        td.lead #{user.epicGamesAccount.displayName} #[i.fas.fa-gamepad.text-muted.ml-3]
+                                    else if user.epicGamesAccount.inputType === 'Touch'
+                                        td.lead #{user.epicGamesAccount.displayName} #[i.fas.fa-mobile-alt.text-muted.ml-3]
                                     td.lead #{user.stats.solo.rating}
                                     td.lead #{user.stats.solo.matchesPlayed}
                             else
                                 tr
                                     td ##{index + 1}
-                                    if user.epicGamesAccount.platform === 'pc'
+                                    if user.epicGamesAccount.inputType === 'MouseAndKeyboard'
                                         td #{user.epicGamesAccount.displayName} #[i.fab.fa-windows.text-muted.ml-3]
-                                    else if user.epicGamesAccount.platform === 'ps4'
-                                        td #{user.epicGamesAccount.displayName} #[i.fab.fa-playstation.text-muted.ml-3]
-                                    else if user.epicGamesAccount.platform === 'xb1'
-                                        td #{user.epicGamesAccount.displayName} #[i.fab.fa-xbox.text-muted.ml-3]
+                                    else if user.epicGamesAccount.inputType === 'Controller'
+                                        td #{user.epicGamesAccount.displayName} #[i.fas.fa-gamepad.text-muted.ml-3]
+                                    else if user.epicGamesAccount.inputType === 'Touch'
+                                        td #{user.epicGamesAccount.displayName} #[i.fas.fa-mobile-alt.text-muted.ml-3]
                                     td #{user.stats.solo.rating}
                                     td #{user.stats.solo.matchesPlayed}
                     else
