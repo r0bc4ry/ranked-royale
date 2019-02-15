@@ -138,7 +138,7 @@ async function _startMatch(match) {
  * Start cron job to check user stats until the match ends.
  */
 function _startMatchCron(match, users) {
-    let job = new CronJob('*/30 * * * * *', async function () {
+    let job = new CronJob('* */1 * * * *', async function () {
         // If this job is running too long after the match has started, remove the match and stop the job
         if (isPast(addMinutes(match.createdAt, 45))) {
             console.error(`Match "${match._id}" running too long.`);
@@ -316,6 +316,11 @@ async function _calculateRatings(match, users, statDocs) {
                 statDocs[userB._id].eloDelta = 0;
             }
             statDocs[userB._id].eloDelta += updatedPlayerBRating - playerBRating;
+        }
+
+        // This is required here for single player, testing games
+        if (statDocs[userA._id].eloDelta == null) {
+            statDocs[userA._id].eloDelta = 0;
         }
 
         // Create Stat documents
