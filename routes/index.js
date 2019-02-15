@@ -33,16 +33,21 @@ router.get('/leaderboards', async function (req, res, next) {
 });
 
 router.get('/profile', isAuthenticated, async function (req, res, next) {
-    let matches = await matchesController.getMatches(req.user._id);
-    res.render('profile', {
-        title: 'Profile',
-        matches: matches,
-        user: req.user,
-        distanceInWordsToNow: {
-            solo: distanceInWordsToNow(req.user.stats.solo.updatedAt),
-            duo: distanceInWordsToNow(req.user.stats.duo.updatedAt),
-            squad: distanceInWordsToNow(req.user.stats.squad.updatedAt)
-        },
+    let user = await User.findById(req.user._id);
+    req.login(user, async function (err) {
+        if (err) return next(err);
+
+        let matches = await matchesController.getMatches(req.user._id);
+        res.render('profile', {
+            title: 'Profile',
+            matches: matches,
+            user: req.user,
+            distanceInWordsToNow: {
+                solo: distanceInWordsToNow(req.user.stats.solo.updatedAt),
+                duo: distanceInWordsToNow(req.user.stats.duo.updatedAt),
+                squad: distanceInWordsToNow(req.user.stats.squad.updatedAt)
+            },
+        });
     });
 });
 
