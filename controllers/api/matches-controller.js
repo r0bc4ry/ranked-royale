@@ -156,8 +156,9 @@ function _startMatchCron(match, users) {
                 let prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
                 prevStats = JSON.parse(prevStats);
 
-                let gameModeCurrentStats = currentStats[user._id][user.epicGamesAccount.inputType][match.gameMode];
-                let gameModePrevStats = prevStats[user.epicGamesAccount.inputType][match.gameMode];
+                let gameModeKey = `default${match.gameMode}`;
+                let gameModeCurrentStats = currentStats[user._id][gameModeKey];
+                let gameModePrevStats = prevStats[gameModeKey];
 
                 if (JSON.stringify(gameModeCurrentStats) === JSON.stringify(gameModePrevStats)) {
                     usersWithUnchangedStats.push(user._id);
