@@ -46,6 +46,14 @@ async function getStatsBR(id, inputType) {
             break;
     }
 
+    for (let key in stats) {
+        if (key === 'defaultsolo' || key === 'defaultduo' || key === 'defaultsquad') {
+            continue;
+        } else {
+            delete stats[key];
+        }
+    }
+
     stats['defaultsolo'] = Object.assign({
         score: 0,
         matchesPlayed: 0,
