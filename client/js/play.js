@@ -33,6 +33,11 @@ $(function () {
         if (isBefore(currentTime, subMinutes(eventTime, 29))) {
             $('#step-1').hide();
             $('#step-2').show();
+
+            setTimeout(function () {
+                window.location.reload()
+            }, 1000 * 60);
+
             return;
         }
 
@@ -190,7 +195,7 @@ function onStep2End() {
         $('#step-3').fadeIn(300, function () {
             // Fading animations complete
             setTimeout(function () {
-                location.reload();
+                window.location.reload()
             }, 1000 * 60);
         });
     });
