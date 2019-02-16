@@ -39,9 +39,9 @@ async function getMatches(userId) {
     let matches = await Match.find({users: userId}).sort({createdAt: 'descending'}).limit(5).lean().exec();
 
     // Get the stats for each match and if two records exist, list the user's match performance
-    await Promise.all(matches.map(async function (match) {
+    for (let match of matches) {
         match.stat = await Stat.findOne({userId: userId, matchId: match._id});
-    }));
+    }
 
     return matches;
 }
@@ -116,20 +116,21 @@ async function _startMatch(match) {
     console.log(`Match "${match._id}" is starting.`);
 
     // Update the initial stats for each user
-    await Promise.all(users.map(async function (user) {
+    for (let user of users) {
         // If the server is restarting this job, check if data is already in Redis
-        if (await asyncRedisClient.hget(match.serverId, user._id.toString())) {
+        let prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
+        if (prevStats) {
             return;
         }
 
         try {
-            let stats = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
-            await asyncRedisClient.hset(match.serverId, user._id.toString(), JSON.stringify(stats));
+            let currentStats = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
+            await asyncRedisClient.hset(match.serverId, user._id.toString(), JSON.stringify(currentStats));
             await asyncRedisClient.expire(match.serverId, 300);
         } catch (err) {
             console.error(err);
         }
-    }));
+    }
 
     _startMatchCron(match, users);
 }
@@ -150,10 +151,9 @@ function _startMatchCron(match, users) {
         // Get each users' current stats and compare them to the saved version
         let currentStats = {};
         let usersWithUnchangedStats = [];
-        await Promise.all(users.map(async function (user) {
+        for (let user of users) {
             try {
                 currentStats[user._id] = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
-
                 if (Object.keys(currentStats[user._id]).length === 0) {
                     throw `User "${user._id}" returned empty current stats.`;
                 }
@@ -167,7 +167,6 @@ function _startMatchCron(match, users) {
             try {
                 prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
                 prevStats = JSON.parse(prevStats);
-
                 if (Object.keys(prevStats).length === 0) {
                     throw `User "${user._id}" returned empty previous stats.`;
                 }
@@ -183,7 +182,7 @@ function _startMatchCron(match, users) {
             if (JSON.stringify(gameModeCurrentStats) === JSON.stringify(gameModePrevStats)) {
                 usersWithUnchangedStats.push(user._id);
             }
-        }));
+        }
 
         // If the percentage of users with changed stats is greater than 80%, the match is over
         let matchHasEnded = false;
@@ -206,13 +205,12 @@ function _startMatchCron(match, users) {
             await _endMatch(match, users, currentStats);
             job.stop();
         } else {
-            await Promise.all(users.map(async function (user) {
+            for (let user of users) {
                 await asyncRedisClient.hset(match.serverId, user._id.toString(), JSON.stringify(currentStats[user._id]));
                 await asyncRedisClient.expire(match.serverId, 300);
-            }));
+            }
         }
     });
-
     job.start();
 }
 
@@ -220,7 +218,7 @@ function _startMatchCron(match, users) {
  * Determine each users' performance in the match and perform cleanup.
  */
 async function _endMatch(match, users, currentStats) {
-    await Promise.all(users.map(async function (user) {
+    for (let user of users) {
         let prevStats;
         try {
             prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
@@ -284,7 +282,7 @@ async function _endMatch(match, users, currentStats) {
 
         // Reuse currentStats object to store user's performance
         currentStats[user._id] = statDoc;
-    }));
+    }
 
     // Perform match cleanup
     match.hasEnded = true;
@@ -315,7 +313,7 @@ async function _removeUserFromMatch(match, user, currentStats) {
 async function _calculateRatings(match, users, statDocs) {
     // Make a list of all the players and sort it by performance
     let scoresArray = [];
-    await Promise.all(users.map(async function (user) {
+    for (let user of users) {
         let scoreObj = {
             userId: user._id,
             score: statDocs[user._id].kills * 1
@@ -324,7 +322,7 @@ async function _calculateRatings(match, users, statDocs) {
         if (statDocs[user._id].placeTop10) scoreObj.score += 4;
         if (statDocs[user._id].placeTop1) scoreObj.score += 4;
         scoresArray.push(scoreObj);
-    }));
+    }
 
     scoresArray.sort(function (a, b) {
         return b.score - a.score;
@@ -373,7 +371,7 @@ async function _calculateRatings(match, users, statDocs) {
         await Stat.create(statDocs[userA._id]);
     }
 
-    await Promise.all(users.map(async function (user) {
+    for (let user of users) {
         await user.update({
             $inc: {
                 'stats.solo.rating': statDocs[user._id].eloDelta,
@@ -389,7 +387,7 @@ async function _calculateRatings(match, users, statDocs) {
                 'stats.solo.updatedAt': new Date()
             }
         });
-    }));
+    }
 }
 
 module.exports = {

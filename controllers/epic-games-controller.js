@@ -21,9 +21,9 @@ let initPromise = (async () => {
 
     // Remove any pending friend requests from while the bot was offline
     let pendingFriends = await eg.getPendingFriends();
-    await Promise.all(pendingFriends.map(async function (friend) {
+    for (let friend of pendingFriends) {
         await eg.declineFriendRequest(friend.id);
-    }));
+    }
 
     let communicator = fortniteGame.communicator;
     communicator.on('friend:removed', _onFriendRemoved);
@@ -32,6 +32,7 @@ let initPromise = (async () => {
 
 async function getStatsBR(id, inputType) {
     console.log(`EPIC getStatsBR ${id}`);
+
     let stats;
     switch (inputType) {
         case 'Controller':
@@ -43,13 +44,6 @@ async function getStatsBR(id, inputType) {
         default:
             stats = await fortniteGame.getStatsBR(id, EInputType.MouseAndKeyboard);
             break;
-    }
-
-    for (let key in stats) {
-        if (key === 'defaultsolo' || key === 'defaultduo' || key === 'defaultsquad') {
-            continue;
-        }
-        delete stats[key];
     }
 
     stats['defaultsolo'] = Object.assign({
