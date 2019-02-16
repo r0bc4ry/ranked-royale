@@ -54,13 +54,12 @@ $(function () {
 });
 
 function getTimeFromServer() {
-    var ajaxTimeStart = Date.now();
+    let ajaxTimeStart = Date.now();
     return $.get('/api/countdown', function (response) {
         // Add the number of ms it took for the Ajax request to complete
         let ajaxTime = Date.now() - ajaxTimeStart;
         currentTime = addMilliseconds(new Date(response.data.currentTime), ajaxTime);
         eventTime = new Date(response.data.eventTime);
-        eventTime = addMilliseconds(currentTime, 1000);
     });
 }
 

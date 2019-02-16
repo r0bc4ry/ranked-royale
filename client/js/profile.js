@@ -31,7 +31,6 @@ function onConnectContinue(event) {
         button.html('<span class="spinner-border spinner-border-sm"></span> Loading...');
         button.attr('disabled', true);
 
-        // TODO
         $.post('/api/connections/epic', $('.needs-validation').serialize(), function (response) {
             location.reload();
         }).fail(function (response) {

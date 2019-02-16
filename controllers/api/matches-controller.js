@@ -91,10 +91,9 @@ async function putMatch(userId, serverId) {
             let members = await asyncRedisClient.smembers(match.serverId);
             await asyncRedisClient.del(match.serverId);
 
-            // TODO Uncomment for production
-            // if (members.length < 5) {
-            //     return await match.remove();
-            // }
+            if (members.length < 5) {
+                return await match.remove();
+            }
 
             match.users = members;
             await match.save();
@@ -140,6 +139,8 @@ async function _startMatch(match) {
  */
 function _startMatchCron(match, users) {
     let job = new CronJob('0 */1 * * * *', async function () {
+        console.log(`Checking if match "${match._id}" has ended.`);
+
         // If this job is running too long after the match has started, remove the match and stop the job
         if (isPast(addMinutes(match.createdAt, 45))) {
             console.error(`Match "${match._id}" running too long.`);
