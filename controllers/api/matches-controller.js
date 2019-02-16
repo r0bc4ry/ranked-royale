@@ -154,9 +154,6 @@ function _startMatchCron(match, users) {
         for (let user of users) {
             try {
                 currentStats[user._id] = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
-                if (Object.keys(currentStats[user._id]).length === 0) {
-                    throw `User "${user._id}" returned empty current stats.`;
-                }
             } catch (err) {
                 console.log(err);
                 await _removeUserFromMatch(match, user, currentStats);
@@ -167,9 +164,6 @@ function _startMatchCron(match, users) {
             try {
                 prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
                 prevStats = JSON.parse(prevStats);
-                if (Object.keys(prevStats).length === 0) {
-                    throw `User "${user._id}" returned empty previous stats.`;
-                }
             } catch (err) {
                 console.log(err);
                 await _removeUserFromMatch(match, user, currentStats);
@@ -223,10 +217,6 @@ async function _endMatch(match, users, currentStats) {
         try {
             prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
             prevStats = JSON.parse(prevStats);
-
-            if (Object.keys(prevStats).length === 0) {
-                throw `User "${user._id}" returned empty previous stats.`;
-            }
         } catch (err) {
             console.log(err);
             await _removeUserFromMatch(match, user, currentStats);
@@ -270,14 +260,6 @@ async function _endMatch(match, users, currentStats) {
                 statDoc.placeTop3 = !!(currentStats[user._id][gameModeKey].placeTop3 - prevStats[gameModeKey].placeTop3);
                 statDoc.placeTop1 = !!(currentStats[user._id][gameModeKey].placeTop1 - prevStats[gameModeKey].placeTop1);
                 break;
-        }
-
-        if (!Number.isInteger(statDoc.minutesPlayed) || !Number.isInteger(statDoc.kills) || !Number.isInteger(statDoc.playersOutLived) || typeof statDoc.placeTop25 !== 'boolean' || typeof statDoc.placeTop10 !== 'boolean' || typeof statDoc.placeTop1 !== 'boolean') {
-            console.log(`User "${user._id}" had invalid stats.`);
-            console.log(JSON.stringify(currentStats[user._id][gameModeKey]));
-            console.log(JSON.stringify(prevStats[gameModeKey]));
-            await _removeUserFromMatch(match, user, currentStats);
-            return;
         }
 
         // Reuse currentStats object to store user's performance
