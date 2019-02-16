@@ -124,7 +124,7 @@ async function _startMatch(match) {
         }
 
         try {
-            let currentStats = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
+            let currentStats = await epicGamesController.getStatsBR(user.epicGamesAccount.id, user.epicGamesAccount.inputType);
             await asyncRedisClient.hset(match.serverId, user._id.toString(), JSON.stringify(currentStats));
             await asyncRedisClient.expire(match.serverId, 300);
         } catch (err) {
@@ -153,7 +153,7 @@ function _startMatchCron(match, users) {
         let usersWithUnchangedStats = [];
         for (let user of users) {
             try {
-                currentStats[user._id] = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
+                currentStats[user._id] = await epicGamesController.getStatsBR(user.epicGamesAccount.id, user.epicGamesAccount.inputType);
             } catch (err) {
                 console.log(err);
                 await _removeUserFromMatch(match, user, currentStats);

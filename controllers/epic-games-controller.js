@@ -46,6 +46,8 @@ async function getStatsBR(id, inputType) {
             break;
     }
 
+    console.log(JSON.stringify(stats));
+
     for (let key in stats) {
         if (key === 'defaultsolo' || key === 'defaultduo' || key === 'defaultsquad') {
             continue;
@@ -89,6 +91,8 @@ async function getStatsBR(id, inputType) {
         placeTop1: 0,
         lastModified: new Date().toISOString()
     }, stats['defaultsquad']);
+
+    console.log(JSON.stringify(stats));
 
     return stats;
 }
