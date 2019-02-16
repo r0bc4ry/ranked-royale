@@ -1,6 +1,13 @@
 import '../css/play.scss';
 
-import {addMilliseconds, differenceInMilliseconds, differenceInMinutes, differenceInSeconds} from 'date-fns';
+import {
+    addMilliseconds,
+    differenceInMilliseconds,
+    differenceInMinutes,
+    differenceInSeconds,
+    isBefore,
+    subMinutes
+} from 'date-fns';
 import * as workerTimers from 'worker-timers';
 
 const socket = io(host);
@@ -8,7 +15,7 @@ const socket = io(host);
 var countdown5MinutesAudio = new Audio('/audio/5-minutes.wav');
 var countdown3MinutesAudio = new Audio('/audio/3-minutes.wav');
 var countdown1MinuteAudio = new Audio('/audio/1-minute.wav');
-var countdownStartingBronze = new Audio('/audio/5.wav');
+var countdown5Audio = new Audio('/audio/5.wav');
 var countdown3Audio = new Audio('/audio/3.wav');
 var countdown2Audio = new Audio('/audio/2.wav');
 var countdown1Audio = new Audio('/audio/1.wav');
@@ -22,6 +29,13 @@ $(function () {
     }
 
     getTimeFromServer().then(function () {
+        // If page was reloaded within the first minute of the countdown ending, skip to step 2
+        if (isBefore(currentTime, subMinutes(eventTime, 29))) {
+            $('#step-1').hide();
+            $('#step-2').show();
+            return;
+        }
+
         startCountdown();
         ajaxInterval = workerTimers.setInterval(getTimeFromServer, 1000 * 15);
     });
@@ -59,19 +73,29 @@ function updateCountdown() {
         countdown.text(`${s}.${String(ms).charAt(0)}s`);
 
         if (s === 5 && ms === 0) {
-            countdownStartingBronze.play();
+            countdown5Audio.play().catch(function (err) {
+                // Do nothing, just catch the error
+            });
         }
         if (s === 3 && ms === 0) {
-            countdown3Audio.play();
+            countdown3Audio.play().catch(function (err) {
+                // Do nothing, just catch the error
+            });
         }
         if (s === 2 && ms === 0) {
-            countdown2Audio.play();
+            countdown2Audio.play().catch(function (err) {
+                // Do nothing, just catch the error
+            });
         }
         if (s === 1 && ms === 0) {
-            countdown1Audio.play();
+            countdown1Audio.play().catch(function (err) {
+                // Do nothing, just catch the error
+            });
         }
         if (s <= 0 && ms <= 0) {
-            countdown0Audio.play();
+            countdown0Audio.play().catch(function (err) {
+                // Do nothing, just catch the error
+            });
             workerTimers.clearInterval(countdownInterval);
             countdown.text('Go!');
             $('#step-1 p').hide();
@@ -81,13 +105,19 @@ function updateCountdown() {
         countdown.text(`${m}m ${s}s`);
 
         if (m === 5 && s === 0) {
-            countdown5MinutesAudio.play()
+            countdown5MinutesAudio.play().catch(function (err) {
+                // Do nothing, just catch the error
+            });
         }
         if (m === 3 && s === 0) {
-            countdown3MinutesAudio.play()
+            countdown3MinutesAudio.play().catch(function (err) {
+                // Do nothing, just catch the error
+            });
         }
         if (m === 1 && s === 0) {
-            countdown1MinuteAudio.play()
+            countdown1MinuteAudio.play().catch(function (err) {
+                // Do nothing, just catch the error
+            });
         }
     }
     currentTime = addMilliseconds(currentTime, 100);

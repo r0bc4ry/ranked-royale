@@ -19,14 +19,15 @@ block content
 
                             div#step-2
                                 form.needs-validation(novalidate)
-                                    h3.text-center Server ID
+                                    h3.text-center Match Starting
                                     div.form-group
-                                        label Last 3 Characters of Server ID
+                                        label Last 3 Digits of Server ID
                                         div.input-group
                                             input.form-control(type="text", name="serverId", pattern="[a-z0-9]{3}", required)
                                             div.input-group-append
                                                 button.btn.btn-primary(type="button") Submit
                                         small.form-text.text-muted When in-game, you can find this in the top left corner of your screen.
+                                    div.text-center Next match will start in approximately 30 minutes.
                                     div.alert.alert-danger.d-none #[strong Heads up!] Only matches with at least 5 Ranked Royale players will count toward your stats.
 
                             div#step-3.text-center
