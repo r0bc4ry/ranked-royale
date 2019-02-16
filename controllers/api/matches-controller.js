@@ -153,18 +153,35 @@ function _startMatchCron(match, users) {
         await Promise.all(users.map(async function (user) {
             try {
                 currentStats[user._id] = await epicGamesController.getStatsBR(user.epicGamesAccount.id);
-                let prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
-                prevStats = JSON.parse(prevStats);
 
-                let gameModeKey = `default${match.gameMode}`;
-                let gameModeCurrentStats = currentStats[user._id][gameModeKey];
-                let gameModePrevStats = prevStats[gameModeKey];
-
-                if (JSON.stringify(gameModeCurrentStats) === JSON.stringify(gameModePrevStats)) {
-                    usersWithUnchangedStats.push(user._id);
+                if (Object.keys(currentStats[user._id]).length === 0) {
+                    throw `User "${user._id}" returned empty current stats.`;
                 }
             } catch (err) {
-                console.error(err);
+                console.log(err);
+                await _removeUserFromMatch(match, user, currentStats);
+                return;
+            }
+
+            let prevStats;
+            try {
+                prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
+                prevStats = JSON.parse(prevStats);
+
+                if (Object.keys(prevStats).length === 0) {
+                    throw `User "${user._id}" returned empty previous stats.`;
+                }
+            } catch (err) {
+                console.log(err);
+                await _removeUserFromMatch(match, user, currentStats);
+                return;
+            }
+
+            let gameModeKey = `default${match.gameMode}`;
+            let gameModeCurrentStats = currentStats[user._id][gameModeKey];
+            let gameModePrevStats = prevStats[gameModeKey];
+            if (JSON.stringify(gameModeCurrentStats) === JSON.stringify(gameModePrevStats)) {
+                usersWithUnchangedStats.push(user._id);
             }
         }));
 
@@ -177,15 +194,17 @@ function _startMatchCron(match, users) {
         // Check if the match should be ended
         if (matchHasEnded) {
             // Remove users from the match with unchanged stats
-            await match.update({
-                $pull: {
-                    users: {
-                        $in: usersWithUnchangedStats
+            if (usersWithUnchangedStats.length > 0) {
+                await match.update({
+                    $pull: {
+                        users: {
+                            $in: usersWithUnchangedStats
+                        }
                     }
-                }
-            });
+                });
+            }
             await _endMatch(match, users, currentStats);
-            return job.stop();
+            job.stop();
         } else {
             await Promise.all(users.map(async function (user) {
                 await asyncRedisClient.hset(match.serverId, user._id.toString(), JSON.stringify(currentStats[user._id]));
@@ -202,8 +221,19 @@ function _startMatchCron(match, users) {
  */
 async function _endMatch(match, users, currentStats) {
     await Promise.all(users.map(async function (user) {
-        let prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
-        prevStats = JSON.parse(prevStats);
+        let prevStats;
+        try {
+            prevStats = await asyncRedisClient.hget(match.serverId, user._id.toString());
+            prevStats = JSON.parse(prevStats);
+
+            if (Object.keys(prevStats).length === 0) {
+                throw `User "${user._id}" returned empty previous stats.`;
+            }
+        } catch (err) {
+            console.log(err);
+            await _removeUserFromMatch(match, user, currentStats);
+            return;
+        }
 
         let statDoc = {
             userId: user._id,
@@ -215,12 +245,11 @@ async function _endMatch(match, users, currentStats) {
         // If the user's changed stats are for anything but one match, do not record their stats
         let numMatches = currentStats[user._id][gameModeKey].matchesPlayed - prevStats[gameModeKey].matchesPlayed;
         if (numMatches !== 1) {
-            await match.update({}, {
-                $pull: {
-                    users: user._id
-                }
-            });
-            return delete currentStats[user._id];
+            console.log(`User "${user._id}" reported more than one match.`);
+            console.log(JSON.stringify(currentStats[user._id][gameModeKey]));
+            console.log(JSON.stringify(prevStats[gameModeKey]));
+            await _removeUserFromMatch(match, user, currentStats);
+            return;
         }
 
         // Calculate the user's performance
@@ -245,6 +274,14 @@ async function _endMatch(match, users, currentStats) {
                 break;
         }
 
+        if (!Number.isInteger(statDoc.minutesPlayed) || !Number.isInteger(statDoc.kills) || !Number.isInteger(statDoc.playersOutLived) || typeof statDoc.placeTop25 !== 'boolean' || typeof statDoc.placeTop10 !== 'boolean' || typeof statDoc.placeTop1 !== 'boolean') {
+            console.log(`User "${user._id}" had invalid stats.`);
+            console.log(JSON.stringify(currentStats[user._id][gameModeKey]));
+            console.log(JSON.stringify(prevStats[gameModeKey]));
+            await _removeUserFromMatch(match, user, currentStats);
+            return;
+        }
+
         // Reuse currentStats object to store user's performance
         currentStats[user._id] = statDoc;
     }));
@@ -261,6 +298,15 @@ async function _endMatch(match, users, currentStats) {
     }
 
     await _calculateRatings(match, users, currentStats);
+}
+
+async function _removeUserFromMatch(match, user, currentStats) {
+    await match.update({}, {
+        $pull: {
+            users: user._id
+        }
+    });
+    delete currentStats[user._id];
 }
 
 /**

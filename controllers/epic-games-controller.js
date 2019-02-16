@@ -71,7 +71,7 @@ async function getStatsBR(id, inputType) {
         kills: 0,
         playersOutLived: 0,
         placeTop12: 0,
-        placetop5: 0,
+        placeTop5: 0,
         placeTop1: 0,
         lastModified: new Date().toISOString()
     }, stats['defaultduo']);
