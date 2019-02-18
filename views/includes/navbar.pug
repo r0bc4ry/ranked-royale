@@ -5,24 +5,29 @@ nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
         button.navbar-toggler(data-toggle="collapse", data-target="#navbarSupportedContent")
             span.navbar-toggler-icon
         div#navbarSupportedContent.collapse.navbar-collapse
-            ul.navbar-nav.mr-auto
-                li.nav-item(class=title.includes('Home') || title.includes('Play') ? 'active' : undefined)
-                    a.nav-link(href="/")= user ? 'Play' : 'Home'
-                li.nav-item(class=title.includes('Leaderboards') ? 'active' : undefined)
-                    a.nav-link(href="/leaderboards") Leaderboards
-                if user
-                    li.nav-item(class=title.includes('Profile') ? 'active' : undefined)
-                        a.nav-link(href="/profile") Profile
-                else
-                    li.nav-item(class=title.includes('FAQ') ? 'active' : undefined)
-                        a.nav-link(href="/faq") FAQ
-            ul.navbar-nav.ml-auto
-                li.nav-item.mr-2(class=title.includes('Support') ? 'active' : undefined)
-                    a.nav-link(href="/support") Support
-                if user
-                    a.btn.btn-outline-light(href="/auth/logout") Log Out
-                else
-                    a.btn.btn-outline-light(href="/auth/login") Log In
-                    a.btn.btn-outline-light(href="/auth/signup") Sign Up
+            if title
+                ul.navbar-nav.mr-auto
+                    li.nav-item(class=title.includes('Home') || title.includes('Play') ? 'active' : undefined)
+                        a.nav-link(href="/")= user ? 'Play' : 'Home'
+                    li.nav-item(class=title.includes('Leaderboards') ? 'active' : undefined)
+                        a.nav-link(href="/leaderboards") Leaderboards
+                    if user
+                        li.nav-item(class=title.includes('Profile') ? 'active' : undefined)
+                            a.nav-link(href="/profile") Profile
+                    else
+                        li.nav-item(class=title.includes('FAQ') ? 'active' : undefined)
+                            a.nav-link(href="/faq") FAQ
+                ul.navbar-nav.ml-auto
+                    li.nav-item.mr-2(class=title.includes('Support') ? 'active' : undefined)
+                        a.nav-link(href="/support") Support
+                    if user
+                        a.btn.btn-outline-light(href="/auth/logout") Log Out
+                    else
+                        a.btn.btn-outline-light(href="/auth/login") Log In
+                        a.btn.btn-outline-light(href="/auth/signup") Sign Up
+            else
+                ul.navbar-nav.mr-auto
+                    li.nav-item
+                        a.nav-link(href="/") Home
 div.alert.alert-light.mb-0(style="border-radius: 0;")
     div.container #[strong Pardon our dust!] We're in an early release state so you may experience unexpected errors.

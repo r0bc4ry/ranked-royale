@@ -29,6 +29,22 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging')
     client = redis.createClient();
 }
 
+// Epic Games setup
+// function _exit(signal) {
+//     console.error(`Received exit signal "${signal}" signal on main process.`);
+//     if (child) {
+//         child.stop();
+//         console.log('Successfully stopped child process.');
+//     }
+//     process.exit(0);
+// }
+
+// ['SIGINT', 'SIGKILL', 'SIGTERM'].forEach(signal => process.on(signal, _exit));
+
+// let child = new (forever.Monitor)('./controllers/epic-games-controller');
+
+const epicGamesController = require('./controllers/epic-games-controller');
+
 // Passsport setup
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -48,7 +64,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-const epicGamesController = require('./controllers/epic-games-controller');
 const User = require('./models/user');
 passport.use(new LocalStrategy(function (username, password, done) {
     User.findOne({email: username}, function (err, user) {

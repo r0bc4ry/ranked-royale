@@ -4,9 +4,7 @@ import {
     addMilliseconds,
     differenceInMilliseconds,
     differenceInMinutes,
-    differenceInSeconds,
-    isBefore,
-    subMinutes
+    differenceInSeconds
 } from 'date-fns';
 import * as workerTimers from 'worker-timers';
 
@@ -29,18 +27,6 @@ $(function () {
     }
 
     getTimeFromServer().then(function () {
-        // If page was reloaded within the first minute of the countdown ending, skip to step 2
-        if (isBefore(currentTime, subMinutes(eventTime, 29))) {
-            $('#step-1').hide();
-            $('#step-2').show();
-
-            setTimeout(function () {
-                window.location.reload()
-            }, 1000 * 60);
-
-            return;
-        }
-
         startCountdown();
         ajaxInterval = workerTimers.setInterval(getTimeFromServer, 1000 * 15);
     });
@@ -49,6 +35,7 @@ $(function () {
         $('#online-counter').text(data);
     });
 
+    $('[data-toggle="tooltip"]').tooltip();
     $('#step-2 .form-control').keypress(onStep2InputKeypress);
     $('#step-2 button').click(onStep2ButtonClick);
 });
@@ -135,6 +122,24 @@ function onStep1End() {
             workerTimers.clearInterval(ajaxInterval);
         });
     });
+
+    socket.on(eventTime.getTime(), function (data) {
+        // Update information about this user's server
+        if (data.serverId === $('#in-match-counter').data('serverId')) {
+            $('#in-match-counter').text(data.cardinality);
+        }
+
+        // Update information about all servers
+        let $card = $(`#step-3 .row .col-4:contains(${data.serverId})`);
+        if ($card.length > 0) {
+            let $badge = $card.find('.badge');
+            let $i = $badge.find('i');
+            $badge.html(`${data.cardinality} `);
+            $badge.append($i);
+        } else {
+            $('#step-3 .row').append(`<div class="col-4 mb-1"><div class="bg-light p-2 border rounded text-center">${data.serverId} <span class="badge badge-dark">${data.cardinality} <i class="fas fa-users"></i></span></div></div>`);
+        }
+    });
 }
 
 function onStep2InputKeypress(event) {
@@ -167,22 +172,15 @@ function onStep2ButtonClick(event) {
     let serverId = $('#step-2 input[name=serverId]').val();
 
     // Send Ajax
-    $.ajax({
-        url: `/api/matches/${serverId}`,
-        type: 'PUT'
-    }).done(function (response) {
-        $('#in-match-counter').text(response.data);
-        socket.on(serverId, function (data) {
-            $('#in-match-counter').text(data);
-            if (data < 5) {
-                $('#step-3 .alert.alert-warning').removeClass('d-none');
-            } else {
-                $('#step-3 .alert.alert-warning').addClass('d-none');
-            }
-        });
+    $.post('/api/matches', {
+        eventTime: eventTime.getTime(),
+        serverId: serverId
+    }, function (response) {
+        let cardinality = response.data;
+        $('#in-match-counter').text(cardinality);
+        $('#in-match-counter').data('serverId', serverId);
         onStep2End();
     }).fail(function (response) {
-        // Error
         button.html(buttonHtml);
         button.attr('disabled', false);
         alert.text(response.responseJSON.message ? response.responseJSON.message : 'Uh-oh! An error occurred.');

@@ -1,8 +1,9 @@
 const express = require('express');
-const router = express.Router();
-
-const passport = require('passport');
 const {check, validationResult} = require('express-validator/check');
+const Mailchimp = require('mailchimp-api-v3');
+const mailchimp = new Mailchimp(process.env.MAILCHIMP_API_KEY);
+const passport = require('passport');
+const router = express.Router();
 
 const User = require('../models/user');
 
@@ -49,11 +50,25 @@ router.post('/signup', [
                 throw err;
             }
 
+            // Add user to MailChimp list
+            mailchimp.post(`/lists/${process.env.MAILCHIMP_LIST_ID}/members`, {
+                email_address: user.email,
+                status: 'subscribed',
+                merge_fields: {
+                    "FNAME": user.firstName,
+                    "LNAME": user.lastName
+                }
+            }).catch(function (err) {
+                console.error(`User "${user._id}" unable to subscribe to MailChimp list.`);
+                console.error(err);
+            });
+
+            // Login user
             req.login(user, function (err) {
                 if (err) {
                     throw err;
                 }
-                
+
                 return res.redirect('/');
             })
         });

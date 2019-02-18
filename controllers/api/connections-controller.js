@@ -8,17 +8,24 @@ async function verifyEpicGames(reqBody, userId) {
         throw 'Incorrect code; please try again.';
     }
 
+    let epicGamesAccount;
     try {
-        var epicGamesAccount = await epicGamesController.getProfile(epicCode.epicGamesAccountId);
+        epicGamesAccount = await epicGamesController.getProfile(epicCode.epicGamesAccountId);
     } catch (err) {
         console.error(err);
         throw 'Error retrieving Epic Games account.';
     }
 
+    // Check if Epic Games account was auto-created by PSN
+    let displayName = epicGamesAccount.displayName;
+    if (displayName === null && epicGamesAccount.displayName.psn.externalDisplayName) {
+        displayName = epicGamesAccount.displayName.psn.externalDisplayName;
+    }npm
+
     let user = await User.findOneAndUpdate({_id: userId}, {
         $set: {
             'epicGamesAccount.id': epicGamesAccount.id,
-            'epicGamesAccount.displayName': epicGamesAccount.displayName,
+            'epicGamesAccount.displayName': displayName,
             'epicGamesAccount.inputType': reqBody.inputType,
             'epicGamesAccount.region': reqBody.region,
         }

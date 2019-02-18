@@ -8,7 +8,7 @@ block content
         div.container.py-5
             div.row
                 div.col.text-center.mb-5
-                    div.badge.badge-secondary #[span#online-counter 1] #[i.fas.fa-users]
+                    div.badge.badge-secondary #[span#online-counter 1] Waiting to Play
             div.row.mb-5
                 div.offset-lg-3.col-lg-6
                     div.d-flex.flex-column.justify-content-center.bg-white
@@ -21,19 +21,17 @@ block content
                                 form.needs-validation(novalidate)
                                     h3.text-center Match Starting
                                     div.form-group
-                                        label Last 3 Digits of Server ID
+                                        label Last 3 Digits of Server ID #[i.fas.fa-question-circle.text-muted(data-toggle="tooltip", title="When in-game, you can find this in the top left corner of your screen below your display name.")]
                                         div.input-group
                                             input.form-control(type="text", name="serverId", pattern="[a-z0-9]{3}", required)
                                             div.input-group-append
                                                 button.btn.btn-primary(type="button") Submit
-                                        small.form-text.text-muted When in-game, you can find this in the top left corner of your screen.
-                                    div.text-center Next match will start in approximately 30 minutes.
-                                    div.alert.alert-danger.d-none #[strong Heads up!] Only matches with at least 5 Ranked Royale players will count toward your stats.
+                                    div.alert.alert-danger.d-none
 
                             div#step-3.text-center
-                                h1.display-4 GLHF
+                                h3 GLHF
                                 p You're in a match with #[strong#in-match-counter 1] Ranked Royale player(s).
-                                div.alert.alert-warning #[strong Heads up!] Only matches with at least 5 Ranked Royale players will count toward your stats.
+                                div.row
                         else
                             div.text-center
                                 p.lead Uh-oh! Before you can play you must verify your Epic Games account.

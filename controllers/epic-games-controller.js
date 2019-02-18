@@ -19,15 +19,23 @@ let initPromise = (async () => {
 
     fortniteGame = await eg.runGame(Fortnite);
 
-    // Remove any pending friend requests from while the bot was offline
-    let pendingFriends = await eg.getPendingFriends();
-    for (let friend of pendingFriends) {
-        await eg.declineFriendRequest(friend.id);
+    // Remove any pending codes to prevent an overflow of users
+    let friends = await eg.getFriends(true);
+    for (let friend of friends) {
+        let epicCode = await EpicCode.find({epicGamesAccountId: friend.id});
+        if (epicCode) {
+            await eg.declineFriendRequest(friend.id);
+            await epicCode.remove();
+        }
     }
 
     let communicator = fortniteGame.communicator;
     communicator.on('friend:removed', _onFriendRemoved);
     communicator.on('friend:request', _onFriendRequest);
+
+    // For debugging Fortnite stats
+    // let stats = await fortniteGame.getStatsBR('a9f693302d86467e8a4b5cfd52624bf8', EInputType.MouseAndKeyboard);
+    // console.log(JSON.stringify(stats));
 })();
 
 async function getStatsBR(id, inputType) {

@@ -127,10 +127,10 @@ router.get('/matches/:matchId', isAuthenticated, async function (req, res, next)
 });
 
 // Append current player to list of players in a match
-router.put('/matches/:serverId', isAuthenticated, async function (req, res, next) {
-    let cardinality;
+router.post('/matches', isAuthenticated, async function (req, res, next) {
+    let cardinality = 0;
     try {
-        cardinality = await matchController.putMatch(req.user._id, req.params.serverId);
+        cardinality = await matchController.postMatch(req.user._id, parseInt(req.body.eventTime), req.body.serverId);
     } catch (err) {
         if (typeof err === 'string') {
             return apiError(res, err);

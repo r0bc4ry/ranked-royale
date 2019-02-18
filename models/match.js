@@ -4,6 +4,10 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
 var Match = new Schema({
+    eventTime: {
+        type: Date,
+        required: true
+    },
     serverId: {
         type: String,
         validate: {
@@ -29,7 +33,8 @@ var Match = new Schema({
         default: false
     },
     users: {
-        type: [ObjectId]
+        type: [ObjectId],
+        required: true
     }
 }, {timestamps: true});
 

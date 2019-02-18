@@ -6,7 +6,7 @@
     "build": "./node_modules/.bin/webpack --config webpack.prod.js",
     "heroku-postbuild": "./node_modules/.bin/webpack --config webpack.prod.js",
     "start": "node ./bin/www",
-    "test": "mocha",
+    "test": "./node_modules/.bin/mocha",
     "watch": "./node_modules/.bin/webpack --config webpack.dev.js --watch"
   },
   "dependencies": {
@@ -29,9 +29,11 @@
     "express-session": "^1.15.6",
     "express-validator": "^5.3.1",
     "forever": "^0.15.3",
+    "forever-monitor": "^1.7.1",
     "heroku-ssl-redirect": "^0.0.4",
     "http-errors": "~1.7.2",
     "jquery": "^3.3.1",
+    "mailchimp-api-v3": "^1.12.1",
     "mongoose": "^5.4.13",
     "morgan": "~1.9.0",
     "passport": "^0.4.0",

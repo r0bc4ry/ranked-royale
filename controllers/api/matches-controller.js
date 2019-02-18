@@ -62,51 +62,56 @@ async function getMatch(userId, matchId) {
     return match;
 }
 
-async function putMatch(userId, serverId) {
+async function postMatch(userId, eventTime, serverId) {
     let match = await Match.findOne({
+        eventTime: new Date(eventTime),
         serverId: serverId,
-        createdAt: {"$gt": subMinutes(new Date(), 30)}
+        createdAt: {
+            $gt: subMinutes(new Date(), 30)
+        }
     });
 
-    let cardinality = await asyncRedisClient.scard(serverId);
-
     // Check if this match has recently started
-    if (match && cardinality === 0) {
+    if (match) {
         throw 'This match has already started. You must enter your server ID within 60 seconds of the countdown ending.';
     }
 
-    // Add this user to the match's queue
-    await asyncRedisClient.sadd(serverId, userId);
-    await asyncRedisClient.expire(serverId, 90);
-    if (io.emit) {
-        io.emit(serverId, cardinality + 1);
-    }
+    // Add match to set of matches and start timeout
+    let isMember = await asyncRedisClient.sismember(eventTime, serverId);
+    if (!isMember) {
+        await asyncRedisClient.sadd(eventTime, serverId);
 
-    // If match document does not exist, create it
-    if (!match && cardinality === 0) {
-        match = await Match.create({
-            serverId: serverId,
-            gameMode: 'solo',
-            season: 0
-        });
-
-        // After 60 seconds, begin the match
+        // After a timeout, create and begin the match
         setTimeout(async function () {
-            let members = await asyncRedisClient.smembers(match.serverId);
-            await asyncRedisClient.del(match.serverId);
-
+            let members = await asyncRedisClient.smembers(`${eventTime}:${serverId}`);
             if (members.length < 5) {
-                return await match.remove();
+                return;
             }
 
-            match.users = members;
-            await match.save();
+            let match = await Match.create({
+                eventTime: new Date(eventTime),
+                serverId: serverId,
+                gameMode: 'solo',
+                season: 0,
+                users: members
+            });
 
+            await asyncRedisClient.del(`${eventTime}:${serverId}`);
             await _startMatch(match);
         }, 1000 * 60);
     }
 
-    return cardinality + 1;
+    // Add this user to the match in Redis
+    await asyncRedisClient.sadd(`${eventTime}:${serverId}`, userId);
+    await asyncRedisClient.expire(`${eventTime}:${serverId}`, 90);
+
+    let cardinality = await asyncRedisClient.scard(`${eventTime}:${serverId}`);
+    io.emit(eventTime, {
+        serverId: serverId,
+        cardinality: cardinality
+    });
+
+    return cardinality;
 }
 
 async function _startMatch(match) {
@@ -381,5 +386,5 @@ module.exports = {
     init: init,
     getMatches: getMatches,
     getMatch: getMatch,
-    putMatch: putMatch
+    postMatch: postMatch
 };
