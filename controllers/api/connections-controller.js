@@ -20,7 +20,7 @@ async function verifyEpicGames(reqBody, userId) {
     let displayName = epicGamesAccount.displayName;
     if (displayName === null && epicGamesAccount.displayName.psn.externalDisplayName) {
         displayName = epicGamesAccount.displayName.psn.externalDisplayName;
-    }npm
+    }
 
     let user = await User.findOneAndUpdate({_id: userId}, {
         $set: {
