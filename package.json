@@ -28,8 +28,6 @@
     "express": "~4.16.0",
     "express-session": "^1.15.6",
     "express-validator": "^5.3.1",
-    "forever": "^0.15.3",
-    "forever-monitor": "^1.7.1",
     "heroku-ssl-redirect": "^0.0.4",
     "http-errors": "~1.7.2",
     "jquery": "^3.3.1",
