@@ -194,7 +194,9 @@ var UserSchema = new Schema({
                 default: Date.now()
             }
         }
-    }
+    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date
 }, {timestamps: true});
 
 UserSchema.pre('save', function (next) {

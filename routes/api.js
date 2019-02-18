@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const addHours = require('date-fns/add_hours');
+const addSeconds = require('date-fns/add_seconds');
 const getDate = require('date-fns/get_date');
 const getHours = require('date-fns/get_hours');
 const getMinutes = require('date-fns/get_minutes');
@@ -71,6 +72,11 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
 
     if (eventTime === null) {
         eventTime = setMinutes(startOfHour(addHours(currentTime, 1)), hardcodedMinutes[0]);
+    }
+
+    // For debugging on local and staging
+    if (process.env.NODE_ENV !== 'production') {
+        eventTime = addSeconds(currentTime, 15);
     }
 
     res.json({
