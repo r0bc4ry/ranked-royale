@@ -20,10 +20,14 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Mongoose Connection Error:'));
 
 // Redis setup
-const redis = process.env.NODE_ENV === 'development' ? require('redis-mock') : require('redis');
-const client = redis.createClient({
-    url: process.env.REDIS_URL
-});
+let redis, client;
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
+    redis = require('redis');
+    client = redis.createClient({url: process.env.REDIS_URL});
+} else {
+    redis = require('redis-mock');
+    client = redis.createClient();
+}
 
 // Passsport setup
 const passport = require('passport');

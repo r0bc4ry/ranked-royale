@@ -6,10 +6,14 @@ const isPast = require('date-fns/is_past');
 const subMinutes = require('date-fns/sub_minutes');
 
 // Redis setup
-const redis = process.env.NODE_ENV === 'development' ? require('redis-mock') : require('redis');
-const client = redis.createClient({
-    url: process.env.REDIS_URL
-});
+let redis, client;
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
+    redis = require('redis');
+    client = redis.createClient({url: process.env.REDIS_URL});
+} else {
+    redis = require('redis-mock');
+    client = redis.createClient();
+}
 const asyncRedis = require('async-redis');
 const asyncRedisClient = asyncRedis.decorate(client);
 
