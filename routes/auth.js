@@ -165,7 +165,7 @@ router.post('/reset-password/:token', [
     check('password').isLength({min: 8}).withMessage('Password must be at least 8 characters long.')
 ], function (req, res, next) {
     if (req.body.password !== req.body.confirmPassword) {
-        req.flash('error', 'Passwords much match.');
+        req.flash('error', 'Passwords must match.');
         return res.redirect(`/auth/reset-password/${req.params.token}`);
     }
 
