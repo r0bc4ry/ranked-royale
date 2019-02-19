@@ -4,7 +4,8 @@ const {Client, EInputType} = require('epicgames-client');
 const Fortnite = require('epicgames-fortnite-client');
 const eg = new Client({
     email: process.env.EPIC_EMAIL,
-    password: process.env.EPIC_PASSWORD
+    password: process.env.EPIC_PASSWORD,
+    debug: console.log
 });
 
 // Models
@@ -22,9 +23,14 @@ let initPromise = (async () => {
     // Remove any pending codes to prevent an overflow of users
     let friends = await eg.getFriends(true);
     for (let friend of friends) {
+        if (friend.status === 'PENDING') {
+            await eg.declineFriendRequest(friend.id);
+        } else if (friend.id !== 'a9f693302d86467e8a4b5cfd52624bf8') {
+            await eg.removeFriend(friend.id);
+        }
+
         let epicCode = await EpicCode.find({epicGamesAccountId: friend.id});
         if (epicCode) {
-            await eg.declineFriendRequest(friend.id);
             await epicCode.remove();
         }
     }
@@ -34,8 +40,10 @@ let initPromise = (async () => {
     communicator.on('friend:request', _onFriendRequest);
 
     // For debugging Fortnite stats
-    // let stats = await fortniteGame.getStatsBR('a9f693302d86467e8a4b5cfd52624bf8', EInputType.MouseAndKeyboard);
-    // console.log(JSON.stringify(stats));
+    // let profile = await eg.getProfile('a9f693302d86467e8a4b5cfd52624bf8');
+    // console.log(profile);
+    // let stats = await fortniteGame.getStatsBR('a9f693302d86467e8a4b5cfd52624bf8');
+    // console.log(stats);
 })();
 
 async function getStatsBR(id, inputType) {

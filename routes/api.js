@@ -76,7 +76,7 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
 
     // For debugging on local and staging
     if (process.env.NODE_ENV !== 'production') {
-        eventTime = addSeconds(currentTime, 15);
+        eventTime = addSeconds(currentTime, 10);
     }
 
     res.json({

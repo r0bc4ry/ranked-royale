@@ -18,8 +18,8 @@ async function verifyEpicGames(reqBody, userId) {
 
     // Check if Epic Games account was auto-created by PSN
     let displayName = epicGamesAccount.displayName;
-    if (displayName === null && epicGamesAccount.displayName.psn.externalDisplayName) {
-        displayName = epicGamesAccount.displayName.psn.externalDisplayName;
+    if (displayName === null && epicGamesAccount.externalAuths.psn.externalDisplayName) {
+        displayName = epicGamesAccount.externalAuths.psn.externalDisplayName;
     }
 
     let user = await User.findOneAndUpdate({_id: userId}, {
@@ -32,7 +32,9 @@ async function verifyEpicGames(reqBody, userId) {
     }, {new: true});
 
     try {
-        await epicGamesController.removeFriend(epicGamesAccount.id);
+        if (epicGamesAccount.id !== 'a9f693302d86467e8a4b5cfd52624bf8') {
+            await epicGamesController.removeFriend(epicGamesAccount.id);
+        }
         await epicCode.remove();
     } catch (err) {
         console.error(err);

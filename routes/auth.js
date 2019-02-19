@@ -24,6 +24,7 @@ router.post('/signup', [
     if (!req.body.lastName) {
         req.flash('error', 'Last name required.');
     }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         errors.array().forEach(function (error) {
@@ -132,8 +133,8 @@ router.post('/forgot-password', [
                 email: 'contact@rankedroyale.com',
             },
             subject: 'Password Reset',
-            text: `You are receiving this email because you (or someone else) has requested your account password be reset. Please click the link below, or paste it into your browser, to complete the process: ${resetPasswordUrl} If you did not make this request, please ignore this email and your password will remain unchanged.`,
-            html: `<p>Hello,</p><p>You are receiving this email because you (or someone else) has requested your account password be reset.</p><p>Please click the link below, or paste it into your browser, to complete the process:</p><p><a href="${resetPasswordUrl}" target="_blank">${resetPasswordUrl}</a></p><p>If you did not make this request, please ignore this email and your password will remain unchanged.</p>`,
+            text: `Someone (hopefully you) has asked us to reset the password for your Ranked Royale account. Please click the link below, or paste it into your browser, to complete the process: ${resetPasswordUrl} If you did not make this request, please ignore this email and your password will remain unchanged.`,
+            html: `<p>Hello,</p><p>Someone (hopefully you) has asked us to reset the password for your Ranked Royale account.</p><p>Please click the link below, or paste it into your browser, to complete the process:</p><p><a href="${resetPasswordUrl}" target="_blank">${resetPasswordUrl}</a></p><p>If you did not make this request, please ignore this email and your password will remain unchanged.</p>`,
         });
 
         req.flash('info', `An email has been sent to ${user.email} with further instructions.`);
@@ -168,6 +169,16 @@ router.post('/reset-password/:token', [
         return res.redirect(`/auth/reset-password/${req.params.token}`);
     }
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        errors.array().forEach(function (error) {
+            req.flash('error', error.msg);
+        });
+    }
+    if (Object.entries(req.flash()).length > 0) {
+        return res.redirect(`/auth/reset-password/${req.params.token}`);
+    }
+
     User.findOne({
         resetPasswordToken: req.params.token,
         resetPasswordExpires: {
@@ -177,16 +188,6 @@ router.post('/reset-password/:token', [
         if (!user) {
             req.flash('error', 'Password reset token is invalid or has expired.');
             return res.redirect('/auth/forgot-password');
-        }
-
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            errors.array().forEach(function (error) {
-                req.flash('error', error.msg);
-            });
-        }
-        if (Object.entries(req.flash()).length > 0) {
-            return res.redirect(`/auth/reset-password/${req.params.token}`);
         }
 
         user.password = req.body.password;
