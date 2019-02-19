@@ -84,7 +84,7 @@ async function postMatch(userId, eventTime, serverId) {
         // After a timeout, create and begin the match
         setTimeout(async function () {
             let members = await asyncRedisClient.smembers(`${eventTime}:${serverId}`);
-            if (members.length < process.env.MIN_MATCH_USERS || 5) {
+            if (members.length < (process.env.MIN_MATCH_USERS ? parseInt(process.env.MIN_MATCH_USERS) : 5)) {
                 return;
             }
 
