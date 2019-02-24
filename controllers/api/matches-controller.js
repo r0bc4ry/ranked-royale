@@ -4,18 +4,7 @@ const Elo = require('arpad');
 const elo = new Elo(32, 1, 3000);
 const isPast = require('date-fns/is_past');
 const subMinutes = require('date-fns/sub_minutes');
-
-// Redis setup
-let redis, client;
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
-    redis = require('redis');
-    client = redis.createClient({url: process.env.REDIS_URL});
-} else {
-    redis = require('redis-mock');
-    client = redis.createClient();
-}
-const asyncRedis = require('async-redis');
-const asyncRedisClient = asyncRedis.decorate(client);
+const asyncRedisClient = require('../../helpers/redis').asyncRedisClient;
 
 const epicGamesController = require('../epic-games-controller');
 
@@ -24,10 +13,7 @@ const Stat = require('../../models/stat');
 const User = require('../../models/user');
 
 // @formatter:off
-let io;
 async function init(socket) {
-    io = socket;
-
     await epicGamesController.initPromise;
 
     let matches = await Match.find({hasEnded: false});
@@ -106,6 +92,8 @@ async function postMatch(userId, eventTime, serverId) {
     await asyncRedisClient.expire(`${eventTime}:${serverId}`, 90);
 
     let cardinality = await asyncRedisClient.scard(`${eventTime}:${serverId}`);
+
+    const io = req.app.get('socketio');
     io.emit(eventTime, {
         serverId: serverId,
         cardinality: cardinality

@@ -19,16 +19,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Mongoose Connection Error:'));
 
-// Redis setup
-let redis, client;
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
-    redis = require('redis');
-    client = redis.createClient({url: process.env.REDIS_URL});
-} else {
-    redis = require('redis-mock');
-    client = redis.createClient();
-}
-
 // Epic Games setup
 // function _exit(signal) {
 //     console.error(`Received exit signal "${signal}" signal on main process.`);
@@ -49,11 +39,12 @@ const epicGamesController = require('./controllers/epic-games-controller');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const redisClient = require('./helpers/redis').redisClient;
 const RedisStore = require('connect-redis')(session);
 
 app.use(session({
     store: new RedisStore({
-        client: client,
+        client: redisClient,
         logErrors: true
     }),
     secret: '{#fFT"5pZ>LvD#N:',

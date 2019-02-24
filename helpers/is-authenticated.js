@@ -9,6 +9,7 @@ module.exports = function (req, res, next) {
             message: 'User trying to access this resource has not been authenticated.'
         });
     } else {
+        req.session.redirectTo = req.originalUrl;
         res.redirect('/auth/login');
     }
 };

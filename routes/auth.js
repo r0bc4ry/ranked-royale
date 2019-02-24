@@ -87,7 +87,9 @@ router.post('/login', passport.authenticate('local', {
     failureRedirect: '/auth/login',
     failureFlash: 'Invalid username or password.'
 }), function (req, res, next) {
-    res.redirect('/');
+    let redirectTo = req.session.redirectTo || '/';
+    delete req.session.redirectTo;
+    res.redirect(redirectTo);
 });
 
 router.get('/forgot-password', function (req, res, next) {

@@ -1,23 +1,44 @@
+const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
 const express = require('express');
 const router = express.Router();
 
-const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
-
 const leaderboardsController = require('../controllers/api/leaderboards-controller');
 const matchesController = require('../controllers/api/matches-controller');
+const partiesController = require('../controllers/api/parties-controller');
 const isAuthenticated = require('../helpers/is-authenticated');
+
 const User = require('../models/user');
 
 router.get('/', function (req, res, next) {
     if (req.user) {
-        return res.render('play', {title: 'Play', user: req.user, host: `//${req.headers.host}`});
-    } else {
-        return res.render('index', {title: 'Home'});
+        return res.redirect('/play/solo');
     }
+    return res.render('index', {title: 'Home'});
 });
 
 router.get('/faq', function (req, res, next) {
     res.render('faq', {title: 'FAQ'});
+});
+
+router.get('/invite/:partyId', isAuthenticated, async function (req, res, next) {
+    try {
+        await partiesController.joinParty(req.params.partyId, req.user._id);
+    } catch (err) {
+        if (typeof err === 'string') {
+            req.flash('error', err);
+        } else {
+            console.error(err);
+        }
+        return res.redirect('/');
+    }
+
+    if (req.session.partyId) {
+        await partiesController.leaveParty(req.session.partyId, req.user._id);
+        delete req.session.partyId;
+    }
+    req.session.partyId = req.params.partyId;
+
+    return res.redirect('/play');
 });
 
 router.get('/leaderboards', async function (req, res, next) {
@@ -31,6 +52,38 @@ router.get('/leaderboards', async function (req, res, next) {
         region: req.query.region
     });
 });
+
+let gameModeCounter = {
+    solo: 0,
+    duo: 0,
+    squad: 0
+};
+
+router.get('/play/:gameMode(solo|duo|squad)', isAuthenticated, async function (req, res, next) {
+    // When switching game modes, remove user from existing party (if any)
+    if (req.session.partyId) {
+        await partiesController.leaveParty(req.session.partyId, req.user._id);
+        delete req.session.partyId;
+    }
+
+    const io = req.app.get('socketio');
+    io.on('connection', function (socket) {
+        socket.join(req.params.gameMode);
+        io.in(req.params.gameMode).emit(++gameModeCounter[req.params.gameMode]);
+
+        socket.on('disconnect', function () {
+            io.in(req.params.gameMode).emit(--gameModeCounter[req.params.gameMode]);
+        });
+    });
+
+    return res.render('play', {
+        title: 'Play',
+        user: req.user,
+        gameMode: req.params.gameMode,
+        host: `//${req.headers.host}`
+    });
+});
+
 
 router.get('/profile', isAuthenticated, async function (req, res, next) {
     let user = await User.findById(req.user._id);

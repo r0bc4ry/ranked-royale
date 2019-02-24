@@ -16,7 +16,8 @@ const isAuthenticated = require('../helpers/is-authenticated');
 const ranks = require('../ranks');
 
 const connectionsController = require('../controllers/api/connections-controller');
-const matchController = require('../controllers/api/matches-controller');
+const matchesController = require('../controllers/api/matches-controller');
+const partiesController = require('../controllers/api/parties-controller');
 
 router.post('/connections/epic', isAuthenticated, async function (req, res, next) {
     if (!req.body.code || !req.body.inputType || !req.body.region) {
@@ -92,7 +93,7 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
 router.get('/matches', isAuthenticated, async function (req, res, next) {
     let matches;
     try {
-        matches = await matchController.getMatches(req.user._id);
+        matches = await matchesController.getMatches(req.user._id);
     } catch (err) {
         if (typeof err === 'string') {
             return apiError(res, err);
@@ -114,7 +115,7 @@ router.get('/matches', isAuthenticated, async function (req, res, next) {
 router.get('/matches/:matchId', isAuthenticated, async function (req, res, next) {
     let match;
     try {
-        match = await matchController.getMatch(req.user._id, req.params.matchId);
+        match = await matchesController.getMatch(req.user._id, req.params.matchId);
     } catch (err) {
         if (typeof err === 'string') {
             return apiError(res, err);
@@ -136,7 +137,7 @@ router.get('/matches/:matchId', isAuthenticated, async function (req, res, next)
 router.post('/matches', isAuthenticated, async function (req, res, next) {
     let cardinality = 0;
     try {
-        cardinality = await matchController.postMatch(req.user._id, parseInt(req.body.eventTime), req.body.serverId);
+        cardinality = await matchesController.postMatch(req.user._id, parseInt(req.body.eventTime), req.body.serverId);
     } catch (err) {
         if (typeof err === 'string') {
             return apiError(res, err);
@@ -149,6 +150,49 @@ router.post('/matches', isAuthenticated, async function (req, res, next) {
     res.json({
         status: 'success',
         data: cardinality
+    });
+});
+
+router.post('/parties', isAuthenticated, async function (req, res, next) {
+    if (!req.session.partyId) {
+        try {
+            req.session.partyId = await partiesController.createParty(req.user._id, req.body.gameMode);
+        } catch (err) {
+            if (typeof err === 'string') {
+                return apiError(res, err);
+            } else {
+                console.error(err);
+                return apiError(res, 'Error returning match.');
+            }
+        }
+    }
+
+    let inviteUrl = `${req.protocol}://${req.get('host')}/invite/${req.session.partyId}`;
+    res.json({
+        status: 'success',
+        data: inviteUrl
+    });
+});
+
+router.delete('/parties/:partyId', isAuthenticated, async function (req, res, next) {
+    if (!req.session.partyId) {
+        return apiError(res, 'User not in party.');
+    }
+
+    try {
+        await partiesController.leaveParty(req.session.partyId, req.user._id);
+    } catch (err) {
+        if (typeof err === 'string') {
+            return apiError(res, err);
+        } else {
+            console.error(err);
+            return apiError(res, 'Error returning match.');
+        }
+    }
+
+    res.json({
+        status: 'success',
+        data: {}
     });
 });
 

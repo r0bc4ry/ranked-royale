@@ -35,17 +35,7 @@ server.on('listening', onListening);
  * Create socket.io connection.
  */
 const io = require('socket.io')(server);
-const matchesController = require('../controllers/api/matches-controller.js');
-matchesController.init(io);
-
-let onlineCounter = 0;
-io.on('connection', function (socket) {
-    io.emit('onlineCounter', ++onlineCounter);
-
-    socket.on('disconnect', function () {
-        io.emit('onlineCounter', --onlineCounter);
-    });
-});
+app.set('socketio', io);
 
 /**
  * Normalize a port into a number, string, or false.

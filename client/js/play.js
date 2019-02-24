@@ -26,12 +26,32 @@ $(function () {
         return;
     }
 
+    let container = $('.container');
+    if (container.hasClass('duo') || container.hasClass('squad')) {
+        $('#test-btn').click(function () {
+            let gameMode = container.hasClass('duo') ? 'duo' : 'squad';
+            $.post('/api/parties', {gameMode: gameMode}, function (response) {
+                console.log(response);
+
+                const el = document.createElement('textarea');
+                el.value = response.data;
+                el.setAttribute('readonly', '');
+                el.style.position = 'absolute';
+                el.style.left = '-9999px';
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+            });
+        })
+    }
+
     getTimeFromServer().then(function () {
         startCountdown();
         ajaxInterval = workerTimers.setInterval(getTimeFromServer, 1000 * 15);
     });
 
-    socket.on('onlineCounter', function (data) {
+    socket.on(gameMode, function (data) {
         $('#online-counter').text(data);
     });
 

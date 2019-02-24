@@ -2,6 +2,7 @@ const randomstring = require('randomstring');
 
 const {Client, EInputType} = require('epicgames-client');
 const Fortnite = require('epicgames-fortnite-client');
+const {ESubGame} = Fortnite;
 const eg = new Client({
     email: process.env.EPIC_EMAIL,
     password: process.env.EPIC_PASSWORD,
@@ -12,13 +13,18 @@ const eg = new Client({
 const EpicCode = require('../models/epic-code');
 const User = require('../models/user');
 
-let fortniteGame;
+let fortniteGame, brSubGame;
 let initPromise = (async () => {
-    if (!await eg.init() || !await eg.login()) {
-        throw 'Error with Epic Games initialize or login process.';
+    if (!await eg.init()) {
+        throw new Error('Cannot initialize Epic Games Launcher.');
+    }
+
+    if (!await eg.login()) {
+        throw new Error('Cannot log in to Epic Games account.');
     }
 
     fortniteGame = await eg.runGame(Fortnite);
+    brSubGame = await fortniteGame.runSubGame(ESubGame.BattleRoyale);
 
     // Remove any pending codes to prevent an overflow of users
     let friends = await eg.getFriends(true);
@@ -42,7 +48,7 @@ let initPromise = (async () => {
     // For debugging Fortnite stats
     // let profile = await eg.getProfile('a9f693302d86467e8a4b5cfd52624bf8');
     // console.log(profile);
-    // let stats = await fortniteGame.getStatsBR('a9f693302d86467e8a4b5cfd52624bf8');
+    // let stats = await brSubGame.getStatsForPlayer('a9f693302d86467e8a4b5cfd52624bf8');
     // console.log(stats);
 })();
 
@@ -52,13 +58,13 @@ async function getStatsBR(id, inputType) {
     let stats;
     switch (inputType) {
         case 'Controller':
-            stats = await fortniteGame.getStatsBR(id, EInputType.Controller);
+            stats = await brSubGame.getStatsForPlayer(id, EInputType.Controller);
             break;
         case 'Touch':
-            stats = await fortniteGame.getStatsBR(id, EInputType.Touch);
+            stats = await brSubGame.getStatsForPlayer(id, EInputType.Touch);
             break;
         default:
-            stats = await fortniteGame.getStatsBR(id, EInputType.MouseAndKeyboard);
+            stats = await brSubGame.getStatsForPlayer(id, EInputType.MouseAndKeyboard);
             break;
     }
 
