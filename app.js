@@ -27,19 +27,6 @@ const redis = require('redis');
 const redisClient = redis.createClient({url: process.env.REDIS_URL});
 
 // Epic Games setup
-// function _exit(signal) {
-//     console.error(`Received exit signal "${signal}" signal on main process.`);
-//     if (child) {
-//         child.stop();
-//         console.log('Successfully stopped child process.');
-//     }
-//     process.exit(0);
-// }
-
-// ['SIGINT', 'SIGKILL', 'SIGTERM'].forEach(signal => process.on(signal, _exit));
-
-// let child = new (forever.Monitor)('./controllers/epic-games-controller');
-
 const epicGamesController = require('./controllers/epic-games-controller');
 
 // Passsport setup

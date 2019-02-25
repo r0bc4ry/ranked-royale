@@ -35,6 +35,20 @@ server.on('listening', onListening);
  * Create socket.io connection.
  */
 const io = require('socket.io')(server);
+
+let gameModeCounter = {solo: 0, duo: 0, squad: 0};
+io.on('connection', function (socket) {
+    socket.on('ready', function (data) {
+        socket.gameMode = data;
+        socket.join(socket.gameMode);
+        io.in(socket.gameMode).emit('onlineCounter', ++gameModeCounter[socket.gameMode]);
+    });
+
+    socket.on('disconnect', function () {
+        io.in(socket.gameMode).emit('onlineCounter', --gameModeCounter[socket.gameMode]);
+    });
+});
+
 app.set('socketio', io);
 
 let onlineCounter = 0;

@@ -4,6 +4,14 @@ import * as moment from 'moment';
 import * as workerTimers from 'worker-timers';
 
 const socket = io(host);
+socket.on('connect', function () {
+    socket.emit('ready', gameMode);
+});
+socket.on('onlineCounter', function (data) {
+    $(function () {
+        $('#online-counter').text(data);
+    });
+});
 
 const countdown5MinutesAudio = new Audio('/audio/5-minutes.wav');
 const countdown3MinutesAudio = new Audio('/audio/3-minutes.wav');
@@ -23,17 +31,13 @@ $(function () {
 
     getTimeFromServer().then(function () {
         startCountdown();
-        ajaxInterval = workerTimers.setInterval(getTimeFromServer, 1000 * 15);
-    });
-
-    socket.on('onlineCounter', function (data) {
-        $('#online-counter').text(data);
+        ajaxInterval = workerTimers.setInterval(getTimeFromServer, 1000 * 30);
     });
 });
 
 function getTimeFromServer() {
     let ajaxTimeStart = moment();
-    return $.get('/api/countdown', function (response) {
+    return $.get(`/api/countdown?gameMode=${gameMode}`, function (response) {
         // Add the number of ms it took for the Ajax request to complete
         let ajaxTime = moment().diff(ajaxTimeStart);
         currentTime = moment(response.data.currentTime).add(ajaxTime, 'milliseconds');
@@ -54,7 +58,7 @@ function updateCountdown() {
     let m = duration.minutes();
     let s = duration.seconds();
     if (m < 1) {
-        let ms = Math.round(duration.milliseconds() / 100) * 100;
+        let ms = Math.floor(duration.milliseconds() / 100) * 100;
         $countdown.text(`${s}.${String(ms).charAt(0)}s`);
 
         if (s === 5 && ms === 0) {

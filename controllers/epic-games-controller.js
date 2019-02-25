@@ -113,6 +113,11 @@ async function getProfile(id) {
     return await eg.getProfile(id);
 }
 
+async function hasFriend(id) {
+    console.log(`EPIC hasFriend ${id}`);
+    return await eg.hasFriend(id);
+}
+
 async function _onFriendRemoved(friend) {
     let epicCode = await EpicCode.findOne({'epicGamesAccountId': friend.id});
     if (epicCode) {
@@ -180,5 +185,6 @@ async function _onFriendStatus(communicatorStatus) {
 module.exports = {
     init: init,
     getStatsForPlayer: getStatsForPlayer,
-    getProfile: getProfile
+    getProfile: getProfile,
+    hasFriend: hasFriend
 };

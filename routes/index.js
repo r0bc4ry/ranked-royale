@@ -2,6 +2,7 @@ const express = require('express');
 const moment = require('moment');
 const router = express.Router();
 
+const epicGamesController = require('../controllers/epic-games-controller');
 const leaderboardsController = require('../controllers/api/leaderboards-controller');
 const matchesController = require('../controllers/api/matches-controller');
 const isAuthenticated = require('../helpers/is-authenticated');
@@ -30,23 +31,17 @@ router.get('/leaderboards', async function (req, res, next) {
     });
 });
 
-let gameModeCounter = {solo: 0, duo: 0, squad: 0};
 router.get('/play/:gameMode(solo|duo|squad)', isAuthenticated, async function (req, res, next) {
-    const io = req.app.get('socketio');
-    io.on('connection', function (socket) {
-        socket.join(req.params.gameMode);
-        io.in(req.params.gameMode).emit(++gameModeCounter[req.params.gameMode]);
-
-        socket.on('disconnect', function () {
-            io.in(req.params.gameMode).emit(--gameModeCounter[req.params.gameMode]);
-        });
-    });
+    if (!req.session.isFriend) {
+        req.session.isFriend = await epicGamesController.hasFriend(req.user.epicGamesAccount.id);
+    }
 
     return res.render('play', {
         title: 'Play',
         user: req.user,
         gameMode: req.params.gameMode,
-        host: `//${req.headers.host}`
+        host: `//${req.headers.host}`,
+        isFriend: req.session.isFriend
     });
 });
 

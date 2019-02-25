@@ -41,6 +41,24 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
     const interval = 1000 * 60 * 30; // Minutes to milliseconds
     const eventTime = moment(Math.ceil(+currentTime / interval) * interval);
 
+    // Should be on the 10's and 40's
+    if (req.query.gameMode === 'duo') {
+        if (currentTime.minutes() < 10) {
+            eventTime.subtract(20, 'minutes');
+        } else {
+            eventTime.add(10, 'minutes');
+        }
+    }
+
+    // Should be on the 20's and 50's
+    if (req.query.gameMode === 'squad') {
+        if (currentTime.minutes() < 20) {
+            eventTime.subtract(10, 'minutes');
+        } else {
+            eventTime.add(20, 'minutes');
+        }
+    }
+
     res.json({
         status: 'success',
         data: {

@@ -217,8 +217,9 @@ router.post('/reset-password/:token', [
 });
 
 router.get('/logout', function (req, res, next) {
-    req.logout();
-    res.redirect('/');
+    req.session.destroy(function (err) {
+        res.redirect('/');
+    });
 });
 
 module.exports = router;
