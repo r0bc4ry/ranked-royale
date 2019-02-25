@@ -93,6 +93,9 @@ async function getStatsForPlayer(id, inputType) {
         lastModified: new Date().toISOString()
     }, stats['defaultduo']);
 
+    stats['defaultduo'].placeTop5 = stats['defaultduo'].placetop5;
+    delete stats['defaultduo'].placetop5;
+
     stats['defaultsquad'] = Object.assign({
         score: 0,
         matchesPlayed: 0,
