@@ -7,6 +7,10 @@ const Stat = new Schema({
         ref: 'User',
         required: true
     },
+    partyId: {
+        type: String,
+        required: true
+    },
     matchId: {
         type: Schema.Types.ObjectId,
         ref: 'Match',
@@ -24,7 +28,7 @@ const Stat = new Schema({
         type: Number,
         required: true
     },
-    playersOutLived: {
+    placement: {
         type: Number,
         required: true
     },

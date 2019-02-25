@@ -78,11 +78,6 @@ const UserSchema = new Schema({
                 required: true,
                 default: 0
             },
-            playersOutLived: {
-                type: Number,
-                required: true,
-                default: 0
-            },
             placeTop25: {
                 type: Number,
                 required: true,
@@ -125,11 +120,6 @@ const UserSchema = new Schema({
                 required: true,
                 default: 0
             },
-            playersOutLived: {
-                type: Number,
-                required: true,
-                default: 0
-            },
             placeTop25: {
                 type: Number,
                 required: true,
@@ -168,11 +158,6 @@ const UserSchema = new Schema({
                 default: 0
             },
             kills: {
-                type: Number,
-                required: true,
-                default: 0
-            },
-            playersOutLived: {
                 type: Number,
                 required: true,
                 default: 0

@@ -15,6 +15,10 @@ const Match = new Schema({
         type: Number,
         required: true
     },
+    numStartingPlayers: {
+        type: Number,
+        required: true
+    },
     hasEnded: {
         type: Boolean,
         required: true,

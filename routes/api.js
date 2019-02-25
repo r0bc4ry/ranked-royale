@@ -1,5 +1,6 @@
 const express = require('express');
 const moment = require('moment');
+const mongoose = require('mongoose');
 const router = express.Router();
 
 const connectionsController = require('../controllers/api/connections-controller');
@@ -73,6 +74,10 @@ router.get('/matches', isAuthenticated, async function (req, res, next) {
 
 // Return list of current players in a user's match
 router.get('/matches/:matchId', isAuthenticated, async function (req, res, next) {
+    if (!mongoose.Types.ObjectId.isValid(req.params.matchId)) {
+        return apiError(res, 'Invalid match ID.');
+    }
+
     let match;
     try {
         match = await matchController.getMatch(req.user._id, req.params.matchId);

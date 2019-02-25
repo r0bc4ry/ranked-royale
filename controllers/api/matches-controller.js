@@ -17,14 +17,14 @@ const User = require('../../models/user');
 
     let matches = await Match.find({hasEnded: false});
     matches.forEach(async function (match) {
-        console.log(`Restarting match "${match._id}" job.`);
+        console.log(`Restarting match "${match.sessionId}" job.`);
         await _startMatch(match);
     });
 })();
 
 async function getMatches(userId) {
     // Get the matches the user has participated in
-    let matches = await Match.find({users: userId}).sort({createdAt: 'descending'}).limit(5).lean().exec();
+    let matches = await Match.find({users: userId}).sort({createdAt: 'descending'}).lean().exec();
 
     // Get the stats for each match and if two records exist, list the user's match performance
     for (let match of matches) {
@@ -35,10 +35,9 @@ async function getMatches(userId) {
 }
 
 async function getMatch(userId, matchId) {
-    var match = await Match.findById(matchId).lean().exec();
-
+    let match = await Match.findOne({_id: matchId, users: userId}).lean().exec();
     if (!match) {
-        throw 'Match does not exist.';
+        throw 'Match does not exist for this user.';
     }
 
     match.stat = await Stat.findOne({userId: userId, matchId: matchId});
@@ -46,14 +45,25 @@ async function getMatch(userId, matchId) {
     return match;
 }
 
-async function joinMatch(epicGamesAccountId, sessionId) {
-    // Check if user with Epic Games account ID exists
-    let user = await User.findOne({'epicGamesAccount.id': epicGamesAccountId}).lean().exec();
-
-    if (!user) {
-        return;
+/**
+ * Use a user's incoming status updates to track their party before a match.
+ */
+async function joinParty(userId, partyId) {
+    // Keep track of what party a user is in
+    let prevParty = await asyncRedisClient.get(`user:${userId}:partyId`);
+    if (prevParty) {
+        await asyncRedisClient.srem(`party:${prevParty}:users`, userId);
     }
 
+    // Add user to their new party
+    await asyncRedisClient.sadd(`party:${partyId}:users`, userId);
+    await asyncRedisClient.set(`user:${userId}:partyId`, partyId);
+}
+
+/**
+ * Add a party to a match once it starts.
+ */
+async function joinMatch(partyId, sessionId, numPlayers) {
     // Check if match has already started and cannot be joined
     let match = await Match.findOne({
         sessionId: sessionId,
@@ -66,32 +76,25 @@ async function joinMatch(epicGamesAccountId, sessionId) {
         return;
     }
 
-    let matchExists = await asyncRedisClient.exists(sessionId);
+    let matchExists = await asyncRedisClient.exists(`match:${sessionId}:parties`);
     if (!!matchExists === false) {
         // After a timeout, create and start the match
-        setTimeout(async function () {
-            let members = await asyncRedisClient.smembers(sessionId);
-            if (members.length < (process.env.MIN_MATCH_USERS ? parseInt(process.env.MIN_MATCH_USERS) : 5)) {
-                return;
-            }
-
-            let match = await Match.create({
-                sessionId: sessionId,
-                gameMode: 'solo',
-                season: 0,
-                users: members
-            });
-
-            await asyncRedisClient.del(sessionId);
-            await _startMatch(match);
+        setTimeout(() => {
+            _startMatchTimeout(sessionId);
         }, 1000 * 60);
     }
 
-    // Add this user to the match in Redis
-    await asyncRedisClient.sadd(sessionId, user._id.toString());
-    await asyncRedisClient.expire(sessionId, 120);
+    // Use the updated status text to determine the number of starting players in the match
+    let redisNumPlayers = await asyncRedisClient.get(`match:${sessionId}:numPlayers`);
+    if (!redisNumPlayers || numPlayers > redisNumPlayers) {
+        await asyncRedisClient.set(`match:${sessionId}:numPlayers`, numPlayers);
+        await asyncRedisClient.expire(`match:${sessionId}:numPlayers`, 90);
+    }
 
-    let cardinality = await asyncRedisClient.scard(sessionId);
+    // Add this party to the match in Redis
+    await asyncRedisClient.sadd(`match:${sessionId}:parties`, partyId);
+    await asyncRedisClient.expire(`match:${sessionId}:parties`, 90);
+    let cardinality = await asyncRedisClient.scard(`match:${sessionId}:parties`);
 
     // Update all users about all active matches
     const app = require('../../app');
@@ -102,55 +105,147 @@ async function joinMatch(epicGamesAccountId, sessionId) {
     });
 
     // Update users in this match that another player has joined
-    let members = await asyncRedisClient.smembers(sessionId);
-    for (let member of members) {
-        io.emit(member, cardinality);
+    let parties = await asyncRedisClient.smembers(`match:${sessionId}:parties`);
+    for (let partyId of parties) {
+        let party = await asyncRedisClient.smembers(`${sessionId}:${partyId}`);
+        for (let userId of party) {
+            io.emit(userId, {
+                cardinality: cardinality
+            });
+        }
     }
 }
 
-async function _startMatch(match) {
-    // Get the match's users
-    let users = await User.find({'_id': match.users});
-    if (users.length <= 0) {
-        return console.error(`Match "${match._id}" has no users.`);
+async function _startMatchTimeout(sessionId) {
+    console.log(`Attempting to start match "${sessionId}".`);
+
+    let parties = await asyncRedisClient.smembers(`match:${sessionId}:parties`);
+
+    // Determine the game mode from the max party size
+    let maxPartySize = 0;
+    for (let partyId of parties) {
+        let numPartyMembers = await asyncRedisClient.scard(`party:${partyId}:users`);
+        if (numPartyMembers > maxPartySize) {
+            maxPartySize = numPartyMembers;
+        }
     }
 
-    console.log(`Match "${match._id}" is starting.`);
+    let gameMode = 'solo';
+    if (maxPartySize > 2) {
+        gameMode = 'squad';
+    } else if (maxPartySize === 2) {
+        gameMode = 'duo';
+    }
+
+    // Determine if enough users are in a party and if enough parties are in the match
+    if (process.env.NODE_ENV === 'production') {
+        switch (gameMode) {
+            case 'solo':
+                if (parties.length < 4) {
+                    console.log(`Not enough parties for Solo match "${sessionId}" - performing cleanup.`);
+                    await asyncRedisClient.del(`match:${sessionId}:numPlayers`);
+                    await asyncRedisClient.del(`match:${sessionId}:parties`);
+                }
+                break;
+            case 'duo':
+                for (let partyId of parties) {
+                    let numPartyMembers = await asyncRedisClient.scard(`party:${partyId}:users`);
+                    if (numPartyMembers !== 2) {
+                        await asyncRedisClient.srem(`match:${sessionId}:parties`);
+                    }
+                }
+
+                let numDuoParties = await asyncRedisClient.scard(`match:${sessionId}:parties`);
+                if (numDuoParties < 2) {
+                    console.log(`Not enough parties for Duos match "${sessionId}" - performing cleanup.`);
+                    await asyncRedisClient.del(`match:${sessionId}:numPlayers`);
+                    await asyncRedisClient.del(`match:${sessionId}:parties`);
+                    return;
+                }
+
+                break;
+            case 'squad':
+                for (let partyId of parties) {
+                    let numPartyMembers = await asyncRedisClient.scard(`party:${partyId}:users`);
+                    if (numPartyMembers !== 4) {
+                        await asyncRedisClient.srem(`match:${sessionId}:parties`);
+                    }
+                }
+
+                let numSquadParties = await asyncRedisClient.scard(`match:${sessionId}:parties`);
+                if (numSquadParties < 2) {
+                    console.log(`Not enough parties for Squads match "${sessionId}" - performing cleanup.`);
+                    await asyncRedisClient.del(`match:${sessionId}:numPlayers`);
+                    await asyncRedisClient.del(`match:${sessionId}:parties`);
+                    return;
+                }
+
+                break;
+        }
+    }
+
+    let users = [];
+    for (let partyId of parties) {
+        let partyMembers = await asyncRedisClient.smembers(`party:${partyId}:users`);
+        users = users.concat(partyMembers);
+    }
+
+    let numStartingPlayers = await asyncRedisClient.get(`match:${sessionId}:numPlayers`);
+    await asyncRedisClient.del(`match:${sessionId}:numPlayers`);
+
+    // Create match and perform cleanup
+    let match = await Match.create({
+        sessionId: sessionId,
+        gameMode: gameMode,
+        season: 0,
+        numStartingPlayers: numStartingPlayers,
+        users: users
+    });
+
+    await _startMatch(match);
+}
+
+async function _startMatch(match) {
+    console.log(`Match "${match.sessionId}" is starting.`);
+
+    // Get the match's users
+    let users = await User.find({'_id': match.users});
 
     // Update the initial stats for each user
     for (let user of users) {
         // If the server is restarting this job, check if data is already in Redis
-        let prevStats = await asyncRedisClient.hget(match.sessionId, user._id.toString());
+        let prevStats = await asyncRedisClient.hget(`match:${match.sessionId}:stats`, user._id.toString());
         if (prevStats) {
-            await asyncRedisClient.expire(match.sessionId, 300);
+            await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 300);
             return;
         }
 
         try {
             let currentStats = await epicGamesController.getStatsForPlayer(user.epicGamesAccount.id, user.epicGamesAccount.inputType);
-            await asyncRedisClient.hset(match.sessionId, user._id.toString(), JSON.stringify(currentStats));
-            await asyncRedisClient.expire(match.sessionId, 300);
+            await asyncRedisClient.hset(`match:${match.sessionId}:stats`, user._id.toString(), JSON.stringify(currentStats));
+            await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 300);
         } catch (err) {
             console.error(err);
         }
     }
 
-    _startMatchCron(match, users);
+    _startMatchCronJob(match, users);
 }
 
 /**
  * Start cron job to check user stats until the match ends.
  */
-function _startMatchCron(match, users) {
+function _startMatchCronJob(match, users) {
     let job = new CronJob('0 */1 * * * *', async function () {
-        console.log(`Checking if match "${match._id}" has ended.`);
+        console.log(`Checking if match "${match.sessionId}" has ended.`);
 
         // If this job is running too long after the match has started, remove the match and stop the job
         let hasBeenTooLong = moment().isSameOrAfter(moment(match.createdAt).add(45, 'minutes'));
         if (hasBeenTooLong) {
-            console.error(`Match "${match._id}" running too long.`);
+            console.error(`Match "${match.sessionId}" running too long.`);
             await match.remove();
-            await asyncRedisClient.del(match.sessionId);
+            await asyncRedisClient.del(`match:${match.sessionId}:parties`);
+            await asyncRedisClient.del(`match:${match.sessionId}:stats`);
             return job.stop();
         }
 
@@ -168,7 +263,7 @@ function _startMatchCron(match, users) {
 
             let prevStats;
             try {
-                prevStats = await asyncRedisClient.hget(match.sessionId, user._id.toString());
+                prevStats = await asyncRedisClient.hget(`match:${match.sessionId}:stats`, user._id.toString());
                 prevStats = JSON.parse(prevStats);
             } catch (err) {
                 console.log(err);
@@ -184,9 +279,9 @@ function _startMatchCron(match, users) {
             }
         }
 
-        // If the percentage of users with changed stats is greater than 80%, the match is over
+        // If the percentage of users with changed stats is greater than 75%, the match is over
         let matchHasEnded = false;
-        if (1 - (usersWithUnchangedStats.length / users.length) >= 0.8) {
+        if (1 - (usersWithUnchangedStats.length / users.length) >= 0.75) {
             matchHasEnded = true;
         }
 
@@ -202,12 +297,13 @@ function _startMatchCron(match, users) {
                     }
                 });
             }
+            // TODO Remove user from users array
             await _endMatch(match, users, currentStats);
             job.stop();
         } else {
             for (let user of users) {
-                await asyncRedisClient.hset(match.sessionId, user._id.toString(), JSON.stringify(currentStats[user._id]));
-                await asyncRedisClient.expire(match.sessionId, 300);
+                await asyncRedisClient.hset(`match:${match.sessionId}:stats`, user._id.toString(), JSON.stringify(currentStats[user._id]));
+                await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 300);
             }
         }
     });
@@ -221,7 +317,7 @@ async function _endMatch(match, users, currentStats) {
     for (let user of users) {
         let prevStats;
         try {
-            prevStats = await asyncRedisClient.hget(match.sessionId, user._id.toString());
+            prevStats = await asyncRedisClient.hget(`match:${match.sessionId}:stats`, user._id.toString());
             prevStats = JSON.parse(prevStats);
         } catch (err) {
             console.log(err);
@@ -247,9 +343,10 @@ async function _endMatch(match, users, currentStats) {
         }
 
         // Calculate the user's performance
-        statDoc.minutesPlayed = currentStats[user._id][gameModeKey].minutesPlayed - prevStats[gameModeKey].minutesPlayed;
+        statDoc.eloDelta = 0;
         statDoc.kills = currentStats[user._id][gameModeKey].kills - prevStats[gameModeKey].kills;
-        statDoc.playersOutLived = currentStats[user._id][gameModeKey].playersOutLived - prevStats[gameModeKey].playersOutLived;
+        statDoc.minutesPlayed = currentStats[user._id][gameModeKey].minutesPlayed - prevStats[gameModeKey].minutesPlayed;
+        statDoc.placement = match.numStartingPlayers - (currentStats[user._id][gameModeKey].playersOutLived - prevStats[gameModeKey].playersOutLived);
         switch (match.gameMode) {
             case 'solo':
                 statDoc.placeTop25 = !!(currentStats[user._id][gameModeKey].placeTop25 - prevStats[gameModeKey].placeTop25);
@@ -272,14 +369,16 @@ async function _endMatch(match, users, currentStats) {
         currentStats[user._id] = statDoc;
     }
 
+    console.log(`Match "${match.sessionId}" has ended.`);
+
     // Perform match cleanup
     match.hasEnded = true;
     await match.save();
-    await asyncRedisClient.del(match.sessionId);
-    console.log(`Match "${match._id}" has ended.`);
+    await asyncRedisClient.del(`match:${match.sessionId}:stats`);
 
-    // If there are no users left in the match, simply return
+    // If there are no users left in the match, simply return; this is for when a user is stripped from a match due to an error above
     if (Object.keys(currentStats).length === 0) {
+        await asyncRedisClient.del(`match:${match.sessionId}:parties`);
         return;
     }
 
@@ -299,87 +398,190 @@ async function _removeUserFromMatch(match, user, currentStats) {
  * Rank users' performance in the match, calculate their new Elo rating, and update their stats.
  */
 async function _calculateRatings(match, users, statDocs) {
-    // Make a list of all the players and sort it by performance
-    let scoresArray = [];
-    for (let user of users) {
-        let scoreObj = {
-            userId: user._id,
-            score: statDocs[user._id].kills * 1
+    let partyScores = [];
+
+    // Make a list of all parties and sort it by performance
+    let parties = await asyncRedisClient.smembers(`match:${match.sessionId}:parties`);
+    for (let partyId of parties) {
+        let partyScoreObj = {
+            partyId: partyId,
+            score: 0,
+            users: {},
+            eloAvg: 0
         };
-        if (statDocs[user._id].placeTop25) scoreObj.score += 4;
-        if (statDocs[user._id].placeTop10) scoreObj.score += 4;
-        if (statDocs[user._id].placeTop1) scoreObj.score += 4;
-        scoresArray.push(scoreObj);
+
+        switch (match.gameMode) {
+            case 'duo':
+                partyScoreObj.placeTop12 = true;
+                partyScoreObj.placeTop5 = true;
+                partyScoreObj.placeTop1 = true;
+                break;
+            case 'squad':
+                partyScoreObj.placeTop6 = true;
+                partyScoreObj.placeTop3 = true;
+                partyScoreObj.placeTop1 = true;
+                break;
+        }
+
+        let party = await asyncRedisClient.smembers(`party:${partyId}:users`);
+        for (let userId of party) {
+            if (!statDocs[userId]) {
+                return;
+            }
+
+            let user = users.find(function (user) {
+                return user._id === userId;
+            });
+
+            // Determine party placement
+            switch (match.gameMode) {
+                case 'solo':
+                    if (statDocs[userId].placeTop25) partyScoreObj.score += 2;
+                    if (statDocs[userId].placeTop10) partyScoreObj.score += 2;
+                    if (statDocs[userId].placement <= 5) partyScoreObj.score += 2;
+                    if (statDocs[userId].placement <= 3) partyScoreObj.score += 2;
+                    if (statDocs[userId].placeTop1) partyScoreObj.score += 4;
+                    break;
+                case 'duo':
+                    partyScoreObj.placeTop12 = partyScoreObj.placeTop12 && statDocs[userId].placeTop12;
+                    partyScoreObj.placeTop5 = partyScoreObj.placeTop5 && statDocs[userId].placeTop5;
+                    partyScoreObj.placeTop1 = partyScoreObj.placeTop1 && statDocs[userId].placeTop1;
+                    break;
+                case 'squad':
+                    partyScoreObj.placeTop6 = partyScoreObj.placeTop6 && statDocs[userId].placeTop6;
+                    partyScoreObj.placeTop3 = partyScoreObj.placeTop3 && statDocs[userId].placeTop3;
+                    partyScoreObj.placeTop1 = partyScoreObj.placeTop1 && statDocs[userId].placeTop1;
+                    break;
+            }
+
+            // Add kill points for user
+            let killPoints = statDocs[userId].kills * 1;
+            partyScoreObj.users[userId] = killPoints;
+            partyScoreObj.score += killPoints;
+            partyScoreObj.eloAvg += user.stats[match.gameMode].rating;
+        }
+
+        // Add placement points for duo/squad
+        switch (match.gameMode) {
+            case 'duo':
+                if (partyScoreObj.placeTop12) partyScoreObj.score += 4;
+                if (partyScoreObj.placeTop5) partyScoreObj.score += 4;
+                if (partyScoreObj.placeTop1) partyScoreObj.score += 4;
+                delete partyScoreObj.placeTop12;
+                delete partyScoreObj.placeTop5;
+                delete partyScoreObj.placeTop1;
+                break;
+            case 'squad':
+                if (partyScoreObj.placeTop6) partyScoreObj.score += 4;
+                if (partyScoreObj.placeTop3) partyScoreObj.score += 4;
+                if (partyScoreObj.placeTop1) partyScoreObj.score += 4;
+                delete partyScoreObj.placeTop6;
+                delete partyScoreObj.placeTop3;
+                delete partyScoreObj.placeTop1;
+                break;
+        }
+
+        partyScoreObj.eloAvg /= party.length;
+        partyScores.push(partyScoreObj);
     }
 
-    scoresArray.sort(function (a, b) {
+    partyScores.sort(function (a, b) {
         return b.score - a.score;
     });
 
     // Think of each player as having played two matches: a loss vs. the player above them on the list and a win vs. the player below them
-    for (const [index, userAScoreObj] of scoresArray.entries()) {
-        let userA = users.find(function (user) {
-            return user._id === userAScoreObj.userId;
-        });
+    for (const [index, partyAScoreObj] of partyScores.entries()) {
+        let partyA = await asyncRedisClient.smembers(`party:${partyAScoreObj.partyId}:users`);
 
-        if (index !== scoresArray.length - 1) {
-            let userBScoreObj = scoresArray[index + 1];
-            let userB = users.find(function (user) {
-                return user._id === userBScoreObj.userId;
-            });
+        if (index !== partyScores.length - 1) {
+            let partyBScoreObj = partyScores[index + 1];
 
-            let playerARating = userA.stats[match.gameMode].rating;
-            let playerBRating = userB.stats[match.gameMode].rating;
+            let partyARating = partyAScoreObj.eloAvg;
+            let partyBRating = partyBScoreObj.eloAvg;
 
             // Gets expected score for first parameter
-            let oddsPlayerAWins = elo.expectedScore(playerARating, playerBRating);
-            let oddsPlayerBWins = elo.expectedScore(playerBRating, playerARating);
+            let oddsPartyAWins = elo.expectedScore(partyARating, partyBRating);
+            let oddsPartyBWins = elo.expectedScore(partyBRating, partyARating);
 
             // Update score: 1 if won, 0.5 if draw, 0 if lost
-            let updatedPlayerARating = elo.newRating(oddsPlayerAWins, userAScoreObj.score === userBScoreObj.score ? 0.5 : 1, playerARating);
-            let updatedPlayerBRating = elo.newRating(oddsPlayerBWins, userBScoreObj.score === userAScoreObj.score ? 0.5 : 0, playerBRating);
+            let updatedPartyARating = elo.newRating(oddsPartyAWins, partyAScoreObj.score === partyBScoreObj.score ? 0.5 : 1, partyARating);
+            let updatedPartyBRating = elo.newRating(oddsPartyBWins, partyBScoreObj.score === partyAScoreObj.score ? 0.5 : 0, partyBRating);
 
-            if (statDocs[userA._id].eloDelta == null) {
-                statDocs[userA._id].eloDelta = 0;
+            for (let userId of partyA) {
+                statDocs[userId].eloDelta += updatedPartyARating - partyARating;
             }
-            statDocs[userA._id].eloDelta += updatedPlayerARating - playerARating;
 
-            if (statDocs[userB._id].eloDelta == null) {
-                statDocs[userB._id].eloDelta = 0;
+            let partyB = await asyncRedisClient.smembers(`party:${partyBScoreObj.partyId}:users`);
+            for (let userId of partyB) {
+                statDocs[userId].eloDelta += updatedPartyBRating - partyBRating;
             }
-            statDocs[userB._id].eloDelta += updatedPlayerBRating - playerBRating;
-        }
-
-        // This is required here for single player, testing games
-        if (statDocs[userA._id].eloDelta == null) {
-            statDocs[userA._id].eloDelta = 0;
         }
 
         // Create Stat documents
-        await Stat.create(statDocs[userA._id]);
+        for (let userId of partyA) {
+            await Stat.create(statDocs[userId]);
+        }
     }
 
     for (let user of users) {
-        await user.update({
-            $inc: {
-                'stats.solo.rating': statDocs[user._id].eloDelta,
-                'stats.solo.matchesPlayed': 1,
-                'stats.solo.minutesPlayed': statDocs[user._id].minutesPlayed,
-                'stats.solo.kills': statDocs[user._id].kills,
-                'stats.solo.playersOutLived': statDocs[user._id].playersOutLived,
-                'stats.solo.placeTop25': statDocs[user._id].placeTop25 ? 1 : 0,
-                'stats.solo.placeTop10': statDocs[user._id].placeTop10 ? 1 : 0,
-                'stats.solo.placeTop1': statDocs[user._id].placeTop1 ? 1 : 0
-            },
-            $set: {
-                'stats.solo.updatedAt': new Date()
-            }
-        });
+        switch (match.gameMode) {
+            case 'solo':
+                await user.update({
+                    $inc: {
+                        'stats.solo.rating': statDocs[user._id].eloDelta,
+                        'stats.solo.matchesPlayed': 1,
+                        'stats.solo.minutesPlayed': statDocs[user._id].minutesPlayed,
+                        'stats.solo.kills': statDocs[user._id].kills,
+                        'stats.solo.placeTop25': statDocs[user._id].placeTop25 ? 1 : 0,
+                        'stats.solo.placeTop10': statDocs[user._id].placeTop10 ? 1 : 0,
+                        'stats.solo.placeTop1': statDocs[user._id].placeTop1 ? 1 : 0
+                    },
+                    $set: {
+                        'stats.solo.updatedAt': new Date()
+                    }
+                });
+                break;
+            case 'duo':
+                await user.update({
+                    $inc: {
+                        'stats.duo.rating': statDocs[user._id].eloDelta,
+                        'stats.duo.matchesPlayed': 1,
+                        'stats.duo.minutesPlayed': statDocs[user._id].minutesPlayed,
+                        'stats.duo.kills': statDocs[user._id].kills,
+                        'stats.duo.placeTop12': statDocs[user._id].placeTop12 ? 1 : 0,
+                        'stats.duo.placeTop5': statDocs[user._id].placeTop5 ? 1 : 0,
+                        'stats.duo.placeTop1': statDocs[user._id].placeTop1 ? 1 : 0
+                    },
+                    $set: {
+                        'stats.duo.updatedAt': new Date()
+                    }
+                });
+                break;
+            case 'squad':
+                await user.update({
+                    $inc: {
+                        'stats.squad.rating': statDocs[user._id].eloDelta,
+                        'stats.squad.matchesPlayed': 1,
+                        'stats.squad.minutesPlayed': statDocs[user._id].minutesPlayed,
+                        'stats.squad.kills': statDocs[user._id].kills,
+                        'stats.squad.placeTop6': statDocs[user._id].placeTop6 ? 1 : 0,
+                        'stats.squad.placeTop3': statDocs[user._id].placeTop3 ? 1 : 0,
+                        'stats.squad.placeTop1': statDocs[user._id].placeTop1 ? 1 : 0
+                    },
+                    $set: {
+                        'stats.squad.updatedAt': new Date()
+                    }
+                });
+                break;
+        }
     }
+
+    await asyncRedisClient.del(`match:${match.sessionId}:parties`);
 }
 
 module.exports = {
     getMatches: getMatches,
     getMatch: getMatch,
-    joinMatch: joinMatch
+    joinMatch: joinMatch,
+    joinParty: joinParty
 };

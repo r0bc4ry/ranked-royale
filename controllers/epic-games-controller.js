@@ -145,19 +145,35 @@ async function _onFriendRequest(friendRequest) {
 }
 
 async function _onFriendStatus(communicatorStatus) {
-    // let sender = communicatorStatus.sender.id;
+    let status = communicatorStatus.status;
 
     // Battle Royale Lobby - 1 / 4
-    // Playing Battle Royale - 97 Left - 1 / 4
-    // let status = communicatorStatus.status;
+    let lobbyRegex = /^Battle Royale Lobby - (\d) \/ 4$/g;
+    let lobbyMatch = lobbyRegex.exec(status);
 
-    // let isPlaying = communicatorStatus.isPlaying;
-    // let sessionId = communicatorStatus.sessionId;
-    // let partyId = communicatorStatus.partyJoinData.partyId;
+    // Playing Battle Royale - 100 Left - 1 / 4
+    let isPlayingRegex = /^Playing Battle Royale - (\d+) Left - (\d) \/ 4$/g;
+    let isPlayingMatch = isPlayingRegex.exec(status);
 
-    if (communicatorStatus.isPlaying && communicatorStatus.sessionId) {
-        const matchesController = require('./api/matches-controller');
-        matchesController.joinMatch(communicatorStatus.sender.id, communicatorStatus.sessionId);
+    if (!lobbyMatch && !isPlayingMatch) {
+        return;
+    }
+
+    // Check if user with this Epic Games account ID exists
+    let user = await User.findOne({
+        'epicGamesAccount.id': communicatorStatus.sender.id
+    }).lean().exec();
+
+    if (!user) {
+        return;
+    }
+
+    const matchesController = require('./api/matches-controller');
+    if (lobbyMatch) {
+        return matchesController.joinParty(user._id.toString(), communicatorStatus.partyJoinData.partyId);
+    }
+    if (isPlayingMatch) {
+        return matchesController.joinMatch(communicatorStatus.partyJoinData.partyId, communicatorStatus.sessionId, isPlayingMatch[1]);
     }
 }
 
