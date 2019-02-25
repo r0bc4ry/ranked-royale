@@ -1,10 +1,10 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
 const SALT_WORK_FACTOR = 10;
 
-var Schema = mongoose.Schema;
-
-var UserSchema = new Schema({
+const UserSchema = new Schema({
     firstName: {
         type: String,
         trim: true,
@@ -31,11 +31,15 @@ var UserSchema = new Schema({
     },
     epicGamesAccount: {
         type: {
+            displayName: {
+                type: String,
+                required: true
+            },
             id: {
                 type: String,
                 required: true
             },
-            displayName: {
+            jid: {
                 type: String,
                 required: true
             },

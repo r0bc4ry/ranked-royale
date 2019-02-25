@@ -1,28 +1,23 @@
 import '../css/play.scss';
 
-import {
-    addMilliseconds,
-    differenceInMilliseconds,
-    differenceInMinutes,
-    differenceInSeconds
-} from 'date-fns';
+import * as moment from 'moment';
 import * as workerTimers from 'worker-timers';
 
 const socket = io(host);
 
-var countdown5MinutesAudio = new Audio('/audio/5-minutes.wav');
-var countdown3MinutesAudio = new Audio('/audio/3-minutes.wav');
-var countdown1MinuteAudio = new Audio('/audio/1-minute.wav');
-var countdown5Audio = new Audio('/audio/5.wav');
-var countdown3Audio = new Audio('/audio/3.wav');
-var countdown2Audio = new Audio('/audio/2.wav');
-var countdown1Audio = new Audio('/audio/1.wav');
-var countdown0Audio = new Audio('/audio/0.wav');
+const countdown5MinutesAudio = new Audio('/audio/5-minutes.wav');
+const countdown3MinutesAudio = new Audio('/audio/3-minutes.wav');
+const countdown1MinuteAudio = new Audio('/audio/1-minute.wav');
+const countdown5Audio = new Audio('/audio/5.wav');
+const countdown3Audio = new Audio('/audio/3.wav');
+const countdown2Audio = new Audio('/audio/2.wav');
+const countdown1Audio = new Audio('/audio/1.wav');
+const countdown0Audio = new Audio('/audio/0.wav');
 let currentTime, eventTime;
 let ajaxInterval, countdownInterval;
 
 $(function () {
-    if ($('#step-1, #step-2, #step-3').length === 0) {
+    if ($('#step-1, #step-2').length === 0) {
         return;
     }
 
@@ -34,19 +29,15 @@ $(function () {
     socket.on('onlineCounter', function (data) {
         $('#online-counter').text(data);
     });
-
-    $('[data-toggle="tooltip"]').tooltip();
-    $('#step-2 .form-control').keypress(onStep2InputKeypress);
-    $('#step-2 button').click(onStep2ButtonClick);
 });
 
 function getTimeFromServer() {
-    let ajaxTimeStart = Date.now();
+    let ajaxTimeStart = moment();
     return $.get('/api/countdown', function (response) {
         // Add the number of ms it took for the Ajax request to complete
-        let ajaxTime = Date.now() - ajaxTimeStart;
-        currentTime = addMilliseconds(new Date(response.data.currentTime), ajaxTime);
-        eventTime = new Date(response.data.eventTime);
+        let ajaxTime = moment().diff(ajaxTimeStart);
+        currentTime = moment(response.data.currentTime).add(ajaxTime, 'milliseconds');
+        eventTime = moment(response.data.eventTime);
     });
 }
 
@@ -56,13 +47,15 @@ function startCountdown() {
 }
 
 function updateCountdown() {
-    let countdown = $('#step-1 h1');
+    let $countdown = $('#step-1 h1');
 
-    let m = differenceInMinutes(eventTime, currentTime);
-    let s = differenceInSeconds(eventTime, currentTime) % 60;
+    let duration = moment.duration(eventTime.diff(currentTime));
+
+    let m = duration.minutes();
+    let s = duration.seconds();
     if (m < 1) {
-        let ms = Math.floor((differenceInMilliseconds(eventTime, currentTime) % 1000) / 100) * 100;
-        countdown.text(`${s}.${String(ms).charAt(0)}s`);
+        let ms = Math.round(duration.milliseconds() / 100) * 100;
+        $countdown.text(`${s}.${String(ms).charAt(0)}s`);
 
         if (s === 5 && ms === 0) {
             countdown5Audio.play().catch(function (err) {
@@ -89,12 +82,12 @@ function updateCountdown() {
                 // Do nothing, just catch the error
             });
             workerTimers.clearInterval(countdownInterval);
-            countdown.text('Go!');
+            $countdown.text('Go!');
             $('#step-1 p').hide();
             setTimeout(onStep1End, 2500);
         }
     } else {
-        countdown.text(`${m}m ${s}s`);
+        $countdown.text(`${m}m ${s}s`);
 
         if (m === 5 && s === 0) {
             countdown5MinutesAudio.play().catch(function (err) {
@@ -112,7 +105,8 @@ function updateCountdown() {
             });
         }
     }
-    currentTime = addMilliseconds(currentTime, 100);
+
+    currentTime.add(100, 'milliseconds');
 }
 
 function onStep1End() {
@@ -120,81 +114,28 @@ function onStep1End() {
         $('#step-2').fadeIn(300, function () {
             // Fading animations complete
             workerTimers.clearInterval(ajaxInterval);
+            workerTimers.setTimeout(() => {
+                window.location.reload();
+            }, 1000 * 120);
         });
     });
 
-    socket.on(eventTime.getTime(), function (data) {
-        // Update information about this user's server
-        if (data.serverId === $('#in-match-counter').data('serverId')) {
-            $('#in-match-counter').text(data.cardinality);
-        }
-
-        // Update information about all servers
-        let $card = $(`#step-3 .row .col-4:contains(${data.serverId})`);
+    // Update information about all matches
+    socket.on('playerJoinedMatch', function (data) {
+        let sessionIdSubstr = data.sessionId.substr(data.sessionId.length - 3);
+        let $card = $(`#step-2 .row .col-4:contains(${sessionIdSubstr})`);
         if ($card.length > 0) {
             let $badge = $card.find('.badge');
             let $i = $badge.find('i');
             $badge.html(`${data.cardinality} `);
             $badge.append($i);
         } else {
-            $('#step-3 .row').append(`<div class="col-4 mb-1"><div class="bg-light p-2 border rounded text-center">${data.serverId} <span class="badge badge-dark">${data.cardinality} <i class="fas fa-users"></i></span></div></div>`);
+            $('#step-2 .row').append(`<div class="col-4 mb-1"><div class="bg-light p-2 border rounded text-center">${sessionIdSubstr} <span class="badge badge-dark">${data.cardinality} <i class="fas fa-users"></i></span></div></div>`);
         }
     });
-}
 
-function onStep2InputKeypress(event) {
-    let code = event.keyCode || event.which;
-    if (code === 13) {
-        onStep2ButtonClick(event);
-    }
-}
-
-function onStep2ButtonClick(event) {
-    event.preventDefault();
-
-    let alert = $('#step-2 .alert.alert-danger');
-    alert.addClass('d-none');
-
-    // Validate form
-    let form = $('#step-2 .needs-validation').get(0);
-    let isValid = form.checkValidity();
-    $(form).addClass('was-validated');
-    if (isValid === false) {
-        return;
-    }
-
-    // Disable button and show spinner
-    let button = $('#step-2 .btn.btn-primary');
-    let buttonHtml = button.html();
-    button.html('<span class="spinner-border spinner-border-sm"></span> Loading...');
-    button.attr('disabled', true);
-
-    let serverId = $('#step-2 input[name=serverId]').val();
-
-    // Send Ajax
-    $.post('/api/matches', {
-        eventTime: eventTime.getTime(),
-        serverId: serverId
-    }, function (response) {
-        let cardinality = response.data;
-        $('#in-match-counter').text(cardinality);
-        $('#in-match-counter').data('serverId', serverId);
-        onStep2End();
-    }).fail(function (response) {
-        button.html(buttonHtml);
-        button.attr('disabled', false);
-        alert.text(response.responseJSON.message ? response.responseJSON.message : 'Uh-oh! An error occurred.');
-        alert.removeClass('d-none');
-    });
-}
-
-function onStep2End() {
-    $('#step-2').fadeOut(250, function () {
-        $('#step-3').fadeIn(300, function () {
-            // Fading animations complete
-            setTimeout(function () {
-                window.location.reload()
-            }, 1000 * 60);
-        });
+    // Update information about this user's match
+    socket.on(userId, function (data) {
+        $('#in-match-counter').text(data);
     });
 }

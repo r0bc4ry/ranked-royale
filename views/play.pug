@@ -17,20 +17,9 @@ block content
                                 p.mb-0 Match in progress, next #[strong Solo] match in...
                                 h1.display-4 0s
 
-                            div#step-2
-                                form.needs-validation(novalidate)
-                                    h3.text-center Match Starting
-                                    div.form-group
-                                        label Last 3 Digits of Server ID #[i.fas.fa-question-circle.text-muted(data-toggle="tooltip", title="When in-game, you can find this in the top left corner of your screen below your display name.")]
-                                        div.input-group
-                                            input.form-control(type="text", name="serverId", pattern="[a-z0-9]{3}", required)
-                                            div.input-group-append
-                                                button.btn.btn-primary(type="button") Submit
-                                    div.alert.alert-danger.d-none
-
-                            div#step-3.text-center
-                                h3 GLHF
-                                p You're in a match with #[strong#in-match-counter 1] Ranked Royale player(s).
+                            div#step-2.text-center
+                                h1.display-4 GLHF
+                                p You're in a match with #[strong#in-match-counter 0] Ranked Royale player(s).
                                 div.row
                         else
                             div.text-center
@@ -43,17 +32,18 @@ block content
                     div.row.text-center
                         div.col
                             h1 #[i.fas.fa-clock]
-                            h6 Wait
+                            h6 Wait For Countdown
                             h1.text-muted #[i.fas.fa-angle-right.position-absolute(style="top: 0.5em; right: 0;")]
                         div.col
-                            h1 #[i.fas.fa-server]
-                            h6 Enter #[br] Server ID
+                            h1 #[i.fas.fa-mouse-pointer]
+                            h6 Press Play #[br] In Fortnite
                             h1.text-muted #[i.fas.fa-angle-right.position-absolute(style="top: 0.5em; right: 0;")]
                         div.col
                             h1 #[i.fas.fa-trophy]
-                            h6 Play!
+                            h6 Get The Dub!
 
 block scripts
     script.
         var host = '#{host}';
+        var userId = '#{user._id}';
     script(src="/js/play.bundle.js")

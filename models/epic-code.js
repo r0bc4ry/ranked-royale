@@ -1,8 +1,7 @@
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var Schema = mongoose.Schema;
-
-var EpicCodeSchema = new Schema({
+const EpicCodeSchema = new Schema({
     code: {
         type: String,
         required: true,

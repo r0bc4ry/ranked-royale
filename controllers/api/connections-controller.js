@@ -8,37 +8,31 @@ async function verifyEpicGames(reqBody, userId) {
         throw 'Incorrect code; please try again.';
     }
 
-    let epicGamesAccount;
+    let profile;
     try {
-        epicGamesAccount = await epicGamesController.getProfile(epicCode.epicGamesAccountId);
+        profile = await epicGamesController.getProfile(epicCode.epicGamesAccountId);
     } catch (err) {
         console.error(err);
         throw 'Error retrieving Epic Games account.';
     }
 
     // Check if Epic Games account was auto-created by PSN
-    let displayName = epicGamesAccount.displayName;
-    if (displayName === null && epicGamesAccount.externalAuths.psn.externalDisplayName) {
-        displayName = epicGamesAccount.externalAuths.psn.externalDisplayName;
+    let displayName = profile.displayName;
+    if (displayName === null && profile.externalAuths.psn.externalDisplayName) {
+        displayName = profile.externalAuths.psn.externalDisplayName;
     }
 
     let user = await User.findOneAndUpdate({_id: userId}, {
         $set: {
-            'epicGamesAccount.id': epicGamesAccount.id,
+            'epicGamesAccount.id': profile.id,
+            'epicGamesAccount.jid': profile.jid,
             'epicGamesAccount.displayName': displayName,
             'epicGamesAccount.inputType': reqBody.inputType,
             'epicGamesAccount.region': reqBody.region,
         }
     }, {new: true});
 
-    try {
-        if (epicGamesAccount.id !== 'a9f693302d86467e8a4b5cfd52624bf8') {
-            await epicGamesController.removeFriend(epicGamesAccount.id);
-        }
-        await epicCode.remove();
-    } catch (err) {
-        console.error(err);
-    }
+    await epicCode.remove();
 
     return user;
 }

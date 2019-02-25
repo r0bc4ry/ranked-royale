@@ -1,21 +1,9 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var Schema = mongoose.Schema;
-var ObjectId = Schema.ObjectId;
-
-var Match = new Schema({
-    eventTime: {
-        type: Date,
-        required: true
-    },
-    serverId: {
+const Match = new Schema({
+    sessionId: {
         type: String,
-        validate: {
-            validator: function (v) {
-                return /[a-z0-9]{3}/.test(v);
-            },
-            message: props => `${props.value} is not valid.`
-        },
         required: true
     },
     gameMode: {
@@ -32,10 +20,11 @@ var Match = new Schema({
         required: true,
         default: false
     },
-    users: {
-        type: [ObjectId],
+    users: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
-    }
+    }]
 }, {timestamps: true});
 
 module.exports = mongoose.model('Match', Match);

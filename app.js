@@ -17,17 +17,14 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'Mongoose Connection Error:'));
+db.on('error', console.error.bind(console, 'Mongoose connection error:'));
+db.once('open', function () {
+    console.log('Mongoose connected.')
+});
 
 // Redis setup
-let redis, client;
-if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging') {
-    redis = require('redis');
-    client = redis.createClient({url: process.env.REDIS_URL});
-} else {
-    redis = require('redis-mock');
-    client = redis.createClient();
-}
+const redis = require('redis');
+const redisClient = redis.createClient({url: process.env.REDIS_URL});
 
 // Epic Games setup
 // function _exit(signal) {
@@ -53,7 +50,7 @@ const RedisStore = require('connect-redis')(session);
 
 app.use(session({
     store: new RedisStore({
-        client: client,
+        client: redisClient,
         logErrors: true
     }),
     secret: '{#fFT"5pZ>LvD#N:',
@@ -66,7 +63,7 @@ app.use(flash());
 
 const User = require('./models/user');
 passport.use(new LocalStrategy(function (username, password, done) {
-    User.findOne({email: username}, function (err, user) {
+    User.findOne({email: username}, async function (err, user) {
         if (err) {
             return done(err);
         }
@@ -78,18 +75,13 @@ passport.use(new LocalStrategy(function (username, password, done) {
         }
         // Update user's Epic Games account information if it exists
         if (user.epicGamesAccount) {
-            epicGamesController.getProfile(user.epicGamesAccount.id).then(function (profile) {
-                user.displayName = profile.display_name;
-                user.save(function (err) {
-                    if (err) {
-                        return done(err);
-                    }
-                    return done(null, user);
-                });
-            });
-        } else {
-            return done(null, user);
+            let profile = await epicGamesController.getProfile(user.epicGamesAccount.id);
+            user.epicGamesAccount.displayName = profile.displayName;
+            user.epicGamesAccount.id = profile.id;
+            user.epicGamesAccount.jid = profile.jid;
+            await user.save();
         }
+        return done(null, user);
     });
 }));
 

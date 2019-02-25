@@ -1,64 +1,63 @@
 const randomstring = require('randomstring');
 
-const {Client, EInputType} = require('epicgames-client');
+const {Client, EInputType, EPartyPrivacy} = require('epicgames-client');
 const Fortnite = require('epicgames-fortnite-client');
+const {ESubGame} = Fortnite;
 const eg = new Client({
     email: process.env.EPIC_EMAIL,
     password: process.env.EPIC_PASSWORD,
     debug: console.log
 });
 
-// Models
 const EpicCode = require('../models/epic-code');
 const User = require('../models/user');
 
-let fortniteGame;
-let initPromise = (async () => {
-    if (!await eg.init() || !await eg.login()) {
-        throw 'Error with Epic Games initialize or login process.';
+let fortniteGame, brSubGame;
+let init = (async () => {
+    if (!await eg.init()) {
+        throw new Error('Cannot initialize Epic Games Launcher.');
+    }
+
+    if (!await eg.login()) {
+        throw new Error('Cannot log in to Epic Games account.');
     }
 
     fortniteGame = await eg.runGame(Fortnite);
+    brSubGame = await fortniteGame.runSubGame(ESubGame.BattleRoyale);
 
     // Remove any pending codes to prevent an overflow of users
-    let friends = await eg.getFriends(true);
-    for (let friend of friends) {
-        if (friend.status === 'PENDING') {
-            await eg.declineFriendRequest(friend.id);
-        } else if (friend.id !== 'a9f693302d86467e8a4b5cfd52624bf8') {
-            await eg.removeFriend(friend.id);
-        }
-
-        let epicCode = await EpicCode.find({epicGamesAccountId: friend.id});
-        if (epicCode) {
-            await epicCode.remove();
-        }
+    let pendingFriends = await eg.getPendingFriends();
+    for (let pendingFriend of pendingFriends) {
+        await eg.declineFriendRequest(pendingFriend.id);
+        await EpicCode.findOneAndDelete({epicGamesAccountId: pendingFriend.id});
     }
 
     let communicator = fortniteGame.communicator;
     communicator.on('friend:removed', _onFriendRemoved);
     communicator.on('friend:request', _onFriendRequest);
+    communicator.on('friend:status', _onFriendStatus);
+    communicator.updateStatus('RankedRoyale.com');
 
     // For debugging Fortnite stats
     // let profile = await eg.getProfile('a9f693302d86467e8a4b5cfd52624bf8');
     // console.log(profile);
-    // let stats = await fortniteGame.getStatsBR('a9f693302d86467e8a4b5cfd52624bf8');
+    // let stats = await brSubGame.getStatsForPlayer('a9f693302d86467e8a4b5cfd52624bf8');
     // console.log(stats);
 })();
 
-async function getStatsBR(id, inputType) {
-    console.log(`EPIC getStatsBR ${id}`);
+async function getStatsForPlayer(id, inputType) {
+    console.log(`EPIC getStatsForPlayer ${id}`);
 
     let stats;
     switch (inputType) {
         case 'Controller':
-            stats = await fortniteGame.getStatsBR(id, EInputType.Controller);
+            stats = await brSubGame.getStatsForPlayer(id, EInputType.Controller);
             break;
         case 'Touch':
-            stats = await fortniteGame.getStatsBR(id, EInputType.Touch);
+            stats = await brSubGame.getStatsForPlayer(id, EInputType.Touch);
             break;
         default:
-            stats = await fortniteGame.getStatsBR(id, EInputType.MouseAndKeyboard);
+            stats = await brSubGame.getStatsForPlayer(id, EInputType.MouseAndKeyboard);
             break;
     }
 
@@ -114,11 +113,6 @@ async function getProfile(id) {
     return await eg.getProfile(id);
 }
 
-async function removeFriend(id) {
-    console.log(`EPIC removeFriend ${id}`);
-    await eg.removeFriend(id);
-}
-
 async function _onFriendRemoved(friend) {
     let epicCode = await EpicCode.findOne({'epicGamesAccountId': friend.id});
     if (epicCode) {
@@ -127,12 +121,12 @@ async function _onFriendRemoved(friend) {
 }
 
 async function _onFriendRequest(friendRequest) {
+    await eg.acceptFriendRequest(friendRequest.friend.id);
+
     let user = await User.findOne({'epicGamesAccount.id': friendRequest.friend.id});
     if (user) {
-        return await eg.declineFriendRequest(friendRequest.friend.id);
+        return;
     }
-
-    await eg.acceptFriendRequest(friendRequest.friend.id);
 
     let myrandomstring = randomstring.generate({
         length: 6,
@@ -150,9 +144,25 @@ async function _onFriendRequest(friendRequest) {
     }, 2000);
 }
 
+async function _onFriendStatus(communicatorStatus) {
+    // let sender = communicatorStatus.sender.id;
+
+    // Battle Royale Lobby - 1 / 4
+    // Playing Battle Royale - 97 Left - 1 / 4
+    // let status = communicatorStatus.status;
+
+    // let isPlaying = communicatorStatus.isPlaying;
+    // let sessionId = communicatorStatus.sessionId;
+    // let partyId = communicatorStatus.partyJoinData.partyId;
+
+    if (communicatorStatus.isPlaying && communicatorStatus.sessionId) {
+        const matchesController = require('./api/matches-controller');
+        matchesController.joinMatch(communicatorStatus.sender.id, communicatorStatus.sessionId);
+    }
+}
+
 module.exports = {
-    initPromise: initPromise,
-    getStatsBR: getStatsBR,
-    getProfile: getProfile,
-    removeFriend: removeFriend
+    init: init,
+    getStatsForPlayer: getStatsForPlayer,
+    getProfile: getProfile
 };

@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var Schema = mongoose.Schema;
-var ObjectId = Schema.ObjectId;
-
-var Stat = new Schema({
+const Stat = new Schema({
     userId: {
-        type: ObjectId,
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     matchId: {
-        type: ObjectId,
+        type: Schema.Types.ObjectId,
+        ref: 'Match',
         required: true
     },
     eloDelta: {

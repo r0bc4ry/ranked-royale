@@ -1,7 +1,6 @@
 const express = require('express');
+const moment = require('moment');
 const router = express.Router();
-
-const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
 
 const leaderboardsController = require('../controllers/api/leaderboards-controller');
 const matchesController = require('../controllers/api/matches-controller');
@@ -10,10 +9,9 @@ const User = require('../models/user');
 
 router.get('/', function (req, res, next) {
     if (req.user) {
-        return res.render('play', {title: 'Play', user: req.user, host: `//${req.headers.host}`});
-    } else {
-        return res.render('index', {title: 'Home'});
+        return res.redirect('/play/solo');
     }
+    return res.render('index', {title: 'Home'});
 });
 
 router.get('/faq', function (req, res, next) {
@@ -32,6 +30,26 @@ router.get('/leaderboards', async function (req, res, next) {
     });
 });
 
+let gameModeCounter = {solo: 0, duo: 0, squad: 0};
+router.get('/play/:gameMode(solo|duo|squad)', isAuthenticated, async function (req, res, next) {
+    const io = req.app.get('socketio');
+    io.on('connection', function (socket) {
+        socket.join(req.params.gameMode);
+        io.in(req.params.gameMode).emit(++gameModeCounter[req.params.gameMode]);
+
+        socket.on('disconnect', function () {
+            io.in(req.params.gameMode).emit(--gameModeCounter[req.params.gameMode]);
+        });
+    });
+
+    return res.render('play', {
+        title: 'Play',
+        user: req.user,
+        gameMode: req.params.gameMode,
+        host: `//${req.headers.host}`
+    });
+});
+
 router.get('/profile', isAuthenticated, async function (req, res, next) {
     let user = await User.findById(req.user._id);
     req.login(user, async function (err) {
@@ -43,9 +61,9 @@ router.get('/profile', isAuthenticated, async function (req, res, next) {
             matches: matches,
             user: req.user,
             distanceInWordsToNow: {
-                solo: distanceInWordsToNow(req.user.stats.solo.updatedAt),
-                duo: distanceInWordsToNow(req.user.stats.duo.updatedAt),
-                squad: distanceInWordsToNow(req.user.stats.squad.updatedAt)
+                solo: moment.duration(moment(req.user.stats.solo.updatedAt).diff(moment())).humanize(true),
+                duo: moment.duration(moment(req.user.stats.duo.updatedAt).diff(moment())).humanize(true),
+                squad: moment.duration(moment(req.user.stats.squad.updatedAt).diff(moment())).humanize(true)
             },
         });
     });
