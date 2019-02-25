@@ -39,10 +39,6 @@ const UserSchema = new Schema({
                 type: String,
                 required: true
             },
-            jid: {
-                type: String,
-                required: true
-            },
             inputType: {
                 type: String,
                 enum: ['MouseAndKeyboard', 'Controller', 'Touch'],

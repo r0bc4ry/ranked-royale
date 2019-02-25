@@ -33,7 +33,7 @@ router.get('/leaderboards', async function (req, res, next) {
 
 router.get('/play/:gameMode(solo|duo|squad)', isAuthenticated, async function (req, res, next) {
     if (!req.session.isFriend) {
-        req.session.isFriend = await epicGamesController.hasFriend(req.user.epicGamesAccount.id);
+        req.session.isFriend = req.user.epicGamesAccount && await epicGamesController.hasFriend(req.user.epicGamesAccount.id);
     }
 
     return res.render('play', {

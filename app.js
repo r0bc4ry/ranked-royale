@@ -64,8 +64,6 @@ passport.use(new LocalStrategy(function (username, password, done) {
         if (user.epicGamesAccount) {
             let profile = await epicGamesController.getProfile(user.epicGamesAccount.id);
             user.epicGamesAccount.displayName = profile.displayName;
-            user.epicGamesAccount.id = profile.id;
-            user.epicGamesAccount.jid = profile.jid;
             await user.save();
         }
         return done(null, user);
