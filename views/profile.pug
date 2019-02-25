@@ -85,6 +85,104 @@ block content
                                     small.text-muted Stats are updated when a match ends.
                                 div.card-footer
                                     small.text-muted Last updated #{distanceInWordsToNow.solo}.
+                    div.row
+                        div.col
+                            div.card.mb-3
+                                h5.card-header #[img.align-top(src="/img/duos.png", width="24", height="24")] Duos
+                                div.card-body.text-center
+                                    if user.stats.duo.matchesPlayed < 10
+                                        h1.card-title.my-5 #{user.stats.duo.matchesPlayed}/10 #[small.text-muted Placement Matches]
+                                    else
+                                        div.row.text-center.rank
+                                            div.col
+                                                if user.stats.duo.rating < 600
+                                                    img.img-fluid.mb-3(src="/img/ranks/bronze.png")
+                                                    h5.mb-0 Bronze
+                                                else if 600 <= user.stats.duo.rating && user.stats.duo.rating < 1200
+                                                    img.img-fluid.mb-3(src="/img/ranks/silver.png")
+                                                    h5.mb-0 Silver
+                                                else if 1200 <= user.stats.duo.rating && user.stats.duo.rating < 1800
+                                                    img.img-fluid.mb-3(src="/img/ranks/gold.png")
+                                                    h5.mb-0 Gold
+                                                else if 1800 <= user.stats.duo.rating && user.stats.duo.rating < 2400
+                                                    img.img-fluid.mb-3(src="/img/ranks/platinum.png")
+                                                    h5.mb-0 Platinum
+                                                else if 2400 <= user.stats.duo.rating
+                                                    img.img-fluid.mb-3(src="/img/ranks/epic.png")
+                                                    h5.mb-0 Epic
+                                                p.text-muted= user.stats.duo.rating
+                                    hr
+                                    div.row
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Matches
+                                            p= user.stats.duo.matchesPlayed
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Kills
+                                            p= user.stats.duo.kills
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 K/D
+                                            p= (parseFloat(user.stats.duo.kills / (user.stats.duo.matchesPlayed - user.stats.duo.placeTop1) || 0).toFixed(2))
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Top 12
+                                            p= user.stats.duo.placeTop12
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Top 5
+                                            p= user.stats.duo.placeTop5
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Wins
+                                            p= user.stats.duo.placeTop1
+                                    small.text-muted Stats are updated when a match ends.
+                                div.card-footer
+                                    small.text-muted Last updated #{distanceInWordsToNow.duo}.
+                    div.row
+                        div.col
+                            div.card.mb-3
+                                h5.card-header #[img.align-top(src="/img/squads.png", width="24", height="24")] Squads
+                                div.card-body.text-center
+                                    if user.stats.squad.matchesPlayed < 10
+                                        h1.card-title.my-5 #{user.stats.squad.matchesPlayed}/10 #[small.text-muted Placement Matches]
+                                    else
+                                        div.row.text-center.rank
+                                            div.col
+                                                if user.stats.squad.rating < 600
+                                                    img.img-fluid.mb-3(src="/img/ranks/bronze.png")
+                                                    h5.mb-0 Bronze
+                                                else if 600 <= user.stats.squad.rating && user.stats.squad.rating < 1200
+                                                    img.img-fluid.mb-3(src="/img/ranks/silver.png")
+                                                    h5.mb-0 Silver
+                                                else if 1200 <= user.stats.squad.rating && user.stats.squad.rating < 1800
+                                                    img.img-fluid.mb-3(src="/img/ranks/gold.png")
+                                                    h5.mb-0 Gold
+                                                else if 1800 <= user.stats.squad.rating && user.stats.squad.rating < 2400
+                                                    img.img-fluid.mb-3(src="/img/ranks/platinum.png")
+                                                    h5.mb-0 Platinum
+                                                else if 2400 <= user.stats.squad.rating
+                                                    img.img-fluid.mb-3(src="/img/ranks/epic.png")
+                                                    h5.mb-0 Epic
+                                                p.text-muted= user.stats.squad.rating
+                                    hr
+                                    div.row
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Matches
+                                            p= user.stats.squad.matchesPlayed
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Kills
+                                            p= user.stats.squad.kills
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 K/D
+                                            p= (parseFloat(user.stats.squad.kills / (user.stats.squad.matchesPlayed - user.stats.squad.placeTop1) || 0).toFixed(2))
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Top 6
+                                            p= user.stats.squad.placeTop6
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Top 3
+                                            p= user.stats.squad.placeTop3
+                                        div.col-6.col-md-4.col-lg-2
+                                            h6 Wins
+                                            p= user.stats.squad.placeTop1
+                                    small.text-muted Stats are updated when a match ends.
+                                div.card-footer
+                                    small.text-muted Last updated #{distanceInWordsToNow.squad}.
                     if matches.length
                         div.row
                             div.col
@@ -94,18 +192,19 @@ block content
                                         table.table.table-striped.table-borderless
                                             thead
                                                 tr
-                                                    th Mode
+                                                    th Game Mode
+                                                    th Placement
                                                     th Kills
-                                                    th Top 25
-                                                    th Top 10
+                                                    th Top 25/12/6
+                                                    th Top 10/5/3
                                                     th Win
-                                                    if user.stats.solo.matchesPlayed > 10
-                                                        th Rating Change
+                                                    th Rating Change
                                             tbody
                                                 each match in matches
                                                     if match.stat
                                                         tr
                                                             th.text-capitalize= match.gameMode
+                                                            td= match.stat.placement
                                                             td= match.stat.kills
                                                             if match.stat.placeTop25
                                                                 td #[i.fas.fa-check]
@@ -119,33 +218,16 @@ block content
                                                                 td #[i.fas.fa-check]
                                                             else
                                                                 td #[i.fas.fa-times]
-                                                            if user.stats.solo.matchesPlayed > 10
-                                                                if match.stat.eloDelta === 0
-                                                                    td.text-warning +#{match.stat.eloDelta}
-                                                                else if match.stat.eloDelta > 0
-                                                                    td.text-success +#{match.stat.eloDelta}
-                                                                else
-                                                                    td.text-danger #{match.stat.eloDelta}
+                                                            if match.stat.eloDelta === 0
+                                                                td.text-warning +#{match.stat.eloDelta}
+                                                            else if match.stat.eloDelta > 0
+                                                                td.text-success +#{match.stat.eloDelta}
+                                                            else
+                                                                td.text-danger #{match.stat.eloDelta}
                                                     else
                                                         tr
                                                             th.text-capitalize= match.gameMode
                                                             td(colspan="5") Match in progress...
-                    div.row
-                        div.col
-                            div.card.mb-3
-                                h5.card-header #[img.align-top(src="/img/duos.png", width="24", height="24")] Duos
-                                div.card-body
-                                    div.alert.mb-0
-                                        h4.alert-heading Coming soon!
-                                        p Visit our #[a(href="https://trello.com/b/eLXFD7MI/ranked-royale", target="_blank") Trello board] to see what we're working on.
-                    div.row
-                        div.col
-                            div.card.mb-3
-                                h5.card-header #[img.align-top(src="/img/squads.png", width="24", height="24")] Squads
-                                div.card-body
-                                    div.alert.mb-0
-                                        h4.alert-heading Coming soon!
-                                        p Visit our #[a(href="https://trello.com/b/eLXFD7MI/ranked-royale", target="_blank") Trello board] to see what we're working on.
 
     if !user.epicGamesAccount
         div#connect-modal.modal.fade(tabindex="-1", data-backdrop="static")

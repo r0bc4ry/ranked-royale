@@ -120,7 +120,7 @@ const UserSchema = new Schema({
                 required: true,
                 default: 0
             },
-            placeTop25: {
+            placeTop12: {
                 type: Number,
                 required: true,
                 default: 0
@@ -130,7 +130,7 @@ const UserSchema = new Schema({
                 required: true,
                 default: 0
             },
-            placeTop12: {
+            placeTop1: {
                 type: Number,
                 required: true,
                 default: 0
