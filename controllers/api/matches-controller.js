@@ -5,7 +5,7 @@ const moment = require('moment');
 
 // Redis setup
 const asyncRedis = require('async-redis');
-const asyncRedisClient = asyncRedis.createClient();
+const asyncRedisClient = asyncRedis.createClient({url: process.env.REDIS_URL});
 
 const epicGamesController = require('../epic-games-controller');
 const Match = require('../../models/match');
