@@ -102,25 +102,23 @@ block content
                                             if matches.solo.length
                                                 div.row
                                                     div.col
-                                                        div.card.mb-3
+                                                        div.card
                                                             h5.card-header Recent Matches
-                                                            div.card-body#recent-matches
+                                                            div.card-body
                                                                 table.table.table-striped.table-borderless
                                                                     thead
                                                                         tr
-                                                                            th Game Mode
-                                                                            th Placement
+                                                                            th Match
                                                                             th Kills
-                                                                            th Top 25/12/6
-                                                                            th Top 10/5/3
+                                                                            th Top 25
+                                                                            th Top 10
                                                                             th Win
                                                                             th Rating Change
                                                                     tbody
                                                                         each match in matches.solo
                                                                             if match.stat
                                                                                 tr
-                                                                                    th.text-capitalize= match.gameMode
-                                                                                    td= match.stat.placement
+                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td= match.stat.kills
                                                                                     if match.stat.placeTop25
                                                                                         td #[i.fas.fa-check]
@@ -142,7 +140,7 @@ block content
                                                                                         td.text-danger #{match.stat.eloDelta}
                                                                             else
                                                                                 tr
-                                                                                    th.text-capitalize= match.gameMode
+                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td(colspan="5") Match in progress...
                                         div#nav-duos.tab-pane(role="tabpanel")
                                             div.card.mb-3
@@ -194,31 +192,29 @@ block content
                                             if matches.duo.length
                                                 div.row
                                                     div.col
-                                                        div.card.mb-3
+                                                        div.card
                                                             h5.card-header Recent Matches
-                                                            div.card-body#recent-matches
+                                                            div.card-body
                                                                 table.table.table-striped.table-borderless
                                                                     thead
                                                                         tr
-                                                                            th Game Mode
-                                                                            th Placement
+                                                                            th Match
                                                                             th Kills
-                                                                            th Top 25/12/6
-                                                                            th Top 10/5/3
+                                                                            th Top 12
+                                                                            th Top 5
                                                                             th Win
                                                                             th Rating Change
                                                                     tbody
                                                                         each match in matches.duo
                                                                             if match.stat
                                                                                 tr
-                                                                                    th.text-capitalize= match.gameMode
-                                                                                    td= match.stat.placement
+                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td= match.stat.kills
-                                                                                    if match.stat.placeTop25
+                                                                                    if match.stat.placeTop12
                                                                                         td #[i.fas.fa-check]
                                                                                     else
                                                                                         td #[i.fas.fa-times]
-                                                                                    if match.stat.placeTop10
+                                                                                    if match.stat.placeTop5
                                                                                         td #[i.fas.fa-check]
                                                                                     else
                                                                                         td #[i.fas.fa-times]
@@ -234,7 +230,7 @@ block content
                                                                                         td.text-danger #{match.stat.eloDelta}
                                                                             else
                                                                                 tr
-                                                                                    th.text-capitalize= match.gameMode
+                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td(colspan="5") Match in progress...
                                         div#nav-squads.tab-pane(role="tabpanel")
                                             div.card.mb-3
@@ -286,31 +282,30 @@ block content
                                             if matches.squad.length
                                                 div.row
                                                     div.col
-                                                        div.card.mb-3
+                                                        div.card
                                                             h5.card-header Recent Matches
-                                                            div.card-body#recent-matches
+                                                            div.card-body
                                                                 table.table.table-striped.table-borderless
                                                                     thead
                                                                         tr
-                                                                            th Game Mode
-                                                                            th Placement
+                                                                            th Match
                                                                             th Kills
-                                                                            th Top 25/12/6
-                                                                            th Top 10/5/3
+                                                                            th Top 6
+                                                                            th Top 3
                                                                             th Win
                                                                             th Rating Change
                                                                     tbody
                                                                         each match in matches.squad
                                                                             if match.stat
                                                                                 tr
-                                                                                    th.text-capitalize= match.gameMode
+                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td= match.stat.placement
                                                                                     td= match.stat.kills
-                                                                                    if match.stat.placeTop25
+                                                                                    if match.stat.placeTop6
                                                                                         td #[i.fas.fa-check]
                                                                                     else
                                                                                         td #[i.fas.fa-times]
-                                                                                    if match.stat.placeTop10
+                                                                                    if match.stat.placeTop3
                                                                                         td #[i.fas.fa-check]
                                                                                     else
                                                                                         td #[i.fas.fa-times]
@@ -326,7 +321,7 @@ block content
                                                                                         td.text-danger #{match.stat.eloDelta}
                                                                             else
                                                                                 tr
-                                                                                    th.text-capitalize= match.gameMode
+                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td(colspan="5") Match in progress...
     if !user.epicGamesAccount
         div#connect-modal.modal.fade(tabindex="-1", data-backdrop="static")

@@ -241,13 +241,13 @@ async function _startMatch(match) {
         // If the server is restarting this job, check if data is already in Redis
         let prevStats = await asyncRedisClient.hget(`match:${match.sessionId}:stats`, user._id.toString());
         if (prevStats) {
-            await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 300);
+            await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 3600); // 1 hour
             continue;
         }
 
         let currentStats = await epicGamesController.getStatsForPlayer(user.epicGamesAccount.id, user.epicGamesAccount.inputType);
         await asyncRedisClient.hset(`match:${match.sessionId}:stats`, user._id.toString(), JSON.stringify(currentStats));
-        await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 300);
+        await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 3600); // 1 hour
     }
 
     _startMatchCronJob(match, users);
@@ -277,6 +277,12 @@ function _startMatchCronJob(match, users) {
             currentStats[user._id] = await epicGamesController.getStatsForPlayer(user.epicGamesAccount.id, user.epicGamesAccount.inputType);
             let prevStats = await asyncRedisClient.hget(`match:${match.sessionId}:stats`, user._id.toString());
             prevStats = JSON.parse(prevStats);
+
+
+            // TODO Investigate this, but sometimes prevStats will return empty, even after being set successfully in the previous run
+            if (Object.keys(prevStats).length === 0) {
+                prevStats = currentStats[user._id];
+            }
 
             let gameModeKey = `default${match.gameMode}`;
             let gameModeCurrentStats = currentStats[user._id][gameModeKey];
@@ -310,7 +316,7 @@ function _startMatchCronJob(match, users) {
         } else {
             for (let user of users) {
                 await asyncRedisClient.hset(`match:${match.sessionId}:stats`, user._id.toString(), JSON.stringify(currentStats[user._id]));
-                await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 300);
+                await asyncRedisClient.expire(`match:${match.sessionId}:stats`, 3600); // 1 hour
             }
         }
     });
@@ -430,7 +436,7 @@ async function _calculateRatings(match, users, statDocs) {
             }
 
             let user = users.find(function (user) {
-                return user._id === userId;
+                return userId === user._id.toString();
             });
 
             // Determine party placement
