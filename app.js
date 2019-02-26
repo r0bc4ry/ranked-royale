@@ -99,6 +99,11 @@ app.use('/', indexRouter);
 app.use('/api', apiRouter);
 app.use('/auth', authRouter);
 
+if (process.env.NODE_ENV !== 'production') {
+    const testingRouter = require('./routes/testing');
+    app.use('/testing', testingRouter);
+}
+
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
     next(createError(404));

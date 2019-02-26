@@ -6,7 +6,7 @@ block head
 block content
     div.bg-light
         div.container.py-5
-            div.row.mb-1
+            div.row.mb-2
                 div.col.text-center
                     div.btn-group
                         a(href="/play/solo")
@@ -15,15 +15,23 @@ block content
                             button.btn.btn-primary(class=gameMode === 'duo' ? 'active' : '') Duos
                         a(href="/play/squad")
                             button.btn.btn-primary(class=gameMode === 'squad' ? 'active' : '') Squads
-            div.row.mb-5
+            div.row.mb-3
                 div.col.text-center
                     case gameMode
                         when 'solo'
-                            div.badge.badge-secondary #[span#online-counter 0] Waiting to Play Solo
+                            div.badge.badge-secondary.align-top #[span#online-counter 0] Waiting to Play Solo
                         when 'duo'
-                            div.badge.badge-secondary #[span#online-counter 0] Waiting to Play Duos
+                            div.badge.badge-secondary.align-top.mb-2 #[span#online-counter 0] Waiting to Play Duos
+                            div.row
+                                div.offset-lg-3.col-lg-6
+                                    div.alert.alert-light
+                                        small #[strong Heads up!] All players in your Fortnite party must be verified Ranked Royale users for your duo's stats to be tracked.
                         when 'squad'
-                            div.badge.badge-secondary #[span#online-counter 0] Waiting to Play Squads
+                            div.badge.badge-secondary.align-top.mb-2 #[span#online-counter 0] Waiting to Play Squads
+                            div.row
+                                div.offset-lg-3.col-lg-6
+                                    div.alert.alert-light
+                                        small #[strong Heads up!] All players in your Fortnite party must be verified Ranked Royale users for your squad's stats to be tracked.
             div.row.mb-5
                 div.offset-lg-3.col-lg-6
                     div.d-flex.flex-column.justify-content-center.bg-white
@@ -46,7 +54,7 @@ block content
                                     div.row.mb-1
                                         div.col
                                             small.text-muted Ranked Royale Servers
-                                    div.row
+                                    div#servers.row
                             else
                                 div.text-center
                                     p.lead Uh-oh! Before you can play, Ranked Royale must be your friend.

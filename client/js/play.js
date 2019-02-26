@@ -42,6 +42,7 @@ function getTimeFromServer() {
         let ajaxTime = moment().diff(ajaxTimeStart);
         currentTime = moment(response.data.currentTime).add(ajaxTime, 'milliseconds');
         eventTime = moment(response.data.eventTime);
+        eventTime = currentTime.clone().add(10, 'seconds');
     });
 }
 
@@ -134,12 +135,14 @@ function onStep1End() {
             $badge.html(`${data.cardinality} `);
             $badge.append($i);
         } else {
-            $('#step-2 .row').append(`<div class="col-4 mb-1"><div class="bg-light p-2 border rounded text-center">${sessionIdSubstr} <span class="badge badge-dark">${data.cardinality} <i class="fas fa-users"></i></span></div></div>`);
+            $('#step-2 #servers').append(`<div class="col-4 mb-1"><div class="bg-light p-2 border rounded text-center">${sessionIdSubstr} <span class="badge badge-dark">${data.cardinality} <i class="fas fa-users"></i></span></div></div>`);
         }
     });
 
     // Update information about this user's match
     socket.on(userId, function (data) {
-        $('#in-match-counter').text(data);
+        if (data.cardinality) {
+            $('#in-match-counter').text(data.cardinality);
+        }
     });
 }

@@ -43,7 +43,8 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
 
     // Should be on the 10's and 40's
     if (req.query.gameMode === 'duo') {
-        if (currentTime.minutes() < 10) {
+        let eventTimeClone = eventTime.clone();
+        if (currentTime.isBefore(eventTimeClone.subtract(20, 'minutes'))) {
             eventTime.subtract(20, 'minutes');
         } else {
             eventTime.add(10, 'minutes');
@@ -52,7 +53,8 @@ router.get('/countdown', isAuthenticated, function (req, res, next) {
 
     // Should be on the 20's and 50's
     if (req.query.gameMode === 'squad') {
-        if (currentTime.minutes() < 20) {
+        let eventTimeClone = eventTime.clone();
+        if (currentTime.isBefore(eventTimeClone.subtract(10, 'minutes'))) {
             eventTime.subtract(10, 'minutes');
         } else {
             eventTime.add(20, 'minutes');

@@ -1,3 +1,14 @@
+.nav.nav-tabs {
+    .nav-link {
+        color: #495057;
+
+        &.active {
+            background-color: #fff;
+            border-bottom-color: #fff;
+        }
+    }
+}
+
 .rank {
     img {
         max-width: 200px;

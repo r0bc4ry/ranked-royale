@@ -181,7 +181,7 @@ async function _onFriendStatus(communicatorStatus) {
         return matchesController.joinParty(user._id.toString(), communicatorStatus.partyJoinData.partyId);
     }
     if (isPlayingMatch) {
-        return matchesController.joinMatch(communicatorStatus.partyJoinData.partyId, communicatorStatus.sessionId, isPlayingMatch[1]);
+        return matchesController.joinMatch(user._id.toString(), communicatorStatus.partyJoinData.partyId, communicatorStatus.sessionId, isPlayingMatch[1]);
     }
 }
 
