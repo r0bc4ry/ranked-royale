@@ -331,7 +331,7 @@ async function _endMatch(match, users, currentStats) {
         let prevStats= await asyncRedisClient.hget(`match:${match.sessionId}:stats`, user._id.toString());
         prevStats = JSON.parse(prevStats);
 
-        let partyId = await asyncRedisClient.get(`user:${userId}:partyId`);
+        let partyId = await asyncRedisClient.get(`user:${user._id.toString()}:partyId`);
         let statDoc = {
             userId: user._id,
             partyId: partyId,
