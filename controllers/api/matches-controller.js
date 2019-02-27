@@ -136,7 +136,7 @@ async function joinMatch(userId, partyId, sessionId, numPlayers) {
 
     let cardinality = await asyncRedisClient.scard(`match:${sessionId}:parties`);
 
-    io.in('solo').emit('playerJoinedMatch', {
+    io.emit('playerJoinedMatch', {
         sessionId: sessionId,
         cardinality: cardinality
     });
@@ -154,8 +154,6 @@ async function joinMatch(userId, partyId, sessionId, numPlayers) {
 }
 
 async function _startMatchTimeout(sessionId) {
-    console.log(`Attempting to start match "${sessionId}".`);
-
     let parties = await asyncRedisClient.smembers(`match:${sessionId}:parties`);
 
     // Determine the game mode from the max party size
@@ -247,7 +245,7 @@ async function _startMatchTimeout(sessionId) {
 }
 
 async function _startMatch(match) {
-    console.log(`Match "${match.sessionId}" is starting.`);
+    console.log(`Starting match "${match.sessionId}".`);
 
     // Get the match's users
     let users = await User.find({'_id': match.users});
@@ -276,7 +274,7 @@ function _startMatchCronJob(match) {
     let job = new CronJob({
         cronTime: '0 */1 * * * *',
         onTick: async function () {
-            console.log(`Checking if match "${match.sessionId}" has ended.`);
+            console.log(`Checking match "${match.sessionId}".`);
 
             // If this job is running too long after the match has started, remove the match and stop the job
             let matchRunningTooLong = moment().isSameOrAfter(moment(match.createdAt).add(45, 'minutes'));
