@@ -1,5 +1,6 @@
 const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const express = require('express');
 const flash = require('connect-flash');
 const logger = require('morgan');
@@ -8,6 +9,8 @@ const sslRedirect = require('heroku-ssl-redirect');
 
 const app = express();
 app.locals.env = process.env;
+
+app.use(compression());
 
 // Mongoose setup
 const mongoose = require('mongoose');
