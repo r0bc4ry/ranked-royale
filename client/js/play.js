@@ -42,7 +42,6 @@ function getTimeFromServer() {
         let ajaxTime = moment().diff(ajaxTimeStart);
         currentTime = moment(response.data.currentTime).add(ajaxTime, 'milliseconds');
         eventTime = moment(response.data.eventTime);
-        eventTime = currentTime.clone().add(10, 'seconds');
     });
 }
 
