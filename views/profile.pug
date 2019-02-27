@@ -118,7 +118,7 @@ block content
                                                                         each match in matches.solo
                                                                             if match.stat
                                                                                 tr
-                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
+                                                                                    th= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td= match.stat.kills
                                                                                     if match.stat.placeTop25
                                                                                         td #[i.fas.fa-check]
@@ -140,7 +140,7 @@ block content
                                                                                         td.text-danger #{match.stat.eloDelta}
                                                                             else
                                                                                 tr
-                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
+                                                                                    th= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td(colspan="5") Match in progress...
                                         div#nav-duos.tab-pane(role="tabpanel")
                                             div.card.mb-3
@@ -208,7 +208,7 @@ block content
                                                                         each match in matches.duo
                                                                             if match.stat
                                                                                 tr
-                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
+                                                                                    th= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td= match.stat.kills
                                                                                     if match.stat.placeTop12
                                                                                         td #[i.fas.fa-check]
@@ -230,7 +230,7 @@ block content
                                                                                         td.text-danger #{match.stat.eloDelta}
                                                                             else
                                                                                 tr
-                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
+                                                                                    th= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td(colspan="5") Match in progress...
                                         div#nav-squads.tab-pane(role="tabpanel")
                                             div.card.mb-3
@@ -298,7 +298,7 @@ block content
                                                                         each match in matches.squad
                                                                             if match.stat
                                                                                 tr
-                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
+                                                                                    th= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td= match.stat.placement
                                                                                     td= match.stat.kills
                                                                                     if match.stat.placeTop6
@@ -321,7 +321,7 @@ block content
                                                                                         td.text-danger #{match.stat.eloDelta}
                                                                             else
                                                                                 tr
-                                                                                    th.text-capitalize= match.sessionId.substr(match.sessionId.length - 3)
+                                                                                    th= match.sessionId.substr(match.sessionId.length - 3)
                                                                                     td(colspan="5") Match in progress...
     if !user.epicGamesAccount
         div#connect-modal.modal.fade(tabindex="-1", data-backdrop="static")
