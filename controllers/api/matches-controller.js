@@ -184,6 +184,7 @@ async function _startMatchTimeout(sessionId) {
                     console.log(`Not enough parties for Solo match "${sessionId}" - performing cleanup.`);
                     await asyncRedisClient.del(`match:${sessionId}:numStartingPlayers`);
                     await asyncRedisClient.del(`match:${sessionId}:parties`);
+                    return;
                 }
                 break;
             case 'duo':
