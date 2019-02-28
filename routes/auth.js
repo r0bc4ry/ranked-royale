@@ -11,7 +11,10 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const User = require('../models/user');
 
 router.get('/signup', function (req, res, next) {
-    res.render('auth/signup', {title: 'Sign Up', errorMessages: req.flash('error')});
+    res.render('auth/signup', {
+        title: 'Sign Up',
+        errorMessages: req.flash('error')
+    });
 });
 
 router.post('/signup', [
@@ -80,7 +83,10 @@ router.post('/signup', [
 });
 
 router.get('/login', function (req, res, next) {
-    res.render('auth/login', {title: 'Log In', errorMessages: req.flash('error')});
+    res.render('auth/login', {
+        title: 'Log In',
+        errorMessages: req.flash('error')
+    });
 });
 
 router.post('/login', passport.authenticate('local', {

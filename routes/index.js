@@ -12,11 +12,15 @@ router.get('/', function (req, res, next) {
     if (req.user) {
         return res.redirect('/play/solo');
     }
-    return res.render('index', {title: 'Home'});
+    return res.render('index', {
+        title: 'Home'
+    });
 });
 
 router.get('/faq', function (req, res, next) {
-    res.render('faq', {title: 'FAQ'});
+    res.render('faq', {
+        title: 'FAQ'
+    });
 });
 
 router.get('/leaderboards', async function (req, res, next) {
@@ -53,8 +57,8 @@ router.get('/profile', isAuthenticated, async function (req, res, next) {
         let matches = await matchesController.getMatches(req.user._id);
         res.render('profile', {
             title: 'Profile',
-            matches: matches,
             user: req.user,
+            matches: matches,
             distanceInWordsToNow: {
                 solo: moment.duration(moment(req.user.stats.solo.updatedAt).diff(moment())).humanize(true),
                 duo: moment.duration(moment(req.user.stats.duo.updatedAt).diff(moment())).humanize(true),
@@ -65,7 +69,10 @@ router.get('/profile', isAuthenticated, async function (req, res, next) {
 });
 
 router.get('/support', function (req, res, next) {
-    res.render('support', {title: 'Support', user: req.user});
+    res.render('support', {
+        title: 'Support',
+        user: req.user
+    });
 });
 
 module.exports = router;

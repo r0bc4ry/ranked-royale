@@ -35,9 +35,9 @@ html(lang="en")
         meta(name="theme-color", content="#ffffff")
 
         if title
-            title Ranked Royale - #{title}
+            title Ranked Royale | #{title}
         else
-            title Ranked Royale
+            title Ranked Royale | Competitive Ranked Matchmaking for Fortnite
 
         if env.NODE_ENV === 'production'
             // Global site tag (gtag.js) - Google Analytics
@@ -49,6 +49,10 @@ html(lang="en")
                 }
                 gtag('js', new Date());
                 gtag('config', 'UA-38958328-4');
+
+            if user
+                script.
+                    gtag('set', {'user_id': '#{user._id}'}); // Set the user ID using signed-in user_id.
 
             script(async, src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
             script.
