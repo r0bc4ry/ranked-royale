@@ -176,15 +176,16 @@ async function _onFriendStatus(communicatorStatus) {
         return;
     }
 
-    let partyId = communicatorStatus.partyJoinData.partyId;
-    let sessionId = communicatorStatus.sessionId;
+    if (!communicatorStatus.partyJoinData) {
+        return;
+    }
 
     const matchesController = require('./api/matches-controller');
-    if (lobbyMatch && partyId) {
-        return matchesController.joinParty(user._id.toString(), partyId);
+    if (lobbyMatch) {
+        return matchesController.joinParty(user._id.toString(), communicatorStatus.partyJoinData.partyId);
     }
-    if (isPlayingMatch && partyId && sessionId) {
-        return matchesController.joinMatch(user._id.toString(), partyId, sessionId, isPlayingMatch[1]);
+    if (isPlayingMatch) {
+        return matchesController.joinMatch(user._id.toString(), communicatorStatus.partyJoinData.partyId, communicatorStatus.sessionId, isPlayingMatch[1]);
     }
 }
 
